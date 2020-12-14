@@ -1,0 +1,108 @@
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card data-card">
+          <div class="card-header card-header-tabs card-header-success live-load">
+            <div class="nav-tabs-navigation">
+              <div class="nav-tabs-wrapper">
+                <ul class="nav nav-tabs" data-tabs="tabs">
+                  <li class="nav-item">
+                    <a class="nav-link active" href="#mobile-transactions" data-toggle="tab">
+                      Mobile Money Transactions
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#driver-payments" data-toggle="tab">
+                      Receive Driver Payments
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#payment-transactions" data-toggle="tab">
+                      All Driver Payment Transactions
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                  </ul>
+              </div>
+            </div>
+                <a href="javascript:void(0)" class="refresh-data float-right-super">
+                  <i class="material-icons" role="button">refresh</i>
+                </a>
+          </div>
+          <div class="card-body xpage">
+            <div class="shap one"></div>
+            <div class="shap two"></div>
+            <div class="shap one three"></div>
+            <div class="shap two four"></div>
+            <div class="tab-content">
+              <div class="tab-pane active table-responsive" id="mobile-transactions">
+                <table class="table table-hover" id="dtable">
+                  <thead class=" text-success">
+                    <tr>
+                      <th>#</th>
+                      <th>Rider Name &nbsp; &nbsp;</th>
+                      <th>Rider Phone</th>
+                      <th>Email Address</th>
+                      <th>Amount</th>
+                      <th>Transaction Ref</th>
+                      <th>Transaction Code</th>
+                      <th>Service Provider</th>
+                      <th>Service Fee</th>
+                      <th>Date &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</th>
+                      <th class="td-actions text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="mpesa-payments animate__animated animate__fadeIn">
+                  </tbody>
+                </table>
+              </div>
+              <div class="tab-pane table-responsive" id="driver-payments">
+              <table class="table table-hover" id="dtable">
+                <thead class=" text-success">
+                  <tr>
+                    <th>#</th>
+                    <th>Driver Name &nbsp; &nbsp;</th>
+                    <th>Driver Phone</th>
+                    <th>Owner Name &nbsp; &nbsp;</th>
+                    <th>Owner Phone</th>
+                    <th>Number Plate</th>
+                    <th>Rides</th>
+                    <th>Total Earned</th>
+                    <th>Total Paid</th>
+                    <th>Owing &nbsp; &nbsp;</th>
+                    <th>Date &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</th>
+                    <th class="td-actions text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="all-payments animate__animated animate__fadeIn">
+                </tbody>
+              </table>
+            </div>
+            <div class="tab-pane table-responsive" id="payment-transactions">
+              <table class="table table-hover" id="transactionstable">
+                <thead class=" text-success">
+                  <tr>
+                    <th>#</th>
+                    <th>Tufike Pamoja Driver</th>
+                    <th>Driver Phone</th>
+                    <th>Number Plate</th>
+                    <th>Received Amount</th>
+                    <th>Transaction Code</th>
+                    <th>Transaction Date</th>
+                    <th class="td-actions text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="all-transactions animate__animated animate__fadeIn">
+                </tbody>
+              </table>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,71 @@
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card data-card">
+          <div class="card-header card-header-tabs card-header-success live-load">
+            <div class="nav-tabs-navigation">
+              <div class="nav-tabs-wrapper">
+                <ul class="nav nav-tabs" data-tabs="tabs">
+                  <li class="nav-item">
+                    <a class="nav-link active" href="#all-rides" data-toggle="tab">
+                      <i class="f7-icons size-20">square_grid_4x3_fill</i> All Rides
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#pending-rides" data-toggle="tab">
+                      <i class="f7-icons size-20">ellipsis_circle</i> Pending Rides
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#active-rides" data-toggle="tab">
+                      <i class="f7-icons size-20">dot_radiowaves_left_right</i> Active Rides
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#cancelled-rides" data-toggle="tab">
+                      <i class="f7-icons size-20">exclamationmark_shield</i> Cancelled Rides
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#completed-rides" data-toggle="tab">
+                      <i class="f7-icons size-20">checkmark_alt_circle</i> Completed Rides
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#driver-rides" data-toggle="tab">
+                      <i class="f7-icons size-20">link_circle</i> Driver Initiated Rides
+                      <div class="ripple-container"></div>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <a href="javascript:void(0)" class="refresh-data float-right-super">
+              <i class="material-icons" role="button">refresh</i>
+            </a>
+          </div>
+          <div class="card-body xpage">
+            <div class="shap one"></div>
+            <div class="shap two"></div>
+            <div class="shap one three"></div>
+            <div class="shap two four"></div>
+            <div class="tab-content">
+              {{> modules/allrides}}
+              {{> modules/pendingrides}}
+              {{> modules/activerides}}
+              {{> modules/cancelledrides}}
+              {{> modules/completedrides}}
+              {{> modules/driverrides}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

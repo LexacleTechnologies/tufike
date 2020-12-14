@@ -1,0 +1,442 @@
+<div class="modal fade" id="modal-simulator" data-backdrop="false" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered modal-col-transparent">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="phone-simulator">
+          <div class="pusher"><div class="indicator"></div></div>
+          <div class="closer" data-dismiss="modal"><i class="f7-icons">logo_apple</i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modal-enroute" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark modal-lg mt-20">
+    <div class="modal-content">
+      <div class="modal-header map-title text-light"></div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-7">
+            <div class="map-panel" id="map-panel">
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="map-routes" id="map-routes">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer map-footer"></div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modal-driver-payment" data-backdrop="false" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"><span class="mod-driver-name"></span> | <span class="mod-driver-phone"></span> | <span class="mod-vehicle-plates"></span></h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="card card-profile">
+          <div class="card-avatar2">
+            <a href="javascript:void(0)">
+              <img class="img package-photo no-radius" src="/assets/admin/img/icons/money.svg">
+            </a>
+          </div>
+          <div class="card-body">
+            {{> modules/receivepayment}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="edit-package-modal" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Update <span class="package-name"></span> Ride Package</h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="card card-profile">
+          <div class="card-avatar2">
+            <a href="javascript:void(0)">
+              <img class="img package-photo no-radius" src="/assets/vehicles/avatars/owner.png">
+            </a>
+          </div>
+          <div class="card-body">
+            {{> modules/updatepackage}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="assign-package-modal" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Assign Ride Package to Vehicle</h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{> modules/assignpackage}}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="assign-driver-modal" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Assign New Driver to Vehicle</h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{> modules/assigndriver}}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modal-vehicle-profile">
+  <div class="modal-dialog modal-lg modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="card card-profile">
+          <div class="card-avatar">
+            <a href="javascript:void(0)">
+              <img class="img owner-profile-photo" src="/assets/vehicles/avatars/owner.png">
+            </a>
+          </div>
+          <div class="card-body">
+            <h6 class="card-category"><span class="owner-profile-name">Tufike Pamoja</span>  <span class="owner-profile-phone">0700000000</span></h6>
+            <h4 class="card-title owner-profile-email">tufike@lexacle.com</h4>
+            <div class="row">
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-primary card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">doc_person_fill</i>
+                    </div>
+                    <p class="card-category">Logbook</p>
+                    <h3 class="card-title count count-logbook">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats magnic-logbook">
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-pink card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">doc_text</i>
+                    </div>
+                    <p class="card-category">Insurance</p>
+                    <h3 class="card-title count count-insurance">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats magnic-insurance">
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-warning card-header-icon">
+                    <div class="card-icon">
+                      <i class="material-icons">image</i>
+                    </div>
+                    <p class="card-category">Photos</p>
+                    <h3 class="card-title count count-photos">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats killjoy magnic-photos">
+                      <a href="" data-sub-html="Front Vehicle Image" class="frontx warning-link">Vehicle Photos<img class="thumbnail fronty hidden" src=""></a>
+                      <a class="sidex" href="" data-sub-html="Side Vehicle Image"><img class="thumbnail sidey hidden" src=""></a>
+                      <a class="rearx" href="" data-sub-html="Rear Vehicle Image"><img class="thumbnail reary hidden" src=""></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-success card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">square_stack_3d_down_right_fill</i>
+                    </div>
+                    <p class="card-category">Package</p>
+                    <h3 class="card-title count count-packages">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      <a href="javascript:void(0)" class="success-link"><span class="v-package"></span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-info card-header-icon">
+                    <div class="card-icon">
+                      <i class="material-icons">airline_seat_recline_normal</i>
+                    </div>
+                    <p class="card-category">Driver</p>
+                    <h3 class="card-title count count-drivers">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      <a href="javascript:void(0)" class="info-link"><span class="v-drivers">0</span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-danger card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">car_fill</i>
+                    </div>
+                    <p class="card-category">Rides</p>
+                    <h3 class="card-title count count-rides v-rides"></h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      <a href="javascript:void(0)" class="danger-link"><span class="v-rides">0</span> Total Rides Made</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="view-client-details-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="card card-profile">
+          <div class="card-avatar">
+            <a href="javascript:void(0)">
+              <img class="img user-profile-photo" src="/assets/riders/avatars/rider.png">
+            </a>
+          </div>
+          <div class="card-body">
+            <h6 class="card-category user-profile-name">tufike@lexacle.com</h6>
+            <h4 class="card-title user-profile-email">Tufike Pamoja</h4>
+            <h6 class="card-category user-profile-phone">0700000000</h6>
+            <div class="row">
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-success card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">car_fill</i>
+                    </div>
+                    <p class="card-category"></p>
+                    <h3 class="card-title count ride-count">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      <a href="javascript:void(0)" class="success-link">Total Number of Rides</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-pink card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">square_favorites_alt_fill</i>
+                    </div>
+                    <p class="card-category"></p>
+                    <h3 class="card-title count fav-count">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      <a href="javascript:void(0)" class="pink-link">Number of Favorite Places</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a class="btn btn-success btn-round" data-dismiss="modal">Close</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="view-driver-details-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-col-dark" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="card card-profile">
+          <div class="card-avatar">
+            <a href="javascript:void(0)">
+              <img class="img user-profile-photo driver-photo" src="/assets/riders/avatars/rider.png">
+            </a>
+          </div>
+          <div class="card-body">
+            <h6 class="card-category"><span class="user-profile-name"></span> - <span class="driver-vehicle"></span></h6>
+            <h4 class="card-title user-profile-email">Tufike Pamoja</h4>
+            <h6 class="card-category user-profile-phone">0700000000</h6>
+            <div class="row">
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-success card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">car_fill</i>
+                    </div>
+                    <p class="card-category"></p>
+                    <h3 class="card-title count ride-count">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      <a href="javascript:void(0)" class="success-link">Total Number of Rides</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-pink card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">doc_person_fill</i>
+                    </div>
+                    <p class="card-category"></p>
+                    <h3 class="card-title count doc-count">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats dlntsa">
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                  <div class="card-header card-header-primary card-header-icon">
+                    <div class="card-icon">
+                      <i class="f7-icons">bag_fill_badge_plus</i>
+                    </div>
+                    <p class="card-category"></p>
+                    <h3 class="card-title count package-count">0</h3>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      <a href="javascript:void(0)" class="primary-link package-name"></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a class="btn btn-success btn-round" data-dismiss="modal">Close</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="view-client-location-modal" tabindex="-1" role="dialog" aria-labelledby="view-client-location-modal" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title rider-name-title" id="exampleModalLabel">Rider Location</h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body map-client-location" id="map-client-location">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="cms-edit-modal" tabindex="-1" role="dialog" aria-labelledby="cms-edit-modal" aria-hidden="true">
+  <div class="modal-dialog modal-col-blue-dark">
+    <div class="modal-content">
+      <div class="modal-body">
+        {{> modules/cmseditor}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="add-promo-modal" tabindex="-1" role="dialog" aria-labelledby="add-promo-modal" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add New Promotion or Offer</h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{> modules/addpromo}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="notify-rider-modal" tabindex="-1" role="dialog" aria-labelledby="notify-rider-modal" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title rider-name-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{> modules/rnotificationform}}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="notify-owner-modal" tabindex="-1" role="dialog" aria-labelledby="notify-owner-modal" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title owner-name-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{> modules/onotificationform}}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="notify-driver-modal" tabindex="-1" role="dialog" aria-labelledby="notify-driver-modal" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title driver-name-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{> modules/dnotificationform}}
+      </div>
+    </div>
+  </div>
+</div>

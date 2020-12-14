@@ -1,0 +1,11 @@
+{
+    user: "vapor",
+    password: "Vapor@2020{##",
+    host: "ftp.lexacle.com",
+    port: 21,
+    localRoot: __dirname + "/core",
+    remoteRoot: "/vapor.lexacle.com/vapor/",
+    include: ["*", "**/*"],
+    deleteRemote: true,
+    forcePasv: true
+};

@@ -1,0 +1,56 @@
+{
+  "name": "Tufike Pamoja",
+  "short_name": "Tufike",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#8721c2",
+  "theme_color": "#8721c2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/admin/img/logos/logo-72x72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "/assets/admin/img/logos/logo-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "/assets/admin/img/logos/logo-128x128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "/assets/admin/img/logos/logo-144x144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "/assets/admin/img/logos/logo-152x152.png",
+      "type": "image/png",
+      "sizes": "152x152"
+    },
+    {
+      "src": "/assets/admin/img/logos/logo-180x180.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    },
+    {
+      "src": "/assets/admin/img/logos/logo-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/admin/img/logos/logo-384x384.png",
+      "type": "image/png",
+      "sizes": "384x384"
+    },
+    {
+      "src": "/assets/admin/img/logos/logo-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
