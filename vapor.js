@@ -53,31 +53,7 @@ const flw = new Flutterwave("FLWPUBK-1fea7bc68f87f43c193cc1bb05b7fb4a-X", "FLWSE
 const AfricasTalking = require('africastalking')(atsdt);
 const sms = AfricasTalking.SMS;
 const smb = AfricasTalking.APPLICATION;
-const VaporDeploy = require("ftp-deploy");
-const vaporDeploy = new VaporDeploy();
 //console.log(smb)
-var vaporconfig ={
-    user: "vapor@vapor.lexacle.com",
-    password: "Vapor@2020{##",
-    host: "ftp.lexacle.com",
-    port: 21,
-    localRoot: __dirname+'/public/assets/',
-    remoteRoot: "/vapor-node/",
-    include: ["drivers/**/*", "riders/**/*", "vehicles/**/*", "packages/**/*", "../../core/**/*"],
-    exclude: ["admin/**", 'admin/**/.*'],
-    deleteRemote: false,
-    forcePasv: true
-};
-//deployBackup()
-function deployBackup()
-{
-    vaporDeploy.deploy(vaporconfig, function(err, res) {
-        if (err) {console.log(err);}
-        else {
-          console.log('Backup Complete')
-      }
-  });
-}
 const riderBurst = new OneSignal.Client('78aa0c2b-c194-4e2d-b7ae-45ab7af286fc', 'YzVhNThmODktOWU2OC00YWNjLWFiMmUtNGRlNTY2MjhjZGIw');
 const driverBurst = new OneSignal.Client('f672e8f6-4fc2-4d1c-af43-726fe8308183', 'NGNlMDRiMGQtYjdjMS00ZWQ3LTg2YjktNGMyZDhlMjExMmQ3');
 const ownerBurst = new OneSignal.Client('172feb21-563e-4fb8-b66e-4426e1a922ee', 'MzdlOTJmOGQtMzdiMS00N2RhLThlMTAtZGVmYjU5NjE3NmFh');
