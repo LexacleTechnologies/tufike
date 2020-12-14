@@ -243,10 +243,10 @@ async function multiBurstDriver(oneMessage, oneHeader) {
     }
 }
 //const url = "mongodb://localhost:27017/tufike";
-const orl = "mongodb+srv://tufike:tufike@tufike2020/tufikecabs?ssl=true&replicaSet=atlas-t8n8m8-shard-0&authSource=admin&retryWrites=true&w=majority";
+const trl = "mongodb+srv://tufike:OBeOy7XCFkvqaFan@cluster0.3mn0e.mongodb.net/tufike?retryWrites=true&w=majority";
 const url = "mongodb+srv://tufike:t8wCo5QbA75VDCGX@cluster0.nl0hd.mongodb.net/tufike?retryWrites=true&w=majority";
 const admin = 'Tufike';
-mongoose.connect(url, {
+mongoose.connect(trl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
