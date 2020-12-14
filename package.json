@@ -34,6 +34,6 @@
         "socket.io": "^2.3.0"
     },
     "devDependencies": {
-        "ftp-deploy": "^2.3.7"
+        "ftp-deploy": "^2.4.0"
     }
 }
