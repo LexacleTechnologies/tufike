@@ -1319,18 +1319,15 @@ app.post('/upload/ntsa', function(req, res) {
         }
     });
 });
-app.post('/lnm/rider', function(request, response) {
-  /*
+app.post("/lnm/webhook", function(request, response) {
   var hash = req.headers["verif-hash"];
   if(!hash) {
-    console.log('no hash')
+
   }
   const secret_hash = process.env.MY_HASH;
   if(hash !== secret_hash) {
   }
-  */
-  var request_json = (request.body);
-  console.log(request_json);
+  io.sockets.emit('lnm payment', request.body);
 });
 
 var onlinequery = {$set: {"settings.online": 0}};
