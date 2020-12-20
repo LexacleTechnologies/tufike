@@ -277,7 +277,7 @@ async function multiBurstDriver(oneMessage, oneHeader) {
 const url = "mongodb://localhost:27017/tufike";
 const orl = "mongodb+srv://tufike:t8wCo5QbA75VDCGX@cluster0.nl0hd.mongodb.net/tufike?retryWrites=true&w=majority";
 const admin = 'Tufike';
-mongoose.connect(url, {
+mongoose.connect(orl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
