@@ -340,10 +340,11 @@ var transporter = nodemailer.createTransport({
         pass: 'Tufike@2019'
     }
 });
+const PORT = process.env.PORT || 4080;
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
-http.listen(4080, '0.0.0.0', function() {
-    console.log(logSymbols.success, 'Tufike Admin Console listening on port: 4080'.cyan);
+http.listen(PORT, '0.0.0.0', function() {
+    console.log(logSymbols.success, `Tufike Admin Console listening on port: ${ PORT }`.cyan);
 });
 var tufikeData = new CronJob('*/20 * * * * *', function() {
     systemPunch();
