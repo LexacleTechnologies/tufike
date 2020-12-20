@@ -274,8 +274,9 @@ async function multiBurstDriver(oneMessage, oneHeader) {
         }
     }
 }
-const url = "mongodb://localhost:27017/tufike";
-const orl = "mongodb+srv://tufike:t8wCo5QbA75VDCGX@cluster0.nl0hd.mongodb.net/tufike?retryWrites=true&w=majority";
+//const url = "mongodb://localhost:27017/tufike";
+const url = "mongodb+srv://tufike:OBeOy7XCFkvqaFan@cluster0.3mn0e.mongodb.net/tufike?retryWrites=true&w=majority"
+    //const url = "mongodb+srv://tufike:t8wCo5QbA75VDCGX@cluster0.nl0hd.mongodb.net/tufike?retryWrites=true&w=majority";
 const admin = 'Tufike';
 mongoose.connect(orl, {
     useNewUrlParser: true,
