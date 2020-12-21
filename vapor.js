@@ -6546,8 +6546,8 @@ io.on('connection', function(socket) {
         <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
 
         <!-- START MAIN CONTENT AREA -->
-        <tr style="background-image: linear-gradient(60deg, #2f3958, #04091e) !important;">
-            <td style="padding: 20px;font-weight:600;font-size:28px;color:#b78a29;">
+        <tr style="background-image: linear-gradient(60deg, #7F2DD3, #8019B0) !important;">
+            <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
             <div style="width: 50px; height:50px;float:left;margin-bottom:-10px;margin-top: -5px; margin-left:-8px;margin-right: 10px; background-image: url(<?php echo base_url(); ?>assets/img/logos/logo.png);background-size: 50px 50px;"></div>
             Tufike Pamoja Cabs
             </td>
