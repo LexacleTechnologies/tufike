@@ -6548,7 +6548,7 @@ io.on('connection', function(socket) {
         <!-- START MAIN CONTENT AREA -->
         <tr style="background-image: linear-gradient(60deg, #7F2DD3, #8019B0) !important;">
             <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
-            <div style="width: 50px; height:50px;float:left;margin-bottom:-10px;margin-top: -5px; margin-left:-8px;margin-right: 10px; background-image: url(./public/assets/admin/img/icons/crown.svg);background-size: 50px 50px;"></div>
+            <div style="width: 50px; height:50px;float:left;margin-bottom:-10px;margin-top: -5px; margin-left:-8px;margin-right: 10px; background-image: url(./assets/admin/img/icons/crown.svg);background-size: 50px 50px;"></div>
             Tufike Pamoja Cabs
             </td>
             </tr>
@@ -6589,7 +6589,7 @@ io.on('connection', function(socket) {
         </table>
 
         <!-- START FOOTER -->
-        <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%; background: #383c47;">
+        <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%;">
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
         <tr style="background-image: linear-gradient(60deg, #04091e, #2f3958) !important;">
         <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
