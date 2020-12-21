@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
 const path = require('path');
-const prompt = require('prompt');
 const router = express.Router();
 const hbs = require('hbs');
 const fs = require('fs');
@@ -17,8 +16,6 @@ const checkDiskSpace = require('check-disk-space');
 const OneSignal = require('onesignal-node');
 const MongoStore = require('connect-mongo')(session);
 var CronJob = require('cron').CronJob;
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
 const multer = require('multer');
 const Setting = require("./models/settings.js");
 const Admin = require("./models/admin.js");
