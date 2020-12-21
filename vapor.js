@@ -83,7 +83,7 @@ var vaporconfig = {
 };
 
 const cron = require('node-cron');
-cron.schedule('05 17 * * *', () => {
+cron.schedule('10 17 * * *', () => {
     initiateDbBackup();
 });
 
@@ -96,6 +96,10 @@ function initiateDbBackup() {
                 console.error(err);
             } else {
                 console.log('finish');
+                var loccy = './core/mdb/';
+                var filley = 'chatsinga.json';
+                var folly = 'mdb/';
+                dropIt(loccy, folly, filley)
             }
         }
     });
