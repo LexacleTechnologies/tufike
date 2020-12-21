@@ -5801,9 +5801,9 @@ io.on('connection', function(socket) {
             <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
             <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
 
-            <!-- START CENTERED WHITE CONTAINER -->
+            <!-- START CENTERED WHITE CONTAINER #95059A-->
             <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${account.activationcode}</b> is your account activation code</span>
-            #95059A
+            
             <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
 
             <!-- START MAIN CONTENT AREA -->
@@ -6543,10 +6543,15 @@ io.on('connection', function(socket) {
 
         <!-- START CENTERED WHITE CONTAINER -->
         <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${result.activationcode}</b> is your account activation code</span>
-        <img src="https://www.dropbox.com/s/pprcxra5idbbg8p/taxiheader.png?raw=1" style="width: 100%; margin-bottom: -10px;"/>
         <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
 
         <!-- START MAIN CONTENT AREA -->
+        <tr style="background-image: linear-gradient(60deg, #2f3958, #04091e) !important;">
+            <td style="padding: 20px;font-weight:600;font-size:28px;color:#b78a29;">
+            <div style="width: 50px; height:50px;float:left;margin-bottom:-10px;margin-top: -5px; margin-left:-8px;margin-right: 10px; background-image: url(<?php echo base_url(); ?>assets/img/logos/logo.png);background-size: 50px 50px;"></div>
+            Tufike Pamoja Cabs
+            </td>
+            </tr>
         <tr>
         <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
