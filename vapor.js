@@ -17,6 +17,7 @@ const checkDiskSpace = require('check-disk-space');
 const OneSignal = require('onesignal-node');
 const MongoStore = require('connect-mongo')(session);
 var CronJob = require('cron').CronJob;
+var backup = require('mongodb-backup');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const multer = require('multer');
@@ -39,21 +40,34 @@ const Cms = require("./models/cms.js");
 const freelance = '5f47f9e62dc7b16cb6f33c40';
 const player = require('play-sound')(opts = {})
 const Supportchat = require("./models/supportchat.js");
-const atsdt = {
-    apiKey: 'c10013ca47dc4b9a61981787523761deb333a2aa7a33d387c3f103b187b007fa',
-    username: 'sandbox',
-};
-const atsdk = {
-    apiKey: '8d82a365b9424afffc695b8558648dc4b29b7d63b86db1313028eb4e54052209',
-    username: 'tufike',
-};
+//const url = "mongodb://localhost:27017/tufike";
+const url = "mongodb+srv://tufike:nUJjC9qzGYih8ZrX@cluster0.17g7f.mongodb.net/tufike?retryWrites=true&w=majority"
+    //const atsdk = { apiKey: 'c10013ca47dc4b9a61981787523761deb333a2aa7a33d387c3f103b187b007fa', username: 'sandbox' };
+const atsdk = { apiKey: '8d82a365b9424afffc695b8558648dc4b29b7d63b86db1313028eb4e54052209', username: 'tufike' };
 const Flutterwave = require('flutterwave-node-v3');
 const flw = new Flutterwave("FLWPUBK-1fea7bc68f87f43c193cc1bb05b7fb4a-X", "FLWSECK-ad2fead7d8ec7c8fdafcc9ef41d8f44e-X");
-const AfricasTalking = require('africastalking')(atsdt);
+const AfricasTalking = require('africastalking')(atsdk);
 const sms = AfricasTalking.SMS;
 const smb = AfricasTalking.APPLICATION;
 const VaporDeploy = require("ftp-deploy");
 const vaporDeploy = new VaporDeploy();
+mongoose.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+}, function(err) {
+    if (err) {
+        console.log(err);
+    } else {}
+});
+var mdb = mongoose.connection;
+mdb.on('error', console.error.bind(console, 'connection error:'));
+mdb.once('open', function() {
+    mdb.db.stats(function(err, stats) {
+        //console.log(stats);
+    });
+});
 //console.log(smb)
 var vaporconfig = {
     user: "vapor@vapor.lexacle.com",
@@ -69,23 +83,23 @@ var vaporconfig = {
 };
 
 const cron = require('node-cron');
-const spawn = require('child_process').spawn;
-let dbBackupTask = cron.schedule('18 02 * * *', () => {
-    let backupProcess = spawn('mongodump', [
-        '--db=tufike',
-        '--archive=./core/mdb/',
-        '--gzip'
-    ]);
-
-    backupProcess.on('exit', (code, signal) => {
-        if (code)
-            console.log('Backup process exited with code ', code);
-        else if (signal)
-            console.error('Backup process was killed with singal ', signal);
-        else
-            console.log('Successfully backed up the database')
-    });
+cron.schedule('05 17 * * *', () => {
+    initiateDbBackup();
 });
+
+function initiateDbBackup() {
+    backup({
+        uri: url,
+        root: __dirname + '/core/mdb/',
+        callback: function(err) {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log('finish');
+            }
+        }
+    });
+}
 //deployBackup()
 function deployBackup() {
     vaporDeploy.deploy(vaporconfig, function(err, res) {
@@ -274,26 +288,6 @@ async function multiBurstDriver(oneMessage, oneHeader) {
         }
     }
 }
-/* Local Database Server --- const url = "mongodb://localhost:27017/tufike"; --- */
-const url = "mongodb+srv://tufike:nUJjC9qzGYih8ZrX@cluster0.17g7f.mongodb.net/tufike?retryWrites=true&w=majority"
-mongoose.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false
-}, function(err) {
-    if (err) {
-        console.log(err);
-    } else {}
-});
-
-var mdb = mongoose.connection;
-mdb.on('error', console.error.bind(console, 'connection error:'));
-mdb.once('open', function() {
-    mdb.db.stats(function(err, stats) {
-        //console.log(stats);
-    });
-});
 
 app.use(express.static('public'));
 app.use(express.urlencoded({
