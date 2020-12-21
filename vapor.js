@@ -274,10 +274,8 @@ async function multiBurstDriver(oneMessage, oneHeader) {
         }
     }
 }
-//const url = "mongodb://localhost:27017/tufike";
-const url = "mongodb+srv://tufike:OBeOy7XCFkvqaFan@cluster0.3mn0e.mongodb.net/tufike?retryWrites=true&w=majority"
-    //const url = "mongodb+srv://tufike:t8wCo5QbA75VDCGX@cluster0.nl0hd.mongodb.net/tufike?retryWrites=true&w=majority";
-const admin = 'Tufike';
+/* Local Database Server --- const url = "mongodb://localhost:27017/tufike"; --- */
+const url = "mongodb+srv://tufike:nUJjC9qzGYih8ZrX@cluster0.17g7f.mongodb.net/tufike?retryWrites=true&w=majority"
 mongoose.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
