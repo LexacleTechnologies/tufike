@@ -83,14 +83,14 @@ var vaporconfig = {
 };
 
 const cron = require('node-cron');
-cron.schedule('*/2 * * * *', () => {
+cron.schedule('* * * * *', () => {
     initiateDbBackup();
 });
 
 function initiateDbBackup() {
     backup({
         uri: url,
-        root: __dirname + '/core/mdb/',
+        root: './core/mdb/',
         callback: function(err) {
             if (err) {
                 console.error(err);
