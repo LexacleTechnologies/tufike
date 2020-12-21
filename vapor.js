@@ -6565,7 +6565,7 @@ io.on('connection', function(socket) {
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
         <tbody>
         <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: #34495e; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-color: #34495e; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${result.activationcode}</span></td>
+        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${result.activationcode}</span></td>
         </tr>
         </tbody>
         </table>
@@ -6590,7 +6590,7 @@ io.on('connection', function(socket) {
         <!-- START FOOTER -->
         <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%;">
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr style="background-image: linear-gradient(60deg, #04091e, #2f3958) !important;">
+        <tr style="background-image: linear-gradient(60deg, #450080, #7F2DD3) !important;">
         <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
         <span class="apple-link" style="color: #999999;font-size: 12px;text-align: center;">Tufike Pamoja Cabs, Nanyuki - Kenya, tufikecabs@gmail.com</span>
         </td>
