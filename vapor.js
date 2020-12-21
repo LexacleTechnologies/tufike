@@ -17,7 +17,6 @@ const checkDiskSpace = require('check-disk-space');
 const OneSignal = require('onesignal-node');
 const MongoStore = require('connect-mongo')(session);
 var CronJob = require('cron').CronJob;
-var backup = require('mongodb-backup');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const multer = require('multer');
@@ -49,8 +48,6 @@ const flw = new Flutterwave("FLWPUBK-1fea7bc68f87f43c193cc1bb05b7fb4a-X", "FLWSE
 const AfricasTalking = require('africastalking')(atsdk);
 const sms = AfricasTalking.SMS;
 const smb = AfricasTalking.APPLICATION;
-const VaporDeploy = require("ftp-deploy");
-const vaporDeploy = new VaporDeploy();
 mongoose.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -68,50 +65,7 @@ mdb.once('open', function() {
         //console.log(stats);
     });
 });
-//console.log(smb)
-var vaporconfig = {
-    user: "vapor@vapor.lexacle.com",
-    password: "Vapor@2020{##",
-    host: "ftp.lexacle.com",
-    port: 21,
-    localRoot: __dirname + '/public/assets/',
-    remoteRoot: "/vapor-node/",
-    include: ["drivers/**/*", "riders/**/*", "vehicles/**/*", "packages/**/*", "../../core/**/*"],
-    exclude: ["admin/**", 'admin/**/.*'],
-    deleteRemote: false,
-    forcePasv: true
-};
 
-const cron = require('node-cron');
-cron.schedule('* * * * *', () => {
-    initiateDbBackup();
-});
-
-function initiateDbBackup() {
-    backup({
-        uri: url,
-        root: './core/mdb/',
-        callback: function(err) {
-            if (err) {
-                console.error(err);
-            } else {
-                console.log('finish');
-                var loccy = './core/mdb/';
-                var filley = 'chatsinga.json';
-                var folly = 'mdb/';
-                dropIt(loccy, folly, filley)
-            }
-        }
-    });
-}
-//deployBackup()
-function deployBackup() {
-    vaporDeploy.deploy(vaporconfig, function(err, res) {
-        if (err) { console.log(err); } else {
-            console.log('Backup Complete')
-        }
-    });
-}
 const riderBurst = new OneSignal.Client('78aa0c2b-c194-4e2d-b7ae-45ab7af286fc', 'YzVhNThmODktOWU2OC00YWNjLWFiMmUtNGRlNTY2MjhjZGIw');
 const driverBurst = new OneSignal.Client('f672e8f6-4fc2-4d1c-af43-726fe8308183', 'NGNlMDRiMGQtYjdjMS00ZWQ3LTg2YjktNGMyZDhlMjExMmQ3');
 const ownerBurst = new OneSignal.Client('172feb21-563e-4fb8-b66e-4426e1a922ee', 'MzdlOTJmOGQtMzdiMS00N2RhLThlMTAtZGVmYjU5NjE3NmFh');
