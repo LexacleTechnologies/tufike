@@ -6730,10 +6730,14 @@ io.on('connection', function(socket) {
 
         <!-- START CENTERED WHITE CONTAINER -->
         <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${result.activationcode}</b> is your account activation code</span>
-        <img src="https://www.dropbox.com/s/pprcxra5idbbg8p/taxiheader.png?raw=1" style="width: 100%; margin-bottom: -10px;"/>
         <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
 
         <!-- START MAIN CONTENT AREA -->
+        <tr style="background-image: linear-gradient(60deg, #7F2DD3, #450080) !important;">
+            <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
+            Tufike Pamoja Cabs
+            </td>
+            </tr>
         <tr>
         <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
@@ -6748,7 +6752,7 @@ io.on('connection', function(socket) {
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
         <tbody>
         <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: #34495e; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-color: #34495e; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${result.activationcode}</span></td>
+        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${result.activationcode}</span></td>
         </tr>
         </tbody>
         </table>
@@ -6759,7 +6763,8 @@ io.on('connection', function(socket) {
         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
         Best regards,<br>
-        Tufike Pamoja Team
+        Tufike Pamoja Team<br>
+        +254 716 435 983
         </p>
         </td>
         </tr>
@@ -6771,13 +6776,14 @@ io.on('connection', function(socket) {
         </table>
 
         <!-- START FOOTER -->
-        <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%; background: #383c47;">
+        <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%;">
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr>
-        <td class="content-block" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-        <span class="apple-link" style="color: #999999; font-size: 12px; text-align: center;">Tufike Pamoja, Nanyuki Kenya, tufikecabs@gmail.com</span>
+        <tr style="background-image: linear-gradient(60deg, #450080, #7F2DD3) !important;">
+        <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
+        <span class="apple-link" style="color: #fff;font-size: 12px;text-align: center;">Tufike Pamoja Cabs, Nanyuki - Kenya, tufikecabs@gmail.com</span>
         </td>
         </tr>
+        <tr>
         <tr>
         <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
         Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
