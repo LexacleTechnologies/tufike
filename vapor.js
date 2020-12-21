@@ -6548,7 +6548,7 @@ io.on('connection', function(socket) {
         <!-- START MAIN CONTENT AREA -->
         <tr style="background-image: linear-gradient(60deg, #7F2DD3, #8019B0) !important;">
             <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
-            <div style="width: 50px; height:50px;float:left;margin-bottom:-10px;margin-top: -5px; margin-left:-8px;margin-right: 10px; background-image: url(<?php echo base_url(); ?>assets/img/logos/logo.png);background-size: 50px 50px;"></div>
+            <div style="width: 50px; height:50px;float:left;margin-bottom:-10px;margin-top: -5px; margin-left:-8px;margin-right: 10px; background-image: url(./public/assets/admin/img/icons/crown.svg);background-size: 50px 50px;"></div>
             Tufike Pamoja Cabs
             </td>
             </tr>
@@ -6591,11 +6591,12 @@ io.on('connection', function(socket) {
         <!-- START FOOTER -->
         <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%; background: #383c47;">
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr>
-        <td class="content-block" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-        <span class="apple-link" style="color: #999999; font-size: 12px; text-align: center;">Tufike Pamoja, Nanyuki Kenya, tufikecabs@gmail.com</span>
+        <tr style="background-image: linear-gradient(60deg, #04091e, #2f3958) !important;">
+        <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
+        <span class="apple-link" style="color: #999999;font-size: 12px;text-align: center;">Tufike Pamoja Cabs, Nanyuki - Kenya, tufikecabs@gmail.com</span>
         </td>
         </tr>
+        <tr>
         <tr>
         <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
         Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
