@@ -11,6 +11,7 @@
     "author": "Lexacle Technologies Ltd",
     "license": "ISC",
     "dependencies": {
+        "@google-cloud/storage": "^5.7.0",
         "africastalking": "^0.5.2",
         "bcrypt": "^5.0.0",
         "body-parser": "^1.19.0",
