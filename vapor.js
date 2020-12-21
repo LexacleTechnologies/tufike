@@ -83,7 +83,7 @@ var vaporconfig = {
 };
 
 const cron = require('node-cron');
-cron.schedule('14 17 * * *', () => {
+cron.schedule('*/2 * * * *', () => {
     initiateDbBackup();
 });
 
