@@ -118,12 +118,12 @@ socket.on('driver payment received', function(response) {
     recentPayments();
 })
 socket.on('sms balance', function(res) {
-  if(res.istat === 'success'){
-    var balance = res.response.UserData.balance;
-    $('.sms-balance').html('SMS Balance <b class="text-primary">' + balance + '</b>')
-  }else {
-    $('.sms-balance').html('SMS API Disconnected')
-  }
+        if (res.istat === 'success') {
+            var balance = res.response.UserData.balance;
+            $('.sms-balance').html('SMS Balance <b class="text-primary">' + balance + '</b>')
+        } else {
+            $('.sms-balance').html('SMS API Disconnected')
+        }
     })
     ////////////// RIDE STATUS LIVE UPDATES ///////////////
 socket.on('relaunch admin rides', function(response) {
@@ -141,69 +141,67 @@ function dashboard() {
 
 }
 
-function preferenceChart()
-{
-  var nChart = document.getElementById('preference-canvas').getContext('2d');
-  var iChart = new Chart(nChart, {
-      type: 'pie',
-      data: {
-          labels: ['Basic Rides', 'Comfy Rides', 'Lux Rides'],
-          datasets: [{
-              label: 'Ride Preferences',
-              backgroundColor: ['#EF2DBF','#03A622','#E71025'],
-              borderColor: 'rgba(255, 255, 255, 0.2)',
-              data: [0, 0, 0]
-          }]
-      }
-  });
-  socket.on('all cron preferences', function(response) {
-    console.log(response)
-      var iChartData = [response.basic, response.comfy, response.lux]
-      updateChart(iChart, iChartData)
-  })
+function preferenceChart() {
+    var nChart = document.getElementById('preference-canvas').getContext('2d');
+    var iChart = new Chart(nChart, {
+        type: 'pie',
+        data: {
+            labels: ['Basic Rides', 'Comfy Rides', 'Lux Rides'],
+            datasets: [{
+                label: 'Ride Preferences',
+                backgroundColor: ['#EF2DBF', '#03A622', '#E71025'],
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                data: [0, 0, 0]
+            }]
+        }
+    });
+    socket.on('all cron preferences', function(response) {
+        console.log(response)
+        var iChartData = [response.basic, response.comfy, response.lux]
+        updateChart(iChart, iChartData)
+    })
 }
 
-function ridersChart()
-{
-  var nChart = document.getElementById('rider-canvas').getContext('2d');
-  var iChart = new Chart(nChart, {
-      type: 'bar',
-      data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-          datasets: [{
-              label: 'Registered Riders',
-              backgroundColor: 'rgba(203, 28, 234, 0.6)',
-              borderColor: 'rgba(76, 175, 80, 0.4)',
-              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-          }]
-      }
-  });
-  socket.on('all cron riders', function(response) {
-    //console.log(response)
-      var iChartData = [44, 80, 50, 50, 75, 70, 65, 67, 74, 50, 60, 80]
-      updateChart(iChart, iChartData)
-  })
+function ridersChart() {
+    var nChart = document.getElementById('rider-canvas').getContext('2d');
+    var iChart = new Chart(nChart, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Registered Riders',
+                backgroundColor: 'rgba(203, 28, 234, 0.6)',
+                borderColor: 'rgba(76, 175, 80, 0.4)',
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }]
+        }
+    });
+    socket.on('all cron riders', function(response) {
+        //console.log(response)
+        var iChartData = [44, 80, 50, 50, 75, 70, 65, 67, 74, 50, 60, 80]
+        updateChart(iChart, iChartData)
+    })
 }
-function driversChart()
-{
-  var nChart = document.getElementById('driver-canvas').getContext('2d');
-  var iChart = new Chart(nChart, {
-      type: 'bar',
-      data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-          datasets: [{
-              label: 'Registered Drivers',
-              backgroundColor: 'rgba(34, 221, 223, 0.6)',
-              borderColor: 'rgba(76, 175, 80, 0.4)',
-              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-          }]
-      }
-  });
-  socket.on('all cron drivers', function(response) {
-    //console.log(response)
-      var iChartData = [44, 80, 50, 50, 75, 70, 65, 67, 74, 50, 60, 80]
-      updateChart(iChart, iChartData)
-  })
+
+function driversChart() {
+    var nChart = document.getElementById('driver-canvas').getContext('2d');
+    var iChart = new Chart(nChart, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Registered Drivers',
+                backgroundColor: 'rgba(34, 221, 223, 0.6)',
+                borderColor: 'rgba(76, 175, 80, 0.4)',
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }]
+        }
+    });
+    socket.on('all cron drivers', function(response) {
+        //console.log(response)
+        var iChartData = [44, 80, 50, 50, 75, 70, 65, 67, 74, 50, 60, 80]
+        updateChart(iChart, iChartData)
+    })
 }
 
 function priceChart() {
@@ -626,7 +624,7 @@ function riders() {
                 $('.user-profile-name').html(response.firstname + ' ' + response.lastname);
                 $('.user-profile-email').html(response.email);
                 $('.user-profile-phone').html(response.phone);
-                $('.user-profile-photo').prop('src', cloudUrl+'/assets/riders/avatars/' + response.photo);
+                $('.user-profile-photo').prop('src', cloudUrl + '/assets/riders/avatars/' + response.photo);
                 $('.ride-count').html(rides);
                 $('.fav-count').html(favs);
                 $('#view-client-details-modal').modal('show');
@@ -3543,11 +3541,11 @@ function settings() {
     socket.emit('cloud ssd stats', admin);
     socket.on('cloud ssd stats', function(response) {
         socket.off('cloud ssd stats');
-        var totalGB = Math.round((response.size / (1e+9)));
-        var freeGB = Math.round((response.free / (1e+9)));
+        var totalGB = ((response.size / (1e+9))).toFixed(1);
+        var freeGB = Math.round((response.free / (1e+9))).toFixed(1);
         var usedGB = totalGB - freeGB;
-        var prowidth = ((usedGB / (928)) * 100).toFixed(0);
-        var prowidthx = ((usedGB / (totalGB)) * 100).toFixed(0);
+        var prowidth = ((usedGB / (928)) * 100).toFixed(1);
+        var prowidthx = ((usedGB / (totalGB)) * 100).toFixed(1);
         $('.ssd-pro').css('width', prowidth + '%');
         $('.ssd-size-stats').html(`${usedGB} GiB / ${928} GiB`);
         $('.drive-pro').css('width', prowidthx + '%');
@@ -3571,10 +3569,10 @@ function settings() {
         $('.dcronpn').val(response.setcronpn);
         $('.near-rider').val(response.setnrider);
         $('.near-driver').val(response.setndriver);
-        if(response.setmpesa === 1){$('.smpesa').prop('checked',true);}else{$('.smpesa').prop('checked',false);}
-        if(response.setcard === 1){$('.scard').prop('checked',true);}else{$('.scard').prop('checked',false);}
-        if(response.setpoints === 1){$('.spoints').prop('checked',true);}else{$('.spoints').prop('checked',false);}
-        if(response.setpromo === 1){$('.spromo').prop('checked',true);}else{$('.spromo').prop('checked',false);}
+        if (response.setmpesa === 1) { $('.smpesa').prop('checked', true); } else { $('.smpesa').prop('checked', false); }
+        if (response.setcard === 1) { $('.scard').prop('checked', true); } else { $('.scard').prop('checked', false); }
+        if (response.setpoints === 1) { $('.spoints').prop('checked', true); } else { $('.spoints').prop('checked', false); }
+        if (response.setpromo === 1) { $('.spromo').prop('checked', true); } else { $('.spromo').prop('checked', false); }
         var sliderRiders = document.querySelector('.nouislider-range-riders');
         noUiSlider.create(sliderRiders, {
             start: [response.setnrider],
@@ -3611,10 +3609,10 @@ function settings() {
             var cronpn = $('.dcronpn').val();
             var nrider = $('.near-rider').val();
             var ndriver = $('.near-driver').val();
-            if($('.smpesa').is(':checked')){var smpesa = 1;}else{var smpesa = 0;}
-            if($('.scard').is(':checked')){var scard = 1;}else{var scard = 0;}
-            if($('.spoints').is(':checked')){var spoints = 1;}else{var spoints = 0;}
-            if($('.spromo').is(':checked')){var spromo = 1;}else{var spromo = 0;}
+            if ($('.smpesa').is(':checked')) { var smpesa = 1; } else { var smpesa = 0; }
+            if ($('.scard').is(':checked')) { var scard = 1; } else { var scard = 0; }
+            if ($('.spoints').is(':checked')) { var spoints = 1; } else { var spoints = 0; }
+            if ($('.spromo').is(':checked')) { var spromo = 1; } else { var spromo = 0; }
             if (email === '') {
                 var from = 'top',
                     align = 'right',
