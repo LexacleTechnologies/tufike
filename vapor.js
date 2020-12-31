@@ -94,15 +94,14 @@ function dropInfo() {
     })
 }
 function dropLink(path, url){
+  var dataString = '{"path": "' + path + '", "url": "' + url + '"}';
   options = {
       method: "POST",
       url: 'https://api.dropboxapi.com/2/files/save_url',
-      headers: {
-          "Authorization": "Bearer " + dbToken,
-          "data": "{\"path\": \"/"+path+"\",\"url\":"+url+"\"}",
-      }
+      headers: {"Authorization": "Bearer " + dbToken},
+      body: dataString
   };
-  request(options, function(err, res) {
+  request(options, function(err, res, body) {
       if (err) {
           console.log(err);
       }else {
