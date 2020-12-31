@@ -3542,8 +3542,8 @@ function settings() {
     socket.on('cloud ssd stats', function(response) {
         socket.off('cloud ssd stats');
         var totalGB = ((response.size / (1e+9))).toFixed(1);
-        var freeGB = Math.round((response.free / (1e+9))).toFixed(1);
-        var usedGB = totalGB - freeGB;
+        var freeGB = ((response.free / (1e+9))).toFixed(1);
+        var usedGB = (totalGB - freeGB).toFixed(1);
         var prowidth = ((usedGB / (928)) * 100).toFixed(1);
         var prowidthx = ((usedGB / (totalGB)) * 100).toFixed(1);
         $('.ssd-pro').css('width', prowidth + '%');
