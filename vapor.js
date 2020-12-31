@@ -48,6 +48,7 @@ const flw = new Flutterwave('FLWPUBK-1fea7bc68f87f43c193cc1bb05b7fb4a-X', 'FLWSE
 const AfricasTalking = require('africastalking')(atsdk);
 const sms = AfricasTalking.SMS;
 const smb = AfricasTalking.APPLICATION;
+const cloudUrl = 'https://cloud.lexacle.com/vapor';
 const dbToken = 'EtwLS5gnxUYAAAAAAAAAARH-Ycv4cdQwqbxWk5Ip_inxzskPwrmAZQ1DTB16YHHY';
 const dropBoxAPI = { method: "POST", url: 'https://api.dropboxapi.com/2/users/get_space_usage', headers: { "Authorization": "Bearer " + dbToken } };
 mongoose.connect(url, {
@@ -92,7 +93,44 @@ function dropInfo() {
         }
     })
 }
-
+function dropLink(path, url){
+  options = {
+      method: "POST",
+      url: 'https://api.dropboxapi.com/2/files/save_url',
+      headers: {
+          "Authorization": "Bearer " + dbToken,
+          "data": "{\"path\": \"/"+path+"\",\"url\":"+url+"\"}",
+      }
+  };
+  request(options, function(err, res) {
+      if (err) {
+          console.log(err);
+      }else {
+        console.log(res.body)
+      }
+  })
+}
+function unDropLink(path) {
+    var headers = {
+        'Authorization': 'Bearer ' + dbToken,
+        'Content-Type': 'application/json'
+    };
+    var dataString = '{"path": "' + path + '"}';
+    var options = {
+        url: 'https://api.dropboxapi.com/2/files/delete_v2',
+        method: 'POST',
+        headers: headers,
+        body: dataString
+    };
+    function callback(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            //console.log(body);
+        } else {
+            //console.log(error)
+        }
+    }
+    request(options, callback);
+}
 function dropIt(loccy, folly, filley) {
     var content = fs.readFileSync(loccy + filley);
     options = {
@@ -404,17 +442,6 @@ const mpesa =  async () =>{
 
 mpesa();
 
-    storage: new FTPStorage({
-        basepath: '/tufike/drivers/documents/license/', // base path for file uploads on the server
-        ftp: {
-            host: 'bravo.cloudns.io',
-            secure: true, // enables FTPS/FTP with TLS
-            user: 'vapor@cloud.lexacle.com',
-            password: 'Leslie#Myles@2028'
-        },
-        connection: new FTP(),
-
-    })
 
 */
 var FtpDeploy = require("ftp-deploy");
@@ -436,124 +463,7 @@ var config = {
 
 //ftpDeploy.deploy(config).then(res => console.log("finished:", res)).catch(err => console.log(err));
 
-
-var licensestorage = multer({
-    storage: new FTPStorage({
-        basepath: './drivers/documents/license',
-        ftp: ftpConnection,
-        connection: new FTP(),
-        destination: function(req, file, callback) {
-            callback(null, './drivers/documents/license')
-        },
-        filename: function(req, file, callback) {
-            callback(null, ObjectId(Date.now()) + path.extname(file.originalname))
-        },
-        transformFile: function(req, file, callback) {
-            callback(null, ObjectId(Date.now()) + path.extname(file.originalname))
-        }
-    })
-})
-var logbookstorage = multer.diskStorage({
-    destination: function(req, file, callback) {
-        callback(null, './public/assets/vehicles/logbooks/');
-    },
-    filename: function(req, file, callback) {
-        callback(null, ObjectId(Date.now()) + path.extname(file.originalname));
-    }
-});
-var insurancestorage = multer.diskStorage({
-    destination: function(req, file, callback) {
-        callback(null, './public/assets/vehicles/insurance/');
-    },
-    filename: function(req, file, callback) {
-        callback(null, ObjectId(Date.now()) + path.extname(file.originalname));
-    }
-});
-var carstorage = multer.diskStorage({
-    destination: function(req, file, callback) {
-        callback(null, './public/assets/vehicles/cars/');
-    },
-    filename: function(req, file, callback) {
-        callback(null, ObjectId(Date.now()) + path.extname(file.originalname));
-    }
-});
-
-var ntsastorage = multer.diskStorage({
-    destination: function(req, file, callback) {
-        callback(null, './public/assets/drivers/documents/ntsa/');
-    },
-    filename: function(req, file, callback) {
-        callback(null, ObjectId(Date.now()) + path.extname(file.originalname));
-    }
-});
 var maxSize = 5 * 1000000;
-var uploadlogbook = multer({
-    storage: logbookstorage,
-    limits: { fileSize: maxSize },
-    fileFilter: function(req, file, callback) {
-        var ext = path.extname(file.originalname);
-        if (ext !== '.png' && ext !== '.jpg' && ext !== '.pdf' && ext !== '.jpeg') {
-            return callback(('failed'))
-        }
-        callback(null, true)
-    }
-}).single('logbook');
-var uploadinsurance = multer({
-    storage: insurancestorage,
-    limits: { fileSize: maxSize },
-    fileFilter: function(req, file, callback) {
-        var ext = path.extname(file.originalname);
-        if (ext !== '.png' && ext !== '.jpg' && ext !== '.pdf' && ext !== '.jpeg') {
-            return callback(('failed'))
-        }
-        callback(null, true)
-    }
-}).single('insurance');
-var uploadfront = multer({
-    storage: carstorage,
-    limits: { fileSize: maxSize },
-    fileFilter: function(req, file, callback) {
-        var ext = path.extname(file.originalname);
-        if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
-            return callback(('failed'))
-        }
-        callback(null, true)
-    }
-}).single('frontphoto');
-var uploadside = multer({
-    storage: carstorage,
-    limits: { fileSize: maxSize },
-    fileFilter: function(req, file, callback) {
-        var ext = path.extname(file.originalname);
-        if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
-            return callback(('failed'))
-        }
-        callback(null, true)
-    }
-}).single('sidephoto');
-var uploadrear = multer({
-    storage: carstorage,
-    limits: { fileSize: maxSize },
-    fileFilter: function(req, file, callback) {
-        var ext = path.extname(file.originalname);
-        if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
-            return callback(('failed'))
-        }
-        callback(null, true)
-    }
-}).single('rearphoto');
-var uploadlicense = multer({ storage: licensestorage }).single('license');
-var uploadntsa = multer({
-    storage: ntsastorage,
-    limits: { fileSize: maxSize },
-    fileFilter: function(req, file, callback) {
-        var ext = path.extname(file.originalname);
-        if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
-            return callback(('failed'))
-        }
-        callback(null, true)
-    }
-}).single('ntsa');
 app.post('/upload/logbook', function(req, res, callback) {
     var upload = multer({
         limits: { fileSize: maxSize },
@@ -574,11 +484,16 @@ app.post('/upload/logbook', function(req, res, callback) {
             var fullpath = res.req.file.path;
             var splitpath = fullpath.split("/");
             var pathfile = splitpath[4];
+            var path = `vapor${fullpath}`;
+            var url = `${cloudUrl}${fullpath}`;
+            dropLink(path, url);
             var query = { _id: vid };
             var nupdate = { $set: { logbook: pathfile } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
                     if (result.logbook !== 'none') {
+                        var ipath = '/vapor/assets/vehicles/logbooks/' + result.logbook;
+                        unDropLink(ipath);
                         var fidel = new FTP();
                         fidel.on('ready', function() {
                             fidel.delete('/assets/vehicles/logbooks/' + result.logbook, function(err) {
@@ -614,11 +529,16 @@ app.post('/upload/insurance', function(req, res, callback) {
             var fullpath = res.req.file.path;
             var splitpath = fullpath.split("/");
             var pathfile = splitpath[4];
+            var path = `vapor${fullpath}`;
+            var url = `${cloudUrl}${fullpath}`;
+            dropLink(path, url);
             var query = { _id: vid };
             var nupdate = { $set: { insurance: pathfile } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
                     if (result.insurance !== 'none') {
+                      var ipath = '/vapor/assets/vehicles/insurance/' + result.insurance;
+                      unDropLink(ipath);
                         var fidel = new FTP();
                         fidel.on('ready', function() {
                             fidel.delete('/assets/vehicles/insurance/' + result.insurance, function(err) {
@@ -654,11 +574,16 @@ app.post('/upload/front', function(req, res, callback) {
             var fullpath = res.req.file.path;
             var splitpath = fullpath.split("/");
             var pathphoto = splitpath[4];
+            var path = `vapor${fullpath}`;
+            var url = `${cloudUrl}${fullpath}`;
+            dropLink(path, url);
             var query = { _id: vid };
             var nupdate = { $set: { frontphoto: pathphoto } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
                     if (result.frontphoto !== 'none') {
+                      var ipath = '/vapor/assets/vehicles/cars/' + result.frontphoto;
+                      unDropLink(ipath);
                         var fidel = new FTP();
                         fidel.on('ready', function() {
                             fidel.delete('/assets/vehicles/cars/' + result.frontphoto, function(err) {
@@ -694,11 +619,16 @@ app.post('/upload/side', function(req, res, callback) {
             var fullpath = res.req.file.path;
             var splitpath = fullpath.split("/");
             var pathphoto = splitpath[4];
+            var path = `vapor${fullpath}`;
+            var url = `${cloudUrl}${fullpath}`;
+            dropLink(path, url);
             var query = { _id: vid };
             var nupdate = { $set: { sidephoto: pathphoto } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
                     if (result.sidephoto !== 'none') {
+                      var ipath = '/vapor/assets/vehicles/cars/' + result.sidephoto;
+                      unDropLink(ipath);
                         var fidel = new FTP();
                         fidel.on('ready', function() {
                             fidel.delete('/assets/vehicles/cars/' + result.sidephoto, function(err) {
@@ -735,11 +665,16 @@ app.post('/upload/rear', function(req, res, callback) {
             var fullpath = res.req.file.path;
             var splitpath = fullpath.split("/");
             var pathphoto = splitpath[4];
+            var path = `vapor${fullpath}`;
+            var url = `${cloudUrl}${fullpath}`;
+            dropLink(path, url);
             var query = { _id: vid };
             var nupdate = { $set: { backphoto: pathphoto } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
                     if (result.backphoto !== 'none') {
+                      var ipath = '/vapor/assets/vehicles/cars/' + result.backphoto;
+                      unDropLink(ipath);
                         var fidel = new FTP();
                         fidel.on('ready', function() {
                             fidel.delete('/assets/vehicles/cars/' + result.backphoto, function(err) {
@@ -776,11 +711,16 @@ app.post('/upload/license', function(req, res, callback) {
             var fullpath = res.req.file.path;
             var splitpath = fullpath.split("/");
             var pathphoto = splitpath[5];
+            var path = `vapor${fullpath}`;
+            var url = `${cloudUrl}${fullpath}`;
+            dropLink(path, url);
             var query = { _id: did };
             var nupdate = { $set: { license: pathphoto } };
             Driver.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
                     if (result.license !== 'none') {
+                      var ipath = '/vapor/assets/drivers/documents/license/' + result.license;
+                      unDropLink(ipath);
                         var fidel = new FTP();
                         fidel.on('ready', function() {
                             fidel.delete('/assets/drivers/documents/license/' + result.license, function(err) {
@@ -816,11 +756,16 @@ app.post('/upload/ntsa', function(req, res) {
             var fullpath = res.req.file.path;
             var splitpath = fullpath.split("/");
             var pathphoto = splitpath[5];
+            var path = `vapor${fullpath}`;
+            var url = `${cloudUrl}${fullpath}`;
+            dropLink(path, url);
             var query = { _id: did };
             var nupdate = { $set: { ntsa: pathphoto } };
             Driver.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
                     if (result.ntsa !== 'none') {
+                      var ipath = '/vapor/assets/drivers/documents/ntsa/' + result.ntsa;
+                      unDropLink(ipath);
                         var fidel = new FTP();
                         fidel.on('ready', function() {
                             fidel.delete('/assets/drivers/documents/ntsa/' + result.ntsa, function(err) {
@@ -884,107 +829,6 @@ app.post('/auth', function(req, res, next) {
         }
     })
 })
-app.post('/upload/logbook', function(req, res) {
-    uploadlogbook(req, res, function(err) {
-        if (err) {
-            return res.end(err)
-        } else {
-            var vid = req.body.vid;
-            var xfile = res.req.file.filename;
-            var query = { _id: vid };
-            var nupdate = { $set: { logbook: xfile } };
-            Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
-                if (err) { console.log(err); } else {
-                    fs.unlink('./public/assets/vehicles/logbooks/' + result.logbook, function(err) {
-                        res.end('success');
-                    });
-
-                }
-            })
-        }
-    });
-});
-app.post('/upload/insurance', function(req, res) {
-    uploadinsurance(req, res, function(err) {
-        if (err) {
-            return res.end(err)
-        } else {
-            var vid = req.body.vid;
-            var xfile = res.req.file.filename;
-            var query = { _id: vid };
-            var nupdate = { $set: { insurance: xfile } };
-            Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
-                if (err) { console.log(err); } else {
-                    fs.unlink('./public/assets/vehicles/insurance/' + result.insurance, function(err) {
-                        res.end('success');
-                    });
-
-                }
-            })
-        }
-    });
-});
-app.post('/upload/front', function(req, res) {
-    uploadfront(req, res, function(err) {
-        if (err) {
-            return res.end(err)
-        } else {
-            var vid = req.body.vid;
-            var xfile = res.req.file.filename;
-            var query = { _id: vid };
-            var nupdate = { $set: { frontphoto: xfile } };
-            Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
-                if (err) { console.log(err); } else {
-                    fs.unlink('./public/assets/vehicles/cars/' + result.frontphoto, function(err) {
-                        res.end('success');
-                    });
-
-                }
-            })
-        }
-    });
-});
-app.post('/upload/side', function(req, res) {
-    uploadside(req, res, function(err) {
-        if (err) {
-            return res.end(err)
-        } else {
-            var vid = req.body.vid;
-            var xfile = res.req.file.filename;
-            var query = { _id: vid };
-            var nupdate = { $set: { sidephoto: xfile } };
-            Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
-                if (err) { console.log(err); } else {
-                    fs.unlink('./public/assets/vehicles/cars/' + result.sidephoto, function(err) {
-                        res.end('success');
-                    });
-
-                }
-            })
-        }
-    });
-});
-app.post('/upload/rear', function(req, res) {
-    uploadrear(req, res, function(err) {
-        if (err) {
-            return res.end(err)
-        } else {
-            var vid = req.body.vid;
-            var xfile = res.req.file.filename;
-            var query = { _id: vid };
-            var nupdate = { $set: { backphoto: xfile } };
-            Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
-                if (err) { console.log(err); } else {
-                    fs.unlink('./public/assets/vehicles/cars/' + result.backphoto, function(err) {
-                        res.end('success');
-                    });
-
-                }
-            })
-        }
-    });
-});
-
 
 var onlinequery = { $set: { "settings.online": 0 } };
 Rider.updateMany(onlinequery).exec(function(err, res) {
@@ -7245,6 +7089,9 @@ io.on('connection', function(socket) {
                 if (err) {
                     console.log('err', err);
                 } else {
+                  var path = `vapor/${folder}`;
+                  var url = `${cloudUrl}/${folder}${file}`;
+                  dropLink(path, url);
                     var photoname = profile.oid + '.png';
                     var query = {
                         _id: profile.oid
@@ -7318,6 +7165,9 @@ io.on('connection', function(socket) {
                 if (err) {
                     console.log('err', err);
                 } else {
+                  var path = `vapor/${folder}`;
+                  var url = `${cloudUrl}/${folder}${file}`;
+                  dropLink(path, url);
                     var photoname = profile.uid + '.png';
                     var query = {
                         _id: profile.uid
@@ -7412,6 +7262,9 @@ io.on('connection', function(socket) {
                 if (err) {
                     console.log(err)
                 } else {
+                    var path = `vapor/${folder}`;
+                    var url = `${cloudUrl}/${folder}${file}`;
+                    dropLink(path, url);
                     var photoname = profile.did + '.png';
                     var query = {
                         _id: profile.did
