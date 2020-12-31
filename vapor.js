@@ -94,11 +94,15 @@ function dropInfo() {
     })
 }
 function dropLink(path, url){
-  var dataString = '{"path": "' + path + '", "url": "' + url + '"}';
+  var headers = {
+      'Authorization': 'Bearer ' + dbToken,
+      'Content-Type': 'application/json'
+  };
+  var dataString = '{"path": "/' + path + '", "url": "' + url + '"}';
   options = {
       method: "POST",
       url: 'https://api.dropboxapi.com/2/files/save_url',
-      headers: {"Authorization": "Bearer " + dbToken},
+      headers: headers,
       body: dataString
   };
   request(options, function(err, res, body) {
@@ -114,7 +118,7 @@ function unDropLink(path) {
         'Authorization': 'Bearer ' + dbToken,
         'Content-Type': 'application/json'
     };
-    var dataString = '{"path": "' + path + '"}';
+    var dataString = '{"path": "/' + path + '"}';
     var options = {
         url: 'https://api.dropboxapi.com/2/files/delete_v2',
         method: 'POST',
