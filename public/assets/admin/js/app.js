@@ -3547,7 +3547,7 @@ function settings() {
         var prowidth = ((usedGB / (928)) * 100).toFixed(1);
         var prowidthx = ((usedGB / (totalGB)) * 100).toFixed(1);
         $('.ssd-pro').css('width', prowidth + '%');
-        $('.ssd-size-stats').html(`${usedGB} GiB / ${928} GiB`);
+        $('.ssd-size-stats').html(`${usedGB} GB / ${928} GB`);
         $('.drive-pro').css('width', prowidthx + '%');
         $('.drive-size-stats').html(`${usedGB} GB / ${totalGB} GB`);
     })
