@@ -1,21 +1,86 @@
 <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box-2 bg-blue waves-effect">
+                        <div class="icon">
+                            <img src="/assets/admin/img/icons/dropbox.svg" width="80"/>
+                        </div>
+                        <div class="content">
+                            <div class="text">DROPBOX</div>
+                            <div class="number count-to dp-size-stats">Loading</div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-info dp-pro" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+                                     style="width: 0%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box-2 bg-orange waves-effect">
+                        <div class="icon">
+                            <img src="/assets/admin/img/icons/database.svg" class="mt-2" width="65"/>
+                        </div>
+                        <div class="content">
+                            <div class="text cool-light">MONGODB CLOUD</div>
+                            <div class="number cool-light count-to db-size-stats">Loading</div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-info db-pro" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+                                     style="width: 0%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box-2 bg-teal waves-effect">
+                        <div class="icon">
+                            <img src="/assets/admin/img/icons/cloud.svg" class="mt-2" width="65"/>
+                        </div>
+                        <div class="content">
+                            <div class="text">SSD CLOUD</div>
+                            <div class="number count-to ssd-size-stats">Loading</div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-teal ssd-pro" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+                                     style="width: 0%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box-2 bg-purple waves-effect">
+                        <div class="icon">
+                            <img src="/assets/admin/img/icons/cloud.svg" class="mt-2" width="65"/>
+                        </div>
+                        <div class="content">
+                            <div class="text">LOCAL DRIVE</div>
+                            <div class="number count-to drive-size-stats">Loading</div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-purple drive-pro" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+                                     style="width: 0%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+<div class="row">
   <div class="col-md-12">
-        <div class="bg-transluscent mt-3 pl-4 pr-4 pt-2">
           <div class="row">
             <div class="col-md-4">
-          <div class="form-group mt-4">
+          <div class="form-group mt-2">
             <label>Default Email Address</label>
-            <input type="text" class="form-control demail" autocomplete="off">
+            <input type="text" class="form-control form-control-success text-col-teal demail" autocomplete="off">
           </div>
         </div>
         <div class="col-md-4">
-          <div class="form-group mt-4">
+          <div class="form-group mt-2">
             <label>Default Phone Number</label>
             <input type="text" class="form-control dphone" autocomplete="off">
           </div>
         </div>
         <div class="col-md-4">
-          <div class="form-group mt-4">
+          <div class="form-group mt-2">
             <label>Cash Rewards per Point (KES)</label>
             <input type="number" class="form-control dcash" autocomplete="off">
           </div>
@@ -47,29 +112,49 @@
       <div class="col-md-4">
       <div class="form-group mt-4">
         <label>User Files Daily Backup Time</label>
-        <input type="number" class="form-control dcronfiles" autocomplete="off">
+        <input type="text" class="form-control dcronfs" autocomplete="off">
       </div>
     </div>
     <div class="col-md-4">
     <div class="form-group mt-4">
       <label>Full Database Daily Backup Time</label>
-      <input type="number" class="form-control dcronmdb" autocomplete="off">
+      <input type="text" class="form-control dcrondb" autocomplete="off">
     </div>
   </div>
-  <div class="col-md-4 offset-md-8">
-          <div class="form-group">
-            <button class="btn btn-block btn-success update-system">Update System Settings</button>
-          </div>
-        </div>
-      </div>
-      </div>
-  </div>
-  <div class="col-md-12">
-        <div class="bg-transluscent mt-3 pl-4 pr-4 pt-2">
-          Backup Modules
-        </div>
+  <div class="col-md-4">
+    <div class="form-group mt-4">
+      <label>Pending Driver Payments Notification Time</label>
+      <input type="text" class="form-control dcronpn" autocomplete="off">
+    </div>
   </div>
   <div class="col-md-4">
-
+  <p class="mt-2"><b>Find Nearby Riders Within</b></p>
+   <div class="nouislider-range-riders"></div>
+    <div class="mt-3"><span class="js-nouislider-value"></span></div>
+    <input type="hidden" class="form-control near-dis near-rider"/>
   </div>
+  <div class="col-md-4">
+  <p class="mt-2"><b>Find Nearby Drivers Within</b></p>
+   <div class="nouislider-range-drivers"></div>
+    <div class="mt-3"><span class="js-nouislider-value"></span></div>
+    <input type="hidden" class="form-control near-dis near-driver"/>
+  </div>
+  <div class="col-md-3 pt-3">
+  <input type="checkbox" id="md_checkbox_1" class="filled-in chk-col-green smpesa">
+  <label for="md_checkbox_1">Enable Mpesa Payments</label>
+</div>
+<div class="col-md-3 pt-3">
+<input type="checkbox" id="md_checkbox_2" class="filled-in chk-col-pink scard">
+<label for="md_checkbox_2">Enable Card Payments</label>
+</div>
+<div class="col-md-3 pt-3">
+<input type="checkbox" id="md_checkbox_3" class="filled-in chk-col-purple spoints">
+<label for="md_checkbox_3">Enable Points Payments</label>
+</div>
+<div class="col-md-3 pt-3">
+<input type="checkbox" id="md_checkbox_4" class="filled-in chk-col-orange spromo">
+<label for="md_checkbox_4">Enable Promo Discounts</label>
+</div>
+</div>
+</div>
 </div>

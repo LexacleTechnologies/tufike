@@ -1,7 +1,7 @@
+require('dotenv').config()
 const express = require("express");
 const app = express();
 const path = require('path');
-const router = express.Router();
 const hbs = require('hbs');
 const fs = require('fs');
 const request = require('request');
@@ -16,7 +16,12 @@ const checkDiskSpace = require('check-disk-space');
 const OneSignal = require('onesignal-node');
 const MongoStore = require('connect-mongo')(session);
 var CronJob = require('cron').CronJob;
-const multer = require('multer');
+var multer = require('multer');
+var sftpStorage = require('multer-sftp');
+var FTPStorage = require('multer-ftp');
+var FTP = require('ftp');
+const AWS = require('aws-sdk');
+const S3_BUCKET = process.env.S3_BUCKET;
 const Setting = require("./models/settings.js");
 const Admin = require("./models/admin.js");
 const Rider = require("./models/riders.js");
@@ -36,15 +41,16 @@ const Cms = require("./models/cms.js");
 const freelance = '5f47f9e62dc7b16cb6f33c40';
 const player = require('play-sound')(opts = {})
 const Supportchat = require("./models/supportchat.js");
-//const url = "mongodb://localhost:27017/tufike";
-const url = "mongodb+srv://tufike:nUJjC9qzGYih8ZrX@cluster0.17g7f.mongodb.net/tufike?retryWrites=true&w=majority"
-    //const atsdk = { apiKey: 'c10013ca47dc4b9a61981787523761deb333a2aa7a33d387c3f103b187b007fa', username: 'sandbox' };
-const atsdk = { apiKey: '8d82a365b9424afffc695b8558648dc4b29b7d63b86db1313028eb4e54052209', username: 'tufike' };
+const ftpConnection = { host: process.env.FTP_HOST, secure: false, user: process.env.FTP_USER, password: process.env.FTP_KEY };
+const url = process.env.DB_URL;
+//const atsdk = { apiKey: 'c10013ca47dc4b9a61981787523761deb333a2aa7a33d387c3f103b187b007fa', username: 'sandbox' };
+const atsdk = { apiKey: process.env.AT_KEY, username: process.env.AT_USER };
 const Flutterwave = require('flutterwave-node-v3');
-const flw = new Flutterwave("FLWPUBK-1fea7bc68f87f43c193cc1bb05b7fb4a-X", "FLWSECK-ad2fead7d8ec7c8fdafcc9ef41d8f44e-X");
+const flw = new Flutterwave(process.env.FLW_PUBK, process.env.FLW_SECK);
 const AfricasTalking = require('africastalking')(atsdk);
 const sms = AfricasTalking.SMS;
 const smb = AfricasTalking.APPLICATION;
+const dropBoxAPI = {method: "POST",rl: 'https://api.dropboxapi.com/2/users/get_space_usage',headers: { "Authorization": "Bearer " +process.env.DB_KEY }};
 mongoose.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -59,18 +65,34 @@ var mdb = mongoose.connection;
 mdb.on('error', console.error.bind(console, 'connection error:'));
 mdb.once('open', function() {
     mdb.db.stats(function(err, stats) {
-        //console.log(stats);
+        if (err) {
+            console.log('Could not connect to Databse Server');
+        } else {
+            //console.log(stats);
+        }
     });
 });
-
-const riderBurst = new OneSignal.Client('78aa0c2b-c194-4e2d-b7ae-45ab7af286fc', 'YzVhNThmODktOWU2OC00YWNjLWFiMmUtNGRlNTY2MjhjZGIw');
-const driverBurst = new OneSignal.Client('f672e8f6-4fc2-4d1c-af43-726fe8308183', 'NGNlMDRiMGQtYjdjMS00ZWQ3LTg2YjktNGMyZDhlMjExMmQ3');
-const ownerBurst = new OneSignal.Client('172feb21-563e-4fb8-b66e-4426e1a922ee', 'MzdlOTJmOGQtMzdiMS00N2RhLThlMTAtZGVmYjU5NjE3NmFh');
-const adminBurst = new OneSignal.Client('4b618591-01ab-4580-8769-51d4c91da11c', 'N2M0ODYwNGUtYTNiYy00MDkyLWE1NjAtMzk1YzVjNjI3NzFj');
-const userClient = new OneSignal.UserClient('ZWM2NGVhMjctNWEzNy00YzUxLTg1M2QtYjdiNjYwNTZhMGRi', {
-    apiRoot: 'https://onesignal.com/api/v2'
+var fidel = new FTP();
+fidel.on('ready', function() {
+    fidel.size('/', function(err, status) {
+        if (err) {} else {
+            console.log(status)
+        }
+        fidel.end();
+    });
 });
-var vaporToken = "EtwLS5gnxUYAAAAAAAAAARH-Ycv4cdQwqbxWk5Ip_inxzskPwrmAZQ1DTB16YHHY";
+//fidel.connect(ftpConnection);
+//dropInfo();
+
+function dropInfo() {
+    request(dropBoxAPI, function(err, res) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(res.body)
+        }
+    })
+}
 
 function dropIt(loccy, folly, filley) {
     var content = fs.readFileSync(loccy + filley);
@@ -79,21 +101,21 @@ function dropIt(loccy, folly, filley) {
         url: 'https://content.dropboxapi.com/2/files/upload',
         headers: {
             "Content-Type": "application/octet-stream",
-            "Authorization": "Bearer " + vaporToken,
+            "Authorization": "Bearer " + process.env.DB_KEY,
             "Dropbox-API-Arg": "{\"path\": \"/vapor/" + folly + filley + "\",\"mode\": \"overwrite\",\"autorename\": false,\"mute\": false}",
         },
         body: content
     };
     request(options, function(err, res, body) {
         if (err) {
-            console.log(err);
+            //console.log(err);
         }
     })
 }
 
 function unDropIt(folly, undrop) {
     var headers = {
-        'Authorization': 'Bearer ' + vaporToken,
+        'Authorization': 'Bearer ' + process.env.DB_KEY,
         'Content-Type': 'application/json'
     };
     var dataString = '{"path": "/vapor/' + folly + undrop + '"}';
@@ -114,6 +136,14 @@ function unDropIt(folly, undrop) {
 
     request(options, callbacky);
 }
+
+const riderBurst = new OneSignal.Client('78aa0c2b-c194-4e2d-b7ae-45ab7af286fc', 'YzVhNThmODktOWU2OC00YWNjLWFiMmUtNGRlNTY2MjhjZGIw');
+const driverBurst = new OneSignal.Client('f672e8f6-4fc2-4d1c-af43-726fe8308183', 'NGNlMDRiMGQtYjdjMS00ZWQ3LTg2YjktNGMyZDhlMjExMmQ3');
+const ownerBurst = new OneSignal.Client('172feb21-563e-4fb8-b66e-4426e1a922ee', 'MzdlOTJmOGQtMzdiMS00N2RhLThlMTAtZGVmYjU5NjE3NmFh');
+const adminBurst = new OneSignal.Client('4b618591-01ab-4580-8769-51d4c91da11c', 'N2M0ODYwNGUtYTNiYy00MDkyLWE1NjAtMzk1YzVjNjI3NzFj');
+const userClient = new OneSignal.UserClient('ZWM2NGVhMjctNWEzNy00YzUxLTg1M2QtYjdiNjYwNTZhMGRi', {
+    apiRoot: 'https://onesignal.com/api/v2'
+});
 //allRiderBursts();
 //allDriverBursts();
 //oneBurstRider(oneMessage, oneHeader, oneUser);
@@ -288,28 +318,43 @@ var transporter = nodemailer.createTransport({
         pass: 'Tufike@2019'
     }
 });
-const PORT = process.env.PORT || 4080;
+const PORT = process.env.PORT;
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 http.listen(PORT, '0.0.0.0', function() {
     console.log(logSymbols.success, `Tufike Admin Console listening on port: ${ PORT }`.cyan);
 });
-var tufikeData = new CronJob('*/20 * * * * *', function() {
+var tufikeData = new CronJob('*/5 * * * * *', function() {
     systemPunch();
 }, null, true, 'Africa/Nairobi');
-var mDbBackupCron = new CronJob('00 02 * * *', function() {
+var mDbBackupCron = new CronJob('42 00 * * *', function() {
     nightly();
 }, null, true, 'Africa/Nairobi');
 mDbBackupCron.start();
 
 function systemPunch() {
+
     smb.fetchApplicationData()
         .then(response => {
-            io.sockets.emit('sms balance', response)
+            var res = {istat: 'success', response};
+            io.sockets.emit('sms balance', res)
         })
         .catch(error => {
+          var res = {istat: 'failed'};
+          io.sockets.emit('sms balance', res)
             //console.log(error);
         });
+    var pquery1 = {packagename: process.env.PACKAGE_ONE};
+    var pquery2 = {packagename: process.env.PACKAGE_TWO};
+    var pquery3 = {packagename: process.env.PACKAGE_THREE};
+    Ride.countDocuments(pquery1).exec(function(err, p1){
+      Ride.countDocuments(pquery2).exec(function(err, p2){
+        Ride.countDocuments(pquery3).exec(function(err, p3){
+          var preferences = {basic: p1, comfy: p2, lux: p3};
+          io.sockets.emit('all cron preferences', preferences);
+        })
+      })
+    })
     Rider.find().exec(function(err, res) {
         if (err) { console.log(err); } else {
             io.sockets.emit('all cron riders', res);
@@ -359,7 +404,56 @@ const mpesa =  async () =>{
 
 
 mpesa();
+
+    storage: new FTPStorage({
+        basepath: '/tufike/drivers/documents/license/', // base path for file uploads on the server
+        ftp: {
+            host: 'bravo.cloudns.io',
+            secure: true, // enables FTPS/FTP with TLS
+            user: 'vapor@cloud.lexacle.com',
+            password: 'Leslie#Myles@2028'
+        },
+        connection: new FTP(),
+
+    })
+
 */
+var FtpDeploy = require("ftp-deploy");
+var ftpDeploy = new FtpDeploy();
+
+var config = {
+    user: "vapor@cloud.lexacle.com",
+    // Password optional, prompted if none given
+    password: "Leslie#Myles@2028",
+    host: "ftp.lexacle.com",
+    port: 21,
+    localRoot: __dirname + "/models",
+    remoteRoot: "/models",
+    include: ["*", "**/*"],
+    deleteRemote: true,
+    forcePasv: true,
+    sftp: false
+};
+
+//ftpDeploy.deploy(config).then(res => console.log("finished:", res)).catch(err => console.log(err));
+
+
+var licensestorage = multer({
+    storage: new FTPStorage({
+        basepath: './drivers/documents/license',
+        ftp: ftpConnection,
+        connection: new FTP(),
+        destination: function(req, file, callback) {
+            callback(null, './drivers/documents/license')
+        },
+        filename: function(req, file, callback) {
+            callback(null, ObjectId(Date.now()) + path.extname(file.originalname))
+        },
+        transformFile: function(req, file, callback) {
+            callback(null, ObjectId(Date.now()) + path.extname(file.originalname))
+        }
+    })
+})
 var logbookstorage = multer.diskStorage({
     destination: function(req, file, callback) {
         callback(null, './public/assets/vehicles/logbooks/');
@@ -384,14 +478,7 @@ var carstorage = multer.diskStorage({
         callback(null, ObjectId(Date.now()) + path.extname(file.originalname));
     }
 });
-var licensestorage = multer.diskStorage({
-    destination: function(req, file, callback) {
-        callback(null, './public/assets/drivers/documents/license/');
-    },
-    filename: function(req, file, callback) {
-        callback(null, ObjectId(Date.now()) + path.extname(file.originalname));
-    }
-});
+
 var ntsastorage = multer.diskStorage({
     destination: function(req, file, callback) {
         callback(null, './public/assets/drivers/documents/ntsa/');
@@ -456,17 +543,7 @@ var uploadrear = multer({
         callback(null, true)
     }
 }).single('rearphoto');
-var uploadlicense = multer({
-    storage: licensestorage,
-    limits: { fileSize: maxSize },
-    fileFilter: function(req, file, callback) {
-        var ext = path.extname(file.originalname);
-        if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
-            return callback(('failed'))
-        }
-        callback(null, true)
-    }
-}).single('license');
+var uploadlicense = multer({ storage: licensestorage }).single('license');
 var uploadntsa = multer({
     storage: ntsastorage,
     limits: { fileSize: maxSize },
@@ -478,661 +555,306 @@ var uploadntsa = multer({
         callback(null, true)
     }
 }).single('ntsa');
-app.post('/upload/logbook', function(req, res) {
-    uploadlogbook(req, res, function(err) {
+app.post('/upload/logbook', function(req, res, callback) {
+    var upload = multer({
+        limits: { fileSize: maxSize },
+        fileFilter: function(req, file, callback) {
+            var ext = path.extname(file.originalname);
+            if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg' && ext !== '.pdf') {
+                return callback(('failed'))
+            }
+            callback(null, true)
+        },
+        storage: new FTPStorage({ basepath: '/assets/vehicles/logbooks', ftp: ftpConnection })
+    }).single('logbook');
+    upload(req, res, function(err) {
         if (err) {
-            return res.end(err)
+            res.end('error')
         } else {
             var vid = req.body.vid;
-            var xfile = res.req.file.filename;
+            var fullpath = res.req.file.path;
+            var splitpath = fullpath.split("/");
+            var pathfile = splitpath[4];
             var query = { _id: vid };
-            var nupdate = { $set: { logbook: xfile } };
-            var loccy = './public/assets/vehicles/logbooks/';
-            var filley = xfile;
-            var folly = 'vehicles/logbooks/';
-            dropIt(loccy, folly, filley);
+            var nupdate = { $set: { logbook: pathfile } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
-                    var undrop = result.logbook;
-                    unDropIt(folly, undrop);
-                    fs.unlink('./public/assets/vehicles/logbooks/' + result.logbook, function(err) {
-                        res.end('success');
-                    });
-
+                    if (result.logbook !== 'none') {
+                        var fidel = new FTP();
+                        fidel.on('ready', function() {
+                            fidel.delete('/assets/vehicles/logbooks/' + result.logbook, function(err) {
+                                if (err) throw err;
+                                fidel.end();
+                            });
+                        });
+                        fidel.connect(ftpConnection);
+                    }
                 }
             })
+            res.end('success')
         }
     });
 });
-app.post('/upload/insurance', function(req, res) {
-    uploadinsurance(req, res, function(err) {
+app.post('/upload/insurance', function(req, res, callback) {
+    var upload = multer({
+        limits: { fileSize: maxSize },
+        fileFilter: function(req, file, callback) {
+            var ext = path.extname(file.originalname);
+            if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg' && ext !== '.pdf') {
+                return callback(('failed'))
+            }
+            callback(null, true)
+        },
+        storage: new FTPStorage({ basepath: '/assets/vehicles/insurance', ftp: ftpConnection })
+    }).single('insurance');
+    upload(req, res, function(err) {
         if (err) {
-            return res.end(err)
+            res.end('error')
         } else {
             var vid = req.body.vid;
-            var xfile = res.req.file.filename;
+            var fullpath = res.req.file.path;
+            var splitpath = fullpath.split("/");
+            var pathfile = splitpath[4];
             var query = { _id: vid };
-            var nupdate = { $set: { insurance: xfile } };
-            var loccy = './public/assets/vehicles/insurance/';
-            var filley = xfile;
-            var folly = 'vehicles/insurance/';
-            dropIt(loccy, folly, filley);
+            var nupdate = { $set: { insurance: pathfile } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
-                    var undrop = result.insurance;
-                    unDropIt(folly, undrop);
-                    fs.unlink('./public/assets/vehicles/insurance/' + result.insurance, function(err) {
-                        res.end('success');
-                    });
-
+                    if (result.insurance !== 'none') {
+                        var fidel = new FTP();
+                        fidel.on('ready', function() {
+                            fidel.delete('/assets/vehicles/insurance/' + result.insurance, function(err) {
+                                if (err) throw err;
+                                fidel.end();
+                            });
+                        });
+                        fidel.connect(ftpConnection);
+                    }
                 }
             })
+            res.end('success')
         }
     });
 });
-app.post('/upload/front', function(req, res) {
-    uploadfront(req, res, function(err) {
+app.post('/upload/front', function(req, res, callback) {
+    var upload = multer({
+        limits: { fileSize: maxSize },
+        fileFilter: function(req, file, callback) {
+            var ext = path.extname(file.originalname);
+            if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
+                return callback(('failed'))
+            }
+            callback(null, true)
+        },
+        storage: new FTPStorage({ basepath: '/assets/vehicles/cars', ftp: ftpConnection })
+    }).single('frontphoto');
+    upload(req, res, function(err) {
         if (err) {
-            return res.end(err)
+            res.end('error')
         } else {
             var vid = req.body.vid;
-            var xfile = res.req.file.filename;
+            var fullpath = res.req.file.path;
+            var splitpath = fullpath.split("/");
+            var pathphoto = splitpath[4];
             var query = { _id: vid };
-            var nupdate = { $set: { frontphoto: xfile } };
-            var loccy = './public/assets/vehicles/cars/';
-            var filley = xfile;
-            var folly = 'vehicles/cars/';
-            dropIt(loccy, folly, filley);
+            var nupdate = { $set: { frontphoto: pathphoto } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
-                    var undrop = result.frontphoto;
-                    unDropIt(folly, undrop);
-                    fs.unlink('./public/assets/vehicles/cars/' + result.frontphoto, function(err) {
-                        res.end('success');
-                    });
-
+                    if (result.frontphoto !== 'none') {
+                        var fidel = new FTP();
+                        fidel.on('ready', function() {
+                            fidel.delete('/assets/vehicles/cars/' + result.frontphoto, function(err) {
+                                if (err) throw err;
+                                fidel.end();
+                            });
+                        });
+                        fidel.connect(ftpConnection);
+                    }
                 }
             })
+            res.end('success')
         }
     });
 });
-app.post('/upload/side', function(req, res) {
-    uploadside(req, res, function(err) {
+app.post('/upload/side', function(req, res, callback) {
+    var upload = multer({
+        limits: { fileSize: maxSize },
+        fileFilter: function(req, file, callback) {
+            var ext = path.extname(file.originalname);
+            if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
+                return callback(('failed'))
+            }
+            callback(null, true)
+        },
+        storage: new FTPStorage({ basepath: '/assets/vehicles/cars', ftp: ftpConnection })
+    }).single('sidephoto');
+    upload(req, res, function(err) {
         if (err) {
-            return res.end(err)
+            res.end('error')
         } else {
             var vid = req.body.vid;
-            var xfile = res.req.file.filename;
+            var fullpath = res.req.file.path;
+            var splitpath = fullpath.split("/");
+            var pathphoto = splitpath[4];
             var query = { _id: vid };
-            var nupdate = { $set: { sidephoto: xfile } };
-            var loccy = './public/assets/vehicles/cars/';
-            var filley = xfile;
-            var folly = 'vehicles/cars/';
-            dropIt(loccy, folly, filley);
+            var nupdate = { $set: { sidephoto: pathphoto } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
-                    var undrop = result.sidephoto;
-                    unDropIt(folly, undrop);
-                    fs.unlink('./public/assets/vehicles/cars/' + result.sidephoto, function(err) {
-                        res.end('success');
-                    });
-
+                    if (result.sidephoto !== 'none') {
+                        var fidel = new FTP();
+                        fidel.on('ready', function() {
+                            fidel.delete('/assets/vehicles/cars/' + result.sidephoto, function(err) {
+                                if (err) throw err;
+                                fidel.end();
+                            });
+                        });
+                        fidel.connect(ftpConnection);
+                    }
                 }
             })
+            res.end('success')
         }
     });
 });
-app.post('/upload/rear', function(req, res) {
-    uploadrear(req, res, function(err) {
+
+app.post('/upload/rear', function(req, res, callback) {
+    var upload = multer({
+        limits: { fileSize: maxSize },
+        fileFilter: function(req, file, callback) {
+            var ext = path.extname(file.originalname);
+            if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
+                return callback(('failed'))
+            }
+            callback(null, true)
+        },
+        storage: new FTPStorage({ basepath: '/assets/vehicles/cars', ftp: ftpConnection })
+    }).single('rearphoto');
+    upload(req, res, function(err) {
         if (err) {
-            return res.end(err)
+            res.end('error')
         } else {
             var vid = req.body.vid;
-            var xfile = res.req.file.filename;
+            var fullpath = res.req.file.path;
+            var splitpath = fullpath.split("/");
+            var pathphoto = splitpath[4];
             var query = { _id: vid };
-            var nupdate = { $set: { backphoto: xfile } };
-            var loccy = './public/assets/vehicles/cars/';
-            var filley = xfile;
-            var folly = 'vehicles/cars/';
-            dropIt(loccy, folly, filley);
+            var nupdate = { $set: { backphoto: pathphoto } };
             Vehicle.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
-                    var undrop = result.backphoto;
-                    unDropIt(folly, undrop);
-                    fs.unlink('./public/assets/vehicles/cars/' + result.backphoto, function(err) {
-                        res.end('success');
-                    });
-
+                    if (result.backphoto !== 'none') {
+                        var fidel = new FTP();
+                        fidel.on('ready', function() {
+                            fidel.delete('/assets/vehicles/cars/' + result.backphoto, function(err) {
+                                if (err) throw err;
+                                fidel.end();
+                            });
+                        });
+                        fidel.connect(ftpConnection);
+                    }
                 }
             })
+            res.end('success')
         }
     });
 });
-app.post('/upload/license', function(req, res) {
-    uploadlicense(req, res, function(err) {
+
+app.post('/upload/license', function(req, res, callback) {
+    var upload = multer({
+        limits: { fileSize: maxSize },
+        fileFilter: function(req, file, callback) {
+            var ext = path.extname(file.originalname);
+            if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
+                return callback(('failed'))
+            }
+            callback(null, true)
+        },
+        storage: new FTPStorage({ basepath: '/assets/drivers/documents/license', ftp: ftpConnection })
+    }).single('license');
+    upload(req, res, function(err) {
         if (err) {
-            return res.end(err)
+            res.end('error')
         } else {
             var did = req.body.did;
-            var xfile = res.req.file.filename;
+            var fullpath = res.req.file.path;
+            var splitpath = fullpath.split("/");
+            var pathphoto = splitpath[5];
             var query = { _id: did };
-            var nupdate = { $set: { license: xfile } };
-            var loccy = './public/assets/drivers/documents/license/';
-            var filley = xfile;
-            var folly = 'drivers/documents/license/';
-            dropIt(loccy, folly, filley);
+            var nupdate = { $set: { license: pathphoto } };
             Driver.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
-                    var undrop = result.license;
-                    unDropIt(folly, undrop);
-                    fs.unlink('./public/assets/drivers/documents/license/' + undrop, function(err) {
-                        res.end('success');
-                    });
-
+                    if (result.license !== 'none') {
+                        var fidel = new FTP();
+                        fidel.on('ready', function() {
+                            fidel.delete('/assets/drivers/documents/license/' + result.license, function(err) {
+                                if (err) throw err;
+                                fidel.end();
+                            });
+                        });
+                        fidel.connect(ftpConnection);
+                    }
                 }
             })
+            res.end('success')
         }
     });
 });
 app.post('/upload/ntsa', function(req, res) {
-    uploadntsa(req, res, function(err) {
+    var upload = multer({
+        limits: { fileSize: maxSize },
+        fileFilter: function(req, file, callback) {
+            var ext = path.extname(file.originalname);
+            if (ext !== '.png' && ext !== '.jpg' && ext !== '.webp' && ext !== '.jpeg') {
+                return callback(('failed'))
+            }
+            callback(null, true)
+        },
+        storage: new FTPStorage({ basepath: '/assets/drivers/documents/ntsa', ftp: ftpConnection })
+    }).single('ntsa');
+    upload(req, res, function(err) {
         if (err) {
-            return res.end(err)
+            res.end('error')
         } else {
             var did = req.body.did;
-            var xfile = res.req.file.filename;
+            var fullpath = res.req.file.path;
+            var splitpath = fullpath.split("/");
+            var pathphoto = splitpath[5];
             var query = { _id: did };
-            var nupdate = { $set: { ntsa: xfile } };
-            var loccy = './public/assets/drivers/documents/ntsa/';
-            var filley = xfile;
-            var folly = 'drivers/documents/ntsa/';
-            dropIt(loccy, folly, filley);
+            var nupdate = { $set: { ntsa: pathphoto } };
             Driver.findOneAndUpdate(query, nupdate).exec(function(err, result) {
                 if (err) { console.log(err); } else {
-                    var undrop = result.ntsa;
-                    unDropIt(folly, undrop);
-                    fs.unlink('./public/assets/drivers/documents/ntsa/' + result.ntsa, function(err) {
-                        res.end('success');
-                    });
-
+                    if (result.ntsa !== 'none') {
+                        var fidel = new FTP();
+                        fidel.on('ready', function() {
+                            fidel.delete('/assets/drivers/documents/ntsa/' + result.ntsa, function(err) {
+                                if (err) throw err;
+                                fidel.end();
+                            });
+                        });
+                        fidel.connect(ftpConnection);
+                    }
                 }
             })
+            res.end('success')
         }
     });
 });
 
-app.post('/logout', function(req, res, next) {
-    req.session.destroy();
-    var response = {
-        status: 3
-    };
-    res.end(JSON.stringify(response))
-})
+app.use(require('./routes/dashboard'));
+app.use(require('./routes/riders'));
+app.use(require('./routes/drivers'));
+app.use(require('./routes/vehicles'));
+app.use(require('./routes/rides'));
+app.use(require('./routes/distress'));
+app.use(require('./routes/transactions'));
+app.use(require('./routes/support'));
+app.use(require('./routes/packages'));
+app.use(require('./routes/notifications'));
+app.use(require('./routes/promotions'));
+app.use(require('./routes/points'));
+app.use(require('./routes/profile'));
+app.use(require('./routes/settings'));
+app.use(require('./routes/users'));
+app.use(require('./routes/logout'));
 
-function adminLogin(req, res, next) {
-    res.render('layouts/auth.hbs', {
-        title: 'Tufike Pamoja Admin | Login',
-        pagefunctions: 'auth();',
-        developer: 'https://lexacle.com'
-    })
-}
-app.get('/', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Dashboard',
-            pagefunctions: 'dashboard();',
-            dashboard: 'active',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/app.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/riders', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Riders',
-            pagefunctions: 'riders();',
-            dashboard: '',
-            riders: 'active',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/riders.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/drivers', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Drivers',
-            pagefunctions: 'drivers();',
-            dashboard: '',
-            riders: '',
-            drivers: 'active',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/drivers.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/vehicles', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Vehicles',
-            pagefunctions: 'vehicles();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: 'active',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/vehicles.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/rides', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Rides',
-            pagefunctions: 'rides();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: 'active',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/rides.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/distress', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Distress Alerts',
-            pagefunctions: 'distress();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: 'active',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/distress.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/payments', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Payments',
-            pagefunctions: 'payments();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: 'active',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/payments.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/support', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Support',
-            pagefunctions: 'support();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: 'active',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/support.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/packages', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Packages',
-            pagefunctions: 'packages();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: 'active',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/packages.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/notifications', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Notifications',
-            pagefunctions: 'notifications();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: 'active',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/notifications.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/promotions', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Promotions',
-            pagefunctions: 'promotions();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: 'active',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/promotions.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/points', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Support',
-            pagefunctions: 'points();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: 'active',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/points.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/profile', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Profile',
-            pagefunctions: 'profile();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: '',
-            profile: 'active'
-        };
-        res.render('layouts/profile.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/settings', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Settings',
-            pagefunctions: 'settings();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: '',
-            settings: 'active',
-            profile: ''
-        };
-        res.render('layouts/settings.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.get('/users', function(req, res, next) {
-    if (req.session.loggedin) {
-        var uid = req.session.uid;
-        var pdata = {
-            uid: uid,
-            title: 'Tufike Pamoja Admin | Users',
-            pagefunctions: 'users();',
-            dashboard: '',
-            riders: '',
-            drivers: '',
-            vehicles: '',
-            rides: '',
-            distress: '',
-            packages: '',
-            notifications: '',
-            promotions: '',
-            points: '',
-            payments: '',
-            support: '',
-            users: 'active',
-            settings: '',
-            profile: ''
-        };
-        res.render('layouts/users.hbs', {
-            pdata
-        })
-    } else {
-        adminLogin(req, res, next);
-    }
-})
-app.post('/logout', function(req, res, next) {
-    req.session.destroy();
-    var response = {
-        status: 3
-    };
-    res.end(JSON.stringify(response))
-})
 app.post('/auth', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://loclhost:4080");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -1263,46 +985,7 @@ app.post('/upload/rear', function(req, res) {
         }
     });
 });
-app.post('/upload/license', function(req, res) {
-    uploadlicense(req, res, function(err) {
-        if (err) {
-            return res.end(err)
-        } else {
-            var did = req.body.did;
-            var xfile = res.req.file.filename;
-            var query = { _id: did };
-            var nupdate = { $set: { license: xfile } };
-            Driver.findOneAndUpdate(query, nupdate).exec(function(err, result) {
-                if (err) { console.log(err); } else {
-                    fs.unlink('./public/assets/drivers/documents/license/' + result.license, function(err) {
-                        res.end('success');
-                    });
 
-                }
-            })
-        }
-    });
-});
-app.post('/upload/ntsa', function(req, res) {
-    uploadntsa(req, res, function(err) {
-        if (err) {
-            return res.end(err)
-        } else {
-            var did = req.body.did;
-            var xfile = res.req.file.filename;
-            var query = { _id: did };
-            var nupdate = { $set: { ntsa: xfile } };
-            Driver.findOneAndUpdate(query, nupdate).exec(function(err, result) {
-                if (err) { console.log(err); } else {
-                    fs.unlink('./public/assets/drivers/documents/ntsa/' + result.ntsa, function(err) {
-                        res.end('success');
-                    });
-
-                }
-            })
-        }
-    });
-});
 
 var onlinequery = { $set: { "settings.online": 0 } };
 Rider.updateMany(onlinequery).exec(function(err, res) {
@@ -1370,6 +1053,36 @@ io.on('connection', function(socket) {
             }
         })
     });
+    socket.on('cloud dropbox stats', function(admin) {
+        options = {
+            method: "POST",
+            url: 'https://api.dropboxapi.com/2/users/get_space_usage',
+            headers: { "Authorization": "Bearer " + process.env.DB_KEY }
+        };
+        request(options, function(err, res) {
+            if (err) {
+                var response = { status: 'disconnected' };
+                socket.emit('cloud dropbox stats', response)
+            } else {
+                var response = res.body;
+                socket.emit('cloud dropbox stats', response)
+            }
+        })
+    })
+    socket.on('cloud database stats', function(admin) {
+        mdb.db.stats(function(err, stats) {
+            if (err) {
+
+            } else {
+                socket.emit('cloud database stats', stats)
+            }
+        });
+    })
+    socket.on('cloud ssd stats', function(admin) {
+      checkDiskSpace('/').then((diskSpace) => {
+          socket.emit('cloud ssd stats', diskSpace);
+      })
+    })
     socket.on('initiate distress alert', function(xdistress) {
         var rid = xdistress.rid;
         var initname = xdistress.initiator;
@@ -1532,6 +1245,17 @@ io.on('connection', function(socket) {
                 console.log(err)
             } else {
                 socket.emit('fetch system settings', res);
+            }
+        })
+    })
+    socket.on('update vapor console', function(setup) {
+        var query = { _id: setup.sid };
+        var newset = { $set: { setmail: setup.email, setphone: setup.phone, setminredeem: setup.minred, setmaxredeem: setup.maxred, setperpoint: setup.cash, setrides: setup.maxrid, setchat: setup.chatxt, setcronfs: setup.cronfs, setcrondb: setup.crondb, setcronpn: setup.cronpn, setnrider: setup.nrider, setndriver: setup.ndriver, setmpesa: setup.smpesa, setcard: setup.scard, setpoints: setup.spoints, setpromo: setup.spromo } };
+        Setting.findOneAndUpdate(query, newset).exec(function(err, res) {
+            if (err) {
+                console.log(err)
+            } else {
+                socket.emit('update vapor console', res);
             }
         })
     })
@@ -4676,6 +4400,28 @@ io.on('connection', function(socket) {
                     preserveNullAndEmptyArrays: true
                 }
             },
+            {
+                $lookup: {
+                    from: 'settings',
+                    let: {account: 'main' },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$setid", '$$account'] }
+                                ]
+                            }
+                        }
+                    }],
+                    as: "xset"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$xset",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
         ]).exec(function(err, result) {
             if (err) { console.log(err); } else {
                 socket.emit('fetch ride receipt', result);
@@ -4946,6 +4692,10 @@ io.on('connection', function(socket) {
         var lng = location.lng;
         var pid = location.pid;
         var query = { package: ObjectId(pid), status: { $ne: 3 }, blend: 0 };
+        var squery = {setid: 'main'};
+        Setting.findOne(squery).exec(function(err, res){
+          if(err){}
+          else {
         Driver.aggregate([{
                 $geoNear: {
                     near: {
@@ -4954,7 +4704,8 @@ io.on('connection', function(socket) {
                     },
                     key: "location",
                     spherical: true,
-                    distanceField: "distance.meters"
+                    distanceField: "distance.meters",
+                    maxDistance: res.setndriver
                 }
             },
             {
@@ -4995,6 +4746,8 @@ io.on('connection', function(socket) {
                 socket.emit('fetch nearby drivers', result);
             }
         })
+      }
+    })
     })
 
     socket.on('fetch nearby riders', function(location) {
@@ -5227,6 +4980,28 @@ io.on('connection', function(socket) {
             {
                 $unwind: {
                     path: "$xdistress",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'settings',
+                    let: {account: 'main' },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$setid", '$$account'] }
+                                ]
+                            }
+                        }
+                    }],
+                    as: "xset"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$xset",
                     preserveNullAndEmptyArrays: true
                 }
             },
@@ -5752,7 +5527,7 @@ io.on('connection', function(socket) {
 
             <!-- START CENTERED WHITE CONTAINER #95059A-->
             <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${account.activationcode}</b> is your account activation code</span>
-            
+
             <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
 
             <!-- START MAIN CONTENT AREA -->
@@ -6364,7 +6139,521 @@ io.on('connection', function(socket) {
             }
         })
     })
+    socket.on('email ride receipt',function(receipt){
+      var query = {
+          _id: ObjectId(receipt.rid)
+      };
+      Ride.aggregate([{
+              $match: query
+          },
+          {
+              $lookup: {
+                  from: 'riders',
+                  localField: 'rider',
+                  foreignField: '_id',
+                  as: 'xrider'
+              }
+          },
+          {
+              $unwind: {
+                  path: "$xrider",
+                  preserveNullAndEmptyArrays: true
+              }
+          },
+          {
+              $lookup: {
+                  from: 'drivers',
+                  localField: 'driver',
+                  foreignField: '_id',
+                  as: 'xdriver'
+              }
+          },
+          {
+              $unwind: {
+                  path: "$xdriver",
+                  preserveNullAndEmptyArrays: true
+              }
+          },
+          {
+              $lookup: {
+                  from: 'rates',
+                  localField: 'packageid',
+                  foreignField: '_id',
+                  as: 'xrates'
+              }
+          },
+          {
+              $unwind: {
+                  path: "$xrates",
+                  preserveNullAndEmptyArrays: true
+              }
+          },
+          {
+              $lookup: {
+                  from: 'promos',
+                  localField: 'discountpromos',
+                  foreignField: '_id',
+                  as: 'xpromo'
+              }
+          },
+          {
+              $unwind: {
+                  path: "$xpromo",
+                  preserveNullAndEmptyArrays: true
+              }
+          },
+          {
+              $lookup: {
+                  from: 'settings',
+                  let: {account: 'main' },
+                  pipeline: [{
+                      $match: {
+                          $expr: {
+                              $and: [
+                                  { $eq: ["$setid", '$$account'] }
+                              ]
+                          }
+                      }
+                  }],
+                  as: "xset"
+              }
+          },
+          {
+              $unwind: {
+                  path: "$xset",
+                  preserveNullAndEmptyArrays: true
+              }
+          },
+      ]).exec(function(err, response) {
+          if (err) { console.log(err); } else {
+            console.log(response)
+            for (var key in response) {
+                var rideremail = response[key].xrider.email;
+                var drivername = response[key].xdriver.firstname + ' ' + response[key].xdriver.lastname;
+                var ridername = response[key].xrider.firstname + ' ' + response[key].xrider.lastname;
+                var packagephoto = response[key].xrates.photo;
+                var packagename = response[key].xrates.package;
+                var permin = response[key].xrates.permin;
+                var perkm = response[key].xrates.perkm;
+                var basefare = response[key].xrates.basefare;
+                var maxwaiting = response[key].xrates.waitingtime;
+                var perwaiting = response[key].xrates.waitingcharges;
+                var minfare = response[key].xrates.minimumfare;
+                var minprice = minfare;
+                var origin = response[key].origin;
+                var destination = response[key].destination;
+                var distance = response[key].distance;
+                var duration = response[key].duration;
+                var driveraccept = response[key].driveraccept;
+                var driverinit = response[key].driverinit;
+                var driverarrive = response[key].driverarrive;
+                var driverstart = response[key].driverstart;
+                var driverstop = response[key].driverstop;
+                var paystat = response[key].paystat;
+                var clientrate = response[key].clientrating;
+                var redeemedpoints = response[key].redeemedpoints;
+                var redeemedcash = redeemedpoints * response[key].xset.setperpoint;
+                if (driveraccept === 0) {
+                    ridestatus = 'Pending';
+                    ridecolor = 'gray';
+                } else if (driveraccept === 1) {
+                    if (driverinit === 0 && driverarrive === 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
+                        ridestatus = 'Accepted';
+                        ridecolor = 'teal';
+                    } else if (driverinit > 0 && driverarrive === 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
+                        ridestatus = 'Initialized';
+                        ridecolor = 'purple';
+                    } else if (driverinit > 0 && driverarrive > 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
+                        ridestatus = 'Arrived';
+                        ridecolor = 'deeppurple';
+                    } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
+                        ridestatus = 'In Progress';
+                        ridecolor = 'green';
+                    } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 0 && clientrate === 0) {
+                        ridestatus = 'Stopped';
+                        ridecolor = 'pink';
 
+                    } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat > 0 && clientrate === 0) {
+                        if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 1 && clientrate === 0) {
+                            ridestatus = 'Paid';
+                            ridecolor = 'green';
+                        } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 2 && clientrate === 0) {
+                            ridestatus = 'Unpaid';
+                            ridecolor = 'pink';
+                        }
+                    } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat > 0 && clientrate > 0) {
+                        ridestatus = 'Complete';
+                        ridecolor = 'primary';
+                    }
+                } else if (driveraccept === 2) {
+                    ridestatus = 'Rejected';
+                    ridecolor = 'red';
+                } else if (driveraccept === 3) {
+                    ridestatus = 'Cancelled';
+                    ridecolor = 'deeporange';
+                }
+                if (redeemedcash > 0) {
+                        redeemcolor = 'text-color-primary';
+                    } else {
+                        redeemcolor = 'text-color-gray';
+                    }
+                if (driverarrive === 0 && driverstart === 0) {
+                    var waitingtime = 0;
+                } else if (driverarrive > 0 && driverstart === 0) {
+                    var waitingtime = Date.now() - driverarrive;
+                } else if (driverarrive > 0 && driverstart > 0) {
+                    var waitingtime = driverstart - driverarrive;
+                }
+                if (driverstart === 0 && driverstop === 0) {
+                    var ridetime = 0;
+                } else if (driverstart > 0 && driverstop === 0) {
+                    var ridetime = Date.now() - driverstart;
+                } else if (driverstart > 0 && driverstop > 0) {
+                    var ridetime = driverstop - driverstart;
+                }
+                if (response[key].xpromo) {
+                    prodiscount = response[key].xpromo.discount;
+                    procolor = 'text-color-primary';
+                    procodebase = response[key].xpromo.promocode;
+                } else {
+                    prodiscount = 0;
+                    procolor = 'text-color-gray';
+                    procodebase = 'NONE';
+                }
+                var waitingtimemins = Math.round(waitingtime / 60000);
+                var ridetimemins = Math.round(ridetime / 60000);
+                var waitingallow = (maxwaiting * 60000);
+                if (waitingtime > waitingallow) {
+                    waitingfee = Math.round(((waitingtime - waitingallow) / 60000) * perwaiting);
+                    waitingcolor = 'text-color-primary';
+                } else {
+                    waitingfee = 0;
+                    waitingcolor = 'text-color-gray';
+                }
+                if (ridetime > 0) {
+                    ridefee = Math.round((ridetime * permin) / 60000);
+                    ridecolor = 'text-color-primary';
+                } else {
+                    ridefee = 0;
+                    ridecolor = 'text-color-gray';
+                }
+                var distancekm = (distance / 1000).toFixed(2);
+                var distancefee = Math.round((distance / 1000) * perkm);
+                var totalfee = basefare + waitingfee + ridefee + distancefee;
+
+                var payoutfee = totalfee - redeemedcash;
+                var proamount = Math.round((prodiscount / 100) * payoutfee);
+                var finalfee = payoutfee - proamount;
+                if (finalfee < minprice && prodiscount > 0 || finalfee < minprice && redeemedcash > 0) {
+                    sysprice = finalfee;
+                    ppicker = 'text-color-gray';
+                } else if (finalfee < minprice && prodiscount === 0 || finalfee < minprice && redeemedcash === 0) {
+                    sysprice = minprice;
+                    ppicker = 'text-color-primary';
+                } else if (finalfee > minprice) {
+                    sysprice = finalfee;
+                    ppicker = 'text-color-gray';
+                } else {
+                    ppicker = '';
+                }
+                var mailOptions = {
+                    priority: 'high',
+                    from: 'Tufike Pamoja Cabs <tufike@lexacle.com>',
+                    to: receipt.email,
+                    replyTo: 'tufikecabs@gmail.com',
+                    subject: 'Tufike Pamoja Ride Receipt',
+                    html: `
+                    <!doctype html>
+                    <html>
+                    <head>
+                    <meta name="viewport" content="width=device-width">
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <title>Ride Transaction Receipt</title>
+                    <style>
+                    @media only screen and (max-width: 620px) {
+                      table[class=body] h1 {
+                        font-size: 28px !important;
+                        margin-bottom: 10px !important;
+                    }
+                    table[class=body] p,
+                    table[class=body] ul,
+                    table[class=body] ol,
+                    table[class=body] td,
+                    table[class=body] span,
+                    table[class=body] a {
+                        font-size: 16px !important;
+                    }
+                    table[class=body] .wrapper,
+                    table[class=body] .article {
+                        padding: 10px !important;
+                    }
+                    table[class=body] .content {
+                        padding: 0 !important;
+                    }
+                    table[class=body] .container {
+                        padding: 0 !important;
+                        width: 100% !important;
+                    }
+                    table[class=body] .main {
+                        border-left-width: 0 !important;
+                        border-radius: 0 !important;
+                        border-right-width: 0 !important;
+                    }
+                    table[class=body] .btn table {
+                        width: 100% !important;
+                    }
+                    table[class=body] .btn {
+                        width: 100% !important;
+                    }
+                    table[class=body] .img-responsive {
+                        height: auto !important;
+                        max-width: 100% !important;
+                        width: auto !important;
+                    }
+                }
+                @media all {
+                  .ExternalClass {
+                    width: 100%;
+                }
+                .ExternalClass,
+                .ExternalClass p,
+                .ExternalClass span,
+                .ExternalClass font,
+                .ExternalClass td,
+                .ExternalClass div {
+                    line-height: 100%;
+                }
+                .apple-link a {
+                    color: inherit !important;
+                    font-family: inherit !important;
+                    font-size: inherit !important;
+                    font-weight: inherit !important;
+                    line-height: inherit !important;
+                    text-decoration: none !important;
+                }
+                #MessageViewBody a {
+                    color: inherit;
+                    text-decoration: none;
+                    font-size: inherit;
+                    font-family: inherit;
+                    font-weight: inherit;
+                    line-height: inherit;
+                }
+            }
+            </style>
+            </head>
+            <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
+            <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
+            <tr>
+            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
+            <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
+            <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
+
+            <!-- START CENTERED WHITE CONTAINER -->
+            <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>Ride Transaction Receipt</b></span>
+            <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
+
+            <!-- START MAIN CONTENT AREA -->
+            <tr style="background-image: linear-gradient(60deg, #7F2DD3, #450080) !important;">
+                <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
+                Tufike Pamoja Ride Receipt
+                </td>
+                </tr>
+            <tr>
+            <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
+            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
+            <tr>
+            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
+            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Hi ${ridername},</p>
+            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Enjoy personalized Taxi Services wherever you are, whenever you need it. Below is your Ride Transaction Receipt</p>
+            <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
+            <tbody>
+            <tr>
+            <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;">
+            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
+            <tbody>
+            <div class="list media-list no-margin no-padding animated fadeIn">
+            <ul>
+            <li>
+            <div class="item-content">
+            <div class="item-media"></div>
+            <div class="item-inner">
+            <div class="item-title-row">
+            <div class="item-subtitle">${packagename} Package</div>
+            <div class="item-after">KES. ${permin} Per min</div>
+            </div>
+            <div class="item-subtitle text-color-gray">
+            Minimum <span class="${ppicker}">KES. ${minfare}</span>
+            <span class="right">Base Fare <span class="text-color-primary">KES. ${basefare}</span></span>
+            </div>
+            </div>
+            </div>
+            </li>
+            <li>
+            <div class="item-content">
+            <div class="item-media"></div>
+            <div class="item-inner">
+            <div class="item-title-row">
+            <div class="item-subtitle">Total Ride Time</div>
+            <div class="item-after text-color-gray">${ridetimemins} Mins</div>
+            </div>
+            <div class="item-subtitle">
+            Driver Waiting Time
+            <span class="right text-color-gray">${waitingtimemins} Mins</span>
+            </div>
+            </div>
+            </div>
+            </li>
+            <li>
+            <div class="item-content">
+            <div class="item-media"></div>
+            <div class="item-inner">
+            <div class="item-title-row">
+            <div class="item-subtitle">Ride Time Fee</div>
+            <div class="item-after ${ridecolor}">KES. ${ridefee}</div>
+            </div>
+            <div class="item-subtitle">
+            Waiting Time Fee
+            <span class="right ${waitingcolor}">KES. ${waitingfee}</span>
+            </div>
+            </div>
+            </div>
+            </li>
+            <li>
+            <div class="item-content">
+            <div class="item-media"></div>
+            <div class="item-inner">
+            <div class="item-title-row">
+            <div class="item-subtitle">Distance Fee</div>
+            <div class="item-after text-color-primary">KES. ${distancefee}</div>
+            </div>
+            <div class="item-subtitle">
+            Ride Distance
+            <span class="right text-color-gray">${distancekm} KM</span>
+            </div>
+            </div>
+            </div>
+            </li>
+            <li>
+            <div class="item-content">
+            <div class="item-media"></div>
+            <div class="item-inner">
+            <div class="item-title-row">
+            <div class="item-subtitle">Rewards Discount</div>
+            <div class="item-after ${redeemcolor}">KES. ${redeemedcash}</div>
+            </div>
+            <div class="item-subtitle">
+            Points Redeemed
+            <span class="right text-color-gray">${redeemedpoints} Pts</span>
+            </div>
+            </div>
+            </div>
+            </li>
+            <li>
+            <div class="item-content">
+            <div class="item-media"></div>
+            <div class="item-inner">
+            <div class="item-title-row">
+            <div class="item-subtitle">Promo Discount</div>
+            <div class="item-after ${procolor}">KES. ${proamount}</div>
+            </div>
+            <div class="item-subtitle">
+            Promo Code <span class="text-color-gray"><b>${procodebase}</b></span>
+            <span class="right text-color-gray">${prodiscount}% Off</span>
+            </div>
+            </div>
+            </div>
+            </li>
+            <li>
+            <div class="item-content">
+            <div class="item-media"></div>
+            <div class="item-inner">
+            <div class="item-title-row">
+            <div class="item-subtitle">Payable Ride Fees</div>
+            <div class="item-after text-color-primary"><b>KES. ${sysprice}</b></div>
+            </div>
+            <div class="item-subtitle">
+            Total Ride Charges
+            <span class="right text-color-gray">KES. ${totalfee}</span>
+            </div>
+            </div>
+            </div>
+            </li>
+            <li>
+            <div class="item-content">
+            <div class="item-media"></div>
+            <div class="item-inner">
+            <div class="item-title-row">
+            <div class="item-subtitle">Driver</div>
+            <div class="item-after text-color-gray">${drivername}</div>
+            </div>
+            <div class="item-subtitle">
+            Ride status
+            <span class="right text-color-gray">${ridestatus}</span>
+            </div>
+            </div>
+            </div>
+            </li>
+            </ul>
+            </div>
+            </tbody>
+            </table>
+            </td>
+            </tr>
+            </tbody>
+            </table>
+            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
+            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
+            Best regards,<br>
+            Tufike Pamoja Team<br>
+            +254 716 435 983
+            </p>
+            </td>
+            </tr>
+            </table>
+            </td>
+            </tr>
+
+            <!-- END MAIN CONTENT AREA -->
+            </table>
+
+            <!-- START FOOTER -->
+            <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%;">
+            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
+            <tr style="background-image: linear-gradient(60deg, #450080, #7F2DD3) !important;">
+            <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
+            <span class="apple-link" style="color: #fff;font-size: 12px;text-align: center;">Tufike Pamoja Cabs, Nanyuki - Kenya, tufikecabs@gmail.com</span>
+            </td>
+            </tr>
+            <tr>
+            <tr>
+            <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
+            Developed by <a href="https://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
+            </td>
+            </tr>
+            </table>
+            </div>
+            </div>
+            </td>
+            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
+            </tr>
+            </table>
+            </body>
+            </html>`};
+          }
+        transporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+              socket.emit('email ride receipt', info.response);
+              console.log('Email sent: ' + info.response);
+            }
+        });
+
+          }
+
+      })
+    })
     socket.on('resend rider code', function(account) {
         var query = {
             _id: account.uid
@@ -6946,16 +7235,17 @@ io.on('connection', function(socket) {
     })
 
     socket.on('update vehicle photo', function(profile) {
-        var photo = profile.photo;
-        var base64Data = photo.replace(/^data:image\/png;base64,/, "");
-        var loccy = './public/assets/vehicles/avatars/';
-        var filley = profile.oid + '.png';
-        var folly = 'vehicles/avatars/';
-        require("fs").writeFile(loccy + filley, base64Data, 'base64',
-            function(err, data) {
-                if (err) {
-                    console.log('err', err);
-                } else {
+      var photoData = profile.photo;
+      var base64Data = photoData.replace(/^data:image\/png;base64,/, "");
+      var photoName = Buffer.from(base64Data, 'base64');
+      var file = profile.oid + '.png',
+          folder = 'assets/vehicles/avatars/';
+      var fidel = new FTP();
+      fidel.on('ready', function() {
+          fidel.put(photoName, folder + file, function(err) {
+              if (err) {
+                  console.log('err', err);
+              } else {
                     var photoname = profile.oid + '.png';
                     var query = {
                         _id: profile.oid
@@ -7005,23 +7295,27 @@ io.on('connection', function(socket) {
                                     const Notificationdata = new Notification(ndata);
                                     Notificationdata.save((err, result) => {})
                                     io.sockets.emit('new vehicle notification', ndata);
-                                    dropIt(loccy, folly, filley);
-                                }
-                            })
-                        }
-                    })
-                }
-            });
-    })
+                                    //dropIt(loccy, folly, filley);
+                                  }
+                              })
+                          }
+                      })
+                      fidel.end();
+                  }
+              });
+          });
+          fidel.connect(ftpConnection);
+      })
 
     socket.on('update rider photo', function(profile) {
-        var photo = profile.photo;
-        var base64Data = photo.replace(/^data:image\/png;base64,/, "");
-        var loccy = './public/assets/riders/avatars/';
-        var filley = profile.uid + '.png';
-        var folly = 'riders/avatars/';
-        require("fs").writeFile(loccy + filley, base64Data, 'base64',
-            function(err, data) {
+        var photoData = profile.photo;
+        var base64Data = photoData.replace(/^data:image\/png;base64,/, "");
+        var photoName = Buffer.from(base64Data, 'base64');
+        var file = profile.uid + '.png',
+            folder = 'assets/riders/avatars/';
+        var fidel = new FTP();
+        fidel.on('ready', function() {
+            fidel.put(photoName, folder + file, function(err) {
                 if (err) {
                     console.log('err', err);
                 } else {
@@ -7094,24 +7388,30 @@ io.on('connection', function(socket) {
                                     const Notificationdata = new Notification(ndata);
                                     Notificationdata.save((err, result) => {})
                                     io.sockets.emit('new rider notification', ndata);
-                                    dropIt(loccy, folly, filley);
                                 }
                             })
                         }
                     })
+                    fidel.end();
                 }
             });
+        });
+        fidel.connect(ftpConnection);
     })
+
+
+
     socket.on('update driver photo', function(profile) {
-        var photo = profile.photo;
-        var base64Data = photo.replace(/^data:image\/png;base64,/, "");
-        var loccy = './public/assets/drivers/avatars/';
-        var filley = profile.did + '.png';
-        var folly = 'drivers/avatars/';
-        require("fs").writeFile(loccy + filley, base64Data, 'base64',
-            function(err, data) {
+      var photoData = profile.photo;
+      var base64Data = photoData.replace(/^data:image\/png;base64,/, "");
+      var photoName = Buffer.from(base64Data, 'base64');
+      var file = profile.did + '.png',
+          folder = 'assets/drivers/avatars/';
+      var fidel = new FTP();
+      fidel.on('ready', function() {
+          fidel.put(photoName, folder + file, function(err) {
                 if (err) {
-                    console.log('err', err);
+                    console.log(err)
                 } else {
                     var photoname = profile.did + '.png';
                     var query = {
@@ -7182,13 +7482,15 @@ io.on('connection', function(socket) {
                                     const Notificationdata = new Notification(ndata);
                                     Notificationdata.save((err, result) => {})
                                     io.sockets.emit('new driver notification', ndata);
-                                    dropIt(loccy, folly, filley);
                                 }
                             })
                         }
                     })
+                    fidel.end();
                 }
             });
+        });
+        fidel.connect(ftpConnection);
     })
     socket.on('update vehicle firstname', function(profile) {
         var query = {
@@ -8492,6 +8794,10 @@ io.on('connection', function(socket) {
     socket.on('nearby drivers chat', function(user) {
         var lat = user.lat;
         var lng = user.lng;
+        var squery =  {setid: 'main'};
+        Setting.findOne(squery).exec(function(err, res){
+          if(err){}
+          else {
         Driver.find({
             location: {
                 $near: {
@@ -8500,7 +8806,7 @@ io.on('connection', function(socket) {
                         coordinates: [lng, lat]
                     },
                     //$minDistance: 1000,
-                    //$maxDistance: 20000
+                    $maxDistance: res.setndriver
                 }
             }
         }).exec(function(err, result) {
@@ -8510,11 +8816,17 @@ io.on('connection', function(socket) {
                 socket.emit('nearby drivers chat', result);
             }
         })
+      }
+      })
     })
 
     socket.on('nearby riders chat', function(user) {
         var lat = user.lat;
         var lng = user.lng;
+        var squery =  {setid: 'main'};
+        Setting.findOne(squery).exec(function(err, res){
+          if(err){}
+          else {
         Rider.find({
             location: {
                 $near: {
@@ -8523,7 +8835,7 @@ io.on('connection', function(socket) {
                         coordinates: [lng, lat]
                     },
                     //$minDistance: 1000,
-                    //$maxDistance: 20000
+                    $maxDistance: res.setnrider
                 }
             }
         }).exec(function(err, result) {
@@ -8531,10 +8843,11 @@ io.on('connection', function(socket) {
                 console.log(err)
             } else {
                 socket.emit('nearby riders chat', result);
-            }
+              }
+          })
+        }
         })
-    })
-
+      })
 
 
     //////////// SEND CHAT MESSAGE ///////////////
