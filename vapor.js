@@ -21,7 +21,6 @@ var sftpStorage = require('multer-sftp');
 var FTPStorage = require('multer-ftp');
 var FTP = require('ftp');
 const AWS = require('aws-sdk');
-const S3_BUCKET = process.env.S3_BUCKET;
 const Setting = require("./models/settings.js");
 const Admin = require("./models/admin.js");
 const Rider = require("./models/riders.js");
@@ -41,16 +40,16 @@ const Cms = require("./models/cms.js");
 const freelance = '5f47f9e62dc7b16cb6f33c40';
 const player = require('play-sound')(opts = {})
 const Supportchat = require("./models/supportchat.js");
-const ftpConnection = { host: process.env.FTP_HOST, secure: false, user: process.env.FTP_USER, password: process.env.FTP_KEY };
-const url = process.env.DB_URL;
-//const atsdk = { apiKey: 'c10013ca47dc4b9a61981787523761deb333a2aa7a33d387c3f103b187b007fa', username: 'sandbox' };
-const atsdk = { apiKey: process.env.AT_KEY, username: process.env.AT_USER };
+const ftpConnection = { host: 'lexacle.com', secure: false, user: 'vapor@cloud.lexcle.com', password: 'Leslie#Myles@2028' };
+const url = 'mongodb+srv://tufike:nUJjC9qzGYih8ZrX@cluster0.17g7f.mongodb.net/tufike?retryWrites=true&w=majority';
+const atsdk = { apiKey: '8d82a365b9424afffc695b8558648dc4b29b7d63b86db1313028eb4e54052209', username: 'tufike' };
 const Flutterwave = require('flutterwave-node-v3');
-const flw = new Flutterwave(process.env.FLW_PUBK, process.env.FLW_SECK);
+const flw = new Flutterwave('FLWPUBK-1fea7bc68f87f43c193cc1bb05b7fb4a-X', 'FLWSECK-ad2fead7d8ec7c8fdafcc9ef41d8f44e-X');
 const AfricasTalking = require('africastalking')(atsdk);
 const sms = AfricasTalking.SMS;
 const smb = AfricasTalking.APPLICATION;
-const dropBoxAPI = {method: "POST",rl: 'https://api.dropboxapi.com/2/users/get_space_usage',headers: { "Authorization": "Bearer " +process.env.DB_KEY }};
+const dbToken = 'EtwLS5gnxUYAAAAAAAAAARH-Ycv4cdQwqbxWk5Ip_inxzskPwrmAZQ1DTB16YHHY';
+const dropBoxAPI = { method: "POST", url: 'https://api.dropboxapi.com/2/users/get_space_usage', headers: { "Authorization": "Bearer " + dbToken } };
 mongoose.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -101,7 +100,7 @@ function dropIt(loccy, folly, filley) {
         url: 'https://content.dropboxapi.com/2/files/upload',
         headers: {
             "Content-Type": "application/octet-stream",
-            "Authorization": "Bearer " + process.env.DB_KEY,
+            "Authorization": "Bearer " + dbToken,
             "Dropbox-API-Arg": "{\"path\": \"/vapor/" + folly + filley + "\",\"mode\": \"overwrite\",\"autorename\": false,\"mute\": false}",
         },
         body: content
@@ -115,7 +114,7 @@ function dropIt(loccy, folly, filley) {
 
 function unDropIt(folly, undrop) {
     var headers = {
-        'Authorization': 'Bearer ' + process.env.DB_KEY,
+        'Authorization': 'Bearer ' + dbToken,
         'Content-Type': 'application/json'
     };
     var dataString = '{"path": "/vapor/' + folly + undrop + '"}';
@@ -318,7 +317,7 @@ var transporter = nodemailer.createTransport({
         pass: 'Tufike@2019'
     }
 });
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 4080;
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 http.listen(PORT, '0.0.0.0', function() {
@@ -336,24 +335,24 @@ function systemPunch() {
 
     smb.fetchApplicationData()
         .then(response => {
-            var res = {istat: 'success', response};
+            var res = { istat: 'success', response };
             io.sockets.emit('sms balance', res)
         })
         .catch(error => {
-          var res = {istat: 'failed'};
-          io.sockets.emit('sms balance', res)
-            //console.log(error);
+            var res = { istat: 'failed' };
+            io.sockets.emit('sms balance', res)
+                //console.log(error);
         });
-    var pquery1 = {packagename: process.env.PACKAGE_ONE};
-    var pquery2 = {packagename: process.env.PACKAGE_TWO};
-    var pquery3 = {packagename: process.env.PACKAGE_THREE};
-    Ride.countDocuments(pquery1).exec(function(err, p1){
-      Ride.countDocuments(pquery2).exec(function(err, p2){
-        Ride.countDocuments(pquery3).exec(function(err, p3){
-          var preferences = {basic: p1, comfy: p2, lux: p3};
-          io.sockets.emit('all cron preferences', preferences);
+    var pquery1 = { packagename: 'Basic' };
+    var pquery2 = { packagename: 'Comfy' };
+    var pquery3 = { packagename: 'Lux' };
+    Ride.countDocuments(pquery1).exec(function(err, p1) {
+        Ride.countDocuments(pquery2).exec(function(err, p2) {
+            Ride.countDocuments(pquery3).exec(function(err, p3) {
+                var preferences = { basic: p1, comfy: p2, lux: p3 };
+                io.sockets.emit('all cron preferences', preferences);
+            })
         })
-      })
     })
     Rider.find().exec(function(err, res) {
         if (err) { console.log(err); } else {
@@ -1057,7 +1056,7 @@ io.on('connection', function(socket) {
         options = {
             method: "POST",
             url: 'https://api.dropboxapi.com/2/users/get_space_usage',
-            headers: { "Authorization": "Bearer " + process.env.DB_KEY }
+            headers: { "Authorization": "Bearer " + dbToken }
         };
         request(options, function(err, res) {
             if (err) {
@@ -1079,9 +1078,9 @@ io.on('connection', function(socket) {
         });
     })
     socket.on('cloud ssd stats', function(admin) {
-      checkDiskSpace('/').then((diskSpace) => {
-          socket.emit('cloud ssd stats', diskSpace);
-      })
+        checkDiskSpace('/').then((diskSpace) => {
+            socket.emit('cloud ssd stats', diskSpace);
+        })
     })
     socket.on('initiate distress alert', function(xdistress) {
         var rid = xdistress.rid;
@@ -4403,7 +4402,7 @@ io.on('connection', function(socket) {
             {
                 $lookup: {
                     from: 'settings',
-                    let: {account: 'main' },
+                    let: { account: 'main' },
                     pipeline: [{
                         $match: {
                             $expr: {
@@ -4692,62 +4691,61 @@ io.on('connection', function(socket) {
         var lng = location.lng;
         var pid = location.pid;
         var query = { package: ObjectId(pid), status: { $ne: 3 }, blend: 0 };
-        var squery = {setid: 'main'};
-        Setting.findOne(squery).exec(function(err, res){
-          if(err){}
-          else {
-        Driver.aggregate([{
-                $geoNear: {
-                    near: {
-                        type: "Point",
-                        coordinates: [lng, lat]
-                    },
-                    key: "location",
-                    spherical: true,
-                    distanceField: "distance.meters",
-                    maxDistance: res.setndriver
-                }
-            },
-            {
-                $match: query
-            },
-            {
-                $limit: 20
-            }, {
-                $lookup: {
-                    from: 'rides',
-                    localField: '_id',
-                    foreignField: 'driver',
-                    as: 'xrides'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'rides',
-                    let: { did: "$_id", rstop: 0, status: 1 },
-                    pipeline: [{
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $eq: ["$driver", '$$did'] },
-                                    { $gt: ["$driverstop", '$$rstop'] },
-                                    { $eq: ["$driveraccept", "$$status"] }
-                                ]
-                            }
+        var squery = { setid: 'main' };
+        Setting.findOne(squery).exec(function(err, res) {
+            if (err) {} else {
+                Driver.aggregate([{
+                        $geoNear: {
+                            near: {
+                                type: "Point",
+                                coordinates: [lng, lat]
+                            },
+                            key: "location",
+                            spherical: true,
+                            distanceField: "distance.meters",
+                            maxDistance: res.setndriver
                         }
-                    }],
-                    as: "arides"
-                }
-            },
-        ]).exec(function(err, result) {
-            if (err) {
-                console.log(err)
-            } else {
-                socket.emit('fetch nearby drivers', result);
+                    },
+                    {
+                        $match: query
+                    },
+                    {
+                        $limit: 20
+                    }, {
+                        $lookup: {
+                            from: 'rides',
+                            localField: '_id',
+                            foreignField: 'driver',
+                            as: 'xrides'
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'rides',
+                            let: { did: "$_id", rstop: 0, status: 1 },
+                            pipeline: [{
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$driver", '$$did'] },
+                                            { $gt: ["$driverstop", '$$rstop'] },
+                                            { $eq: ["$driveraccept", "$$status"] }
+                                        ]
+                                    }
+                                }
+                            }],
+                            as: "arides"
+                        }
+                    },
+                ]).exec(function(err, result) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        socket.emit('fetch nearby drivers', result);
+                    }
+                })
             }
         })
-      }
-    })
     })
 
     socket.on('fetch nearby riders', function(location) {
@@ -4986,7 +4984,7 @@ io.on('connection', function(socket) {
             {
                 $lookup: {
                     from: 'settings',
-                    let: {account: 'main' },
+                    let: { account: 'main' },
                     pipeline: [{
                         $match: {
                             $expr: {
@@ -6139,230 +6137,230 @@ io.on('connection', function(socket) {
             }
         })
     })
-    socket.on('email ride receipt',function(receipt){
-      var query = {
-          _id: ObjectId(receipt.rid)
-      };
-      Ride.aggregate([{
-              $match: query
-          },
-          {
-              $lookup: {
-                  from: 'riders',
-                  localField: 'rider',
-                  foreignField: '_id',
-                  as: 'xrider'
-              }
-          },
-          {
-              $unwind: {
-                  path: "$xrider",
-                  preserveNullAndEmptyArrays: true
-              }
-          },
-          {
-              $lookup: {
-                  from: 'drivers',
-                  localField: 'driver',
-                  foreignField: '_id',
-                  as: 'xdriver'
-              }
-          },
-          {
-              $unwind: {
-                  path: "$xdriver",
-                  preserveNullAndEmptyArrays: true
-              }
-          },
-          {
-              $lookup: {
-                  from: 'rates',
-                  localField: 'packageid',
-                  foreignField: '_id',
-                  as: 'xrates'
-              }
-          },
-          {
-              $unwind: {
-                  path: "$xrates",
-                  preserveNullAndEmptyArrays: true
-              }
-          },
-          {
-              $lookup: {
-                  from: 'promos',
-                  localField: 'discountpromos',
-                  foreignField: '_id',
-                  as: 'xpromo'
-              }
-          },
-          {
-              $unwind: {
-                  path: "$xpromo",
-                  preserveNullAndEmptyArrays: true
-              }
-          },
-          {
-              $lookup: {
-                  from: 'settings',
-                  let: {account: 'main' },
-                  pipeline: [{
-                      $match: {
-                          $expr: {
-                              $and: [
-                                  { $eq: ["$setid", '$$account'] }
-                              ]
-                          }
-                      }
-                  }],
-                  as: "xset"
-              }
-          },
-          {
-              $unwind: {
-                  path: "$xset",
-                  preserveNullAndEmptyArrays: true
-              }
-          },
-      ]).exec(function(err, response) {
-          if (err) { console.log(err); } else {
-            console.log(response)
-            for (var key in response) {
-                var rideremail = response[key].xrider.email;
-                var drivername = response[key].xdriver.firstname + ' ' + response[key].xdriver.lastname;
-                var ridername = response[key].xrider.firstname + ' ' + response[key].xrider.lastname;
-                var packagephoto = response[key].xrates.photo;
-                var packagename = response[key].xrates.package;
-                var permin = response[key].xrates.permin;
-                var perkm = response[key].xrates.perkm;
-                var basefare = response[key].xrates.basefare;
-                var maxwaiting = response[key].xrates.waitingtime;
-                var perwaiting = response[key].xrates.waitingcharges;
-                var minfare = response[key].xrates.minimumfare;
-                var minprice = minfare;
-                var origin = response[key].origin;
-                var destination = response[key].destination;
-                var distance = response[key].distance;
-                var duration = response[key].duration;
-                var driveraccept = response[key].driveraccept;
-                var driverinit = response[key].driverinit;
-                var driverarrive = response[key].driverarrive;
-                var driverstart = response[key].driverstart;
-                var driverstop = response[key].driverstop;
-                var paystat = response[key].paystat;
-                var clientrate = response[key].clientrating;
-                var redeemedpoints = response[key].redeemedpoints;
-                var redeemedcash = redeemedpoints * response[key].xset.setperpoint;
-                if (driveraccept === 0) {
-                    ridestatus = 'Pending';
-                    ridecolor = 'gray';
-                } else if (driveraccept === 1) {
-                    if (driverinit === 0 && driverarrive === 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
-                        ridestatus = 'Accepted';
-                        ridecolor = 'teal';
-                    } else if (driverinit > 0 && driverarrive === 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
-                        ridestatus = 'Initialized';
-                        ridecolor = 'purple';
-                    } else if (driverinit > 0 && driverarrive > 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
-                        ridestatus = 'Arrived';
-                        ridecolor = 'deeppurple';
-                    } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
-                        ridestatus = 'In Progress';
-                        ridecolor = 'green';
-                    } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 0 && clientrate === 0) {
-                        ridestatus = 'Stopped';
-                        ridecolor = 'pink';
-
-                    } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat > 0 && clientrate === 0) {
-                        if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 1 && clientrate === 0) {
-                            ridestatus = 'Paid';
-                            ridecolor = 'green';
-                        } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 2 && clientrate === 0) {
-                            ridestatus = 'Unpaid';
-                            ridecolor = 'pink';
-                        }
-                    } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat > 0 && clientrate > 0) {
-                        ridestatus = 'Complete';
-                        ridecolor = 'primary';
-                    }
-                } else if (driveraccept === 2) {
-                    ridestatus = 'Rejected';
-                    ridecolor = 'red';
-                } else if (driveraccept === 3) {
-                    ridestatus = 'Cancelled';
-                    ridecolor = 'deeporange';
+    socket.on('email ride receipt', function(receipt) {
+        var query = {
+            _id: ObjectId(receipt.rid)
+        };
+        Ride.aggregate([{
+                $match: query
+            },
+            {
+                $lookup: {
+                    from: 'riders',
+                    localField: 'rider',
+                    foreignField: '_id',
+                    as: 'xrider'
                 }
-                if (redeemedcash > 0) {
+            },
+            {
+                $unwind: {
+                    path: "$xrider",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'drivers',
+                    localField: 'driver',
+                    foreignField: '_id',
+                    as: 'xdriver'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$xdriver",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'rates',
+                    localField: 'packageid',
+                    foreignField: '_id',
+                    as: 'xrates'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$xrates",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'promos',
+                    localField: 'discountpromos',
+                    foreignField: '_id',
+                    as: 'xpromo'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$xpromo",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'settings',
+                    let: { account: 'main' },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$setid", '$$account'] }
+                                ]
+                            }
+                        }
+                    }],
+                    as: "xset"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$xset",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+        ]).exec(function(err, response) {
+            if (err) { console.log(err); } else {
+                console.log(response)
+                for (var key in response) {
+                    var rideremail = response[key].xrider.email;
+                    var drivername = response[key].xdriver.firstname + ' ' + response[key].xdriver.lastname;
+                    var ridername = response[key].xrider.firstname + ' ' + response[key].xrider.lastname;
+                    var packagephoto = response[key].xrates.photo;
+                    var packagename = response[key].xrates.package;
+                    var permin = response[key].xrates.permin;
+                    var perkm = response[key].xrates.perkm;
+                    var basefare = response[key].xrates.basefare;
+                    var maxwaiting = response[key].xrates.waitingtime;
+                    var perwaiting = response[key].xrates.waitingcharges;
+                    var minfare = response[key].xrates.minimumfare;
+                    var minprice = minfare;
+                    var origin = response[key].origin;
+                    var destination = response[key].destination;
+                    var distance = response[key].distance;
+                    var duration = response[key].duration;
+                    var driveraccept = response[key].driveraccept;
+                    var driverinit = response[key].driverinit;
+                    var driverarrive = response[key].driverarrive;
+                    var driverstart = response[key].driverstart;
+                    var driverstop = response[key].driverstop;
+                    var paystat = response[key].paystat;
+                    var clientrate = response[key].clientrating;
+                    var redeemedpoints = response[key].redeemedpoints;
+                    var redeemedcash = redeemedpoints * response[key].xset.setperpoint;
+                    if (driveraccept === 0) {
+                        ridestatus = 'Pending';
+                        ridecolor = 'gray';
+                    } else if (driveraccept === 1) {
+                        if (driverinit === 0 && driverarrive === 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
+                            ridestatus = 'Accepted';
+                            ridecolor = 'teal';
+                        } else if (driverinit > 0 && driverarrive === 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
+                            ridestatus = 'Initialized';
+                            ridecolor = 'purple';
+                        } else if (driverinit > 0 && driverarrive > 0 && driverstart === 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
+                            ridestatus = 'Arrived';
+                            ridecolor = 'deeppurple';
+                        } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop === 0 && paystat === 0 && clientrate === 0) {
+                            ridestatus = 'In Progress';
+                            ridecolor = 'green';
+                        } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 0 && clientrate === 0) {
+                            ridestatus = 'Stopped';
+                            ridecolor = 'pink';
+
+                        } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat > 0 && clientrate === 0) {
+                            if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 1 && clientrate === 0) {
+                                ridestatus = 'Paid';
+                                ridecolor = 'green';
+                            } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat === 2 && clientrate === 0) {
+                                ridestatus = 'Unpaid';
+                                ridecolor = 'pink';
+                            }
+                        } else if (driverinit > 0 && driverarrive > 0 && driverstart > 0 && driverstop > 0 && paystat > 0 && clientrate > 0) {
+                            ridestatus = 'Complete';
+                            ridecolor = 'primary';
+                        }
+                    } else if (driveraccept === 2) {
+                        ridestatus = 'Rejected';
+                        ridecolor = 'red';
+                    } else if (driveraccept === 3) {
+                        ridestatus = 'Cancelled';
+                        ridecolor = 'deeporange';
+                    }
+                    if (redeemedcash > 0) {
                         redeemcolor = 'text-color-primary';
                     } else {
                         redeemcolor = 'text-color-gray';
                     }
-                if (driverarrive === 0 && driverstart === 0) {
-                    var waitingtime = 0;
-                } else if (driverarrive > 0 && driverstart === 0) {
-                    var waitingtime = Date.now() - driverarrive;
-                } else if (driverarrive > 0 && driverstart > 0) {
-                    var waitingtime = driverstart - driverarrive;
-                }
-                if (driverstart === 0 && driverstop === 0) {
-                    var ridetime = 0;
-                } else if (driverstart > 0 && driverstop === 0) {
-                    var ridetime = Date.now() - driverstart;
-                } else if (driverstart > 0 && driverstop > 0) {
-                    var ridetime = driverstop - driverstart;
-                }
-                if (response[key].xpromo) {
-                    prodiscount = response[key].xpromo.discount;
-                    procolor = 'text-color-primary';
-                    procodebase = response[key].xpromo.promocode;
-                } else {
-                    prodiscount = 0;
-                    procolor = 'text-color-gray';
-                    procodebase = 'NONE';
-                }
-                var waitingtimemins = Math.round(waitingtime / 60000);
-                var ridetimemins = Math.round(ridetime / 60000);
-                var waitingallow = (maxwaiting * 60000);
-                if (waitingtime > waitingallow) {
-                    waitingfee = Math.round(((waitingtime - waitingallow) / 60000) * perwaiting);
-                    waitingcolor = 'text-color-primary';
-                } else {
-                    waitingfee = 0;
-                    waitingcolor = 'text-color-gray';
-                }
-                if (ridetime > 0) {
-                    ridefee = Math.round((ridetime * permin) / 60000);
-                    ridecolor = 'text-color-primary';
-                } else {
-                    ridefee = 0;
-                    ridecolor = 'text-color-gray';
-                }
-                var distancekm = (distance / 1000).toFixed(2);
-                var distancefee = Math.round((distance / 1000) * perkm);
-                var totalfee = basefare + waitingfee + ridefee + distancefee;
+                    if (driverarrive === 0 && driverstart === 0) {
+                        var waitingtime = 0;
+                    } else if (driverarrive > 0 && driverstart === 0) {
+                        var waitingtime = Date.now() - driverarrive;
+                    } else if (driverarrive > 0 && driverstart > 0) {
+                        var waitingtime = driverstart - driverarrive;
+                    }
+                    if (driverstart === 0 && driverstop === 0) {
+                        var ridetime = 0;
+                    } else if (driverstart > 0 && driverstop === 0) {
+                        var ridetime = Date.now() - driverstart;
+                    } else if (driverstart > 0 && driverstop > 0) {
+                        var ridetime = driverstop - driverstart;
+                    }
+                    if (response[key].xpromo) {
+                        prodiscount = response[key].xpromo.discount;
+                        procolor = 'text-color-primary';
+                        procodebase = response[key].xpromo.promocode;
+                    } else {
+                        prodiscount = 0;
+                        procolor = 'text-color-gray';
+                        procodebase = 'NONE';
+                    }
+                    var waitingtimemins = Math.round(waitingtime / 60000);
+                    var ridetimemins = Math.round(ridetime / 60000);
+                    var waitingallow = (maxwaiting * 60000);
+                    if (waitingtime > waitingallow) {
+                        waitingfee = Math.round(((waitingtime - waitingallow) / 60000) * perwaiting);
+                        waitingcolor = 'text-color-primary';
+                    } else {
+                        waitingfee = 0;
+                        waitingcolor = 'text-color-gray';
+                    }
+                    if (ridetime > 0) {
+                        ridefee = Math.round((ridetime * permin) / 60000);
+                        ridecolor = 'text-color-primary';
+                    } else {
+                        ridefee = 0;
+                        ridecolor = 'text-color-gray';
+                    }
+                    var distancekm = (distance / 1000).toFixed(2);
+                    var distancefee = Math.round((distance / 1000) * perkm);
+                    var totalfee = basefare + waitingfee + ridefee + distancefee;
 
-                var payoutfee = totalfee - redeemedcash;
-                var proamount = Math.round((prodiscount / 100) * payoutfee);
-                var finalfee = payoutfee - proamount;
-                if (finalfee < minprice && prodiscount > 0 || finalfee < minprice && redeemedcash > 0) {
-                    sysprice = finalfee;
-                    ppicker = 'text-color-gray';
-                } else if (finalfee < minprice && prodiscount === 0 || finalfee < minprice && redeemedcash === 0) {
-                    sysprice = minprice;
-                    ppicker = 'text-color-primary';
-                } else if (finalfee > minprice) {
-                    sysprice = finalfee;
-                    ppicker = 'text-color-gray';
-                } else {
-                    ppicker = '';
-                }
-                var mailOptions = {
-                    priority: 'high',
-                    from: 'Tufike Pamoja Cabs <tufike@lexacle.com>',
-                    to: receipt.email,
-                    replyTo: 'tufikecabs@gmail.com',
-                    subject: 'Tufike Pamoja Ride Receipt',
-                    html: `
+                    var payoutfee = totalfee - redeemedcash;
+                    var proamount = Math.round((prodiscount / 100) * payoutfee);
+                    var finalfee = payoutfee - proamount;
+                    if (finalfee < minprice && prodiscount > 0 || finalfee < minprice && redeemedcash > 0) {
+                        sysprice = finalfee;
+                        ppicker = 'text-color-gray';
+                    } else if (finalfee < minprice && prodiscount === 0 || finalfee < minprice && redeemedcash === 0) {
+                        sysprice = minprice;
+                        ppicker = 'text-color-primary';
+                    } else if (finalfee > minprice) {
+                        sysprice = finalfee;
+                        ppicker = 'text-color-gray';
+                    } else {
+                        ppicker = '';
+                    }
+                    var mailOptions = {
+                        priority: 'high',
+                        from: 'Tufike Pamoja Cabs <tufike@lexacle.com>',
+                        to: receipt.email,
+                        replyTo: 'tufikecabs@gmail.com',
+                        subject: 'Tufike Pamoja Ride Receipt',
+                        html: `
                     <!doctype html>
                     <html>
                     <head>
@@ -6639,20 +6637,21 @@ io.on('connection', function(socket) {
             </tr>
             </table>
             </body>
-            </html>`};
-          }
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-              socket.emit('email ride receipt', info.response);
-              console.log('Email sent: ' + info.response);
+            </html>`
+                    };
+                }
+                transporter.sendMail(mailOptions, function(error, info) {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        socket.emit('email ride receipt', info.response);
+                        console.log('Email sent: ' + info.response);
+                    }
+                });
+
             }
-        });
 
-          }
-
-      })
+        })
     })
     socket.on('resend rider code', function(account) {
         var query = {
@@ -7235,17 +7234,17 @@ io.on('connection', function(socket) {
     })
 
     socket.on('update vehicle photo', function(profile) {
-      var photoData = profile.photo;
-      var base64Data = photoData.replace(/^data:image\/png;base64,/, "");
-      var photoName = Buffer.from(base64Data, 'base64');
-      var file = profile.oid + '.png',
-          folder = 'assets/vehicles/avatars/';
-      var fidel = new FTP();
-      fidel.on('ready', function() {
-          fidel.put(photoName, folder + file, function(err) {
-              if (err) {
-                  console.log('err', err);
-              } else {
+        var photoData = profile.photo;
+        var base64Data = photoData.replace(/^data:image\/png;base64,/, "");
+        var photoName = Buffer.from(base64Data, 'base64');
+        var file = profile.oid + '.png',
+            folder = 'assets/vehicles/avatars/';
+        var fidel = new FTP();
+        fidel.on('ready', function() {
+            fidel.put(photoName, folder + file, function(err) {
+                if (err) {
+                    console.log('err', err);
+                } else {
                     var photoname = profile.oid + '.png';
                     var query = {
                         _id: profile.oid
@@ -7296,16 +7295,16 @@ io.on('connection', function(socket) {
                                     Notificationdata.save((err, result) => {})
                                     io.sockets.emit('new vehicle notification', ndata);
                                     //dropIt(loccy, folly, filley);
-                                  }
-                              })
-                          }
-                      })
-                      fidel.end();
-                  }
-              });
-          });
-          fidel.connect(ftpConnection);
-      })
+                                }
+                            })
+                        }
+                    })
+                    fidel.end();
+                }
+            });
+        });
+        fidel.connect(ftpConnection);
+    })
 
     socket.on('update rider photo', function(profile) {
         var photoData = profile.photo;
@@ -7402,14 +7401,14 @@ io.on('connection', function(socket) {
 
 
     socket.on('update driver photo', function(profile) {
-      var photoData = profile.photo;
-      var base64Data = photoData.replace(/^data:image\/png;base64,/, "");
-      var photoName = Buffer.from(base64Data, 'base64');
-      var file = profile.did + '.png',
-          folder = 'assets/drivers/avatars/';
-      var fidel = new FTP();
-      fidel.on('ready', function() {
-          fidel.put(photoName, folder + file, function(err) {
+        var photoData = profile.photo;
+        var base64Data = photoData.replace(/^data:image\/png;base64,/, "");
+        var photoName = Buffer.from(base64Data, 'base64');
+        var file = profile.did + '.png',
+            folder = 'assets/drivers/avatars/';
+        var fidel = new FTP();
+        fidel.on('ready', function() {
+            fidel.put(photoName, folder + file, function(err) {
                 if (err) {
                     console.log(err)
                 } else {
@@ -8794,60 +8793,58 @@ io.on('connection', function(socket) {
     socket.on('nearby drivers chat', function(user) {
         var lat = user.lat;
         var lng = user.lng;
-        var squery =  {setid: 'main'};
-        Setting.findOne(squery).exec(function(err, res){
-          if(err){}
-          else {
-        Driver.find({
-            location: {
-                $near: {
-                    $geometry: {
-                        type: "Point",
-                        coordinates: [lng, lat]
-                    },
-                    //$minDistance: 1000,
-                    $maxDistance: res.setndriver
-                }
-            }
-        }).exec(function(err, result) {
-            if (err) {
-                console.log(err)
-            } else {
-                socket.emit('nearby drivers chat', result);
+        var squery = { setid: 'main' };
+        Setting.findOne(squery).exec(function(err, res) {
+            if (err) {} else {
+                Driver.find({
+                    location: {
+                        $near: {
+                            $geometry: {
+                                type: "Point",
+                                coordinates: [lng, lat]
+                            },
+                            //$minDistance: 1000,
+                            $maxDistance: res.setndriver
+                        }
+                    }
+                }).exec(function(err, result) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        socket.emit('nearby drivers chat', result);
+                    }
+                })
             }
         })
-      }
-      })
     })
 
     socket.on('nearby riders chat', function(user) {
         var lat = user.lat;
         var lng = user.lng;
-        var squery =  {setid: 'main'};
-        Setting.findOne(squery).exec(function(err, res){
-          if(err){}
-          else {
-        Rider.find({
-            location: {
-                $near: {
-                    $geometry: {
-                        type: "Point",
-                        coordinates: [lng, lat]
-                    },
-                    //$minDistance: 1000,
-                    $maxDistance: res.setnrider
-                }
+        var squery = { setid: 'main' };
+        Setting.findOne(squery).exec(function(err, res) {
+            if (err) {} else {
+                Rider.find({
+                    location: {
+                        $near: {
+                            $geometry: {
+                                type: "Point",
+                                coordinates: [lng, lat]
+                            },
+                            //$minDistance: 1000,
+                            $maxDistance: res.setnrider
+                        }
+                    }
+                }).exec(function(err, result) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        socket.emit('nearby riders chat', result);
+                    }
+                })
             }
-        }).exec(function(err, result) {
-            if (err) {
-                console.log(err)
-            } else {
-                socket.emit('nearby riders chat', result);
-              }
-          })
-        }
         })
-      })
+    })
 
 
     //////////// SEND CHAT MESSAGE ///////////////
