@@ -65,7 +65,7 @@ mdb.on('error', console.error.bind(console, 'connection error:'));
 mdb.once('open', function() {
     mdb.db.stats(function(err, stats) {
         if (err) {
-            console.log('Could not connect to Databse Server');
+            console.log('Could not connect to Database Server');
         } else {
             //console.log(stats);
         }
