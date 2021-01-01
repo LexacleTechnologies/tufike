@@ -96,10 +96,9 @@ function dropInfo() {
 function dropLink(path, url){
   var headers = {
       'Authorization': 'Bearer ' + dbToken,
-      'Content-Type': 'application/json',
-      'mode': 'overwrite'
+      'Content-Type': 'application/json'
   };
-  var dataString = '{"path": "/' + path + '", "url": "' + url + '", "mode": "overwrite"}';
+  var dataString = '{"path": "/' + path + '", "url": "' + url + '"}';
   options = {
       method: "POST",
       url: 'https://api.dropboxapi.com/2/files/save_url',
@@ -108,9 +107,9 @@ function dropLink(path, url){
   };
   request(options, function(err, res, body) {
       if (err) {
-          console.log(err);
+          //console.log(err);
       }else {
-        console.log(res.body)
+        //console.log(res.body)
       }
   })
 }
@@ -7269,7 +7268,7 @@ io.on('connection', function(socket) {
                 } else {
                     var path = `vapor/${folder}${file}`;
                     var url = `${cloudUrl}/${folder}${file}`;
-                    dropLink(path, url);
+                    unDropLink(path);
                     var photoname = profile.did + '.png';
                     var query = {
                         _id: profile.did
@@ -7326,6 +7325,7 @@ io.on('connection', function(socket) {
                                 if (err) {
                                     console.log(err)
                                 } else {
+                                  dropLink(path, url);
                                     socket.emit('update driver photo', result);
                                     var ndata = {
                                         userid: ObjectId(profile.did),
