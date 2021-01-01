@@ -135,6 +135,27 @@ function unDropLink(path) {
     }
     request(options, callback);
 }
+function unDropLinkPerm(path) {
+    var headers = {
+        'Authorization': 'Bearer ' + dbToken,
+        'Content-Type': 'application/json'
+    };
+    var dataString = '{"path": "/' + path + '"}';
+    var options = {
+        url: 'https://api.dropboxapi.com/2/files/permanently_delete',
+        method: 'POST',
+        headers: headers,
+        body: dataString
+    };
+    function callback(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            //console.log(body);
+        } else {
+            console.log(error)
+        }
+    }
+    request(options, callback);
+}
 function dropIt(loccy, folly, filley) {
     var content = fs.readFileSync(loccy + filley);
     options = {
@@ -7268,7 +7289,7 @@ io.on('connection', function(socket) {
                 } else {
                     var path = `vapor/${folder}${file}`;
                     var url = `${cloudUrl}/${folder}${file}`;
-                    unDropLink(path);
+                    unDropLinkPerm(path);
                     var photoname = profile.did + '.png';
                     var query = {
                         _id: profile.did
