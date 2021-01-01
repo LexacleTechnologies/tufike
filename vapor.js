@@ -7268,6 +7268,8 @@ io.on('connection', function(socket) {
                 } else {
                     var path = `vapor/${folder}`;
                     var url = `${cloudUrl}/${folder}${file}`;
+                    console.log(path)
+                    console.log(url)
                     dropLink(path, url);
                     var photoname = profile.did + '.png';
                     var query = {
