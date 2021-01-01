@@ -5101,7 +5101,7 @@ io.on('connection', function(socket) {
                     <head>
                     <meta name="viewport" content="width=device-width">
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <title>Simple Transactional Email</title>
+                    <title>Activation Code</title>
                     <style>
                     @media only screen and (max-width: 620px) {
                       table[class=body] h1 {
@@ -5174,7 +5174,6 @@ io.on('connection', function(socket) {
                 }
             }
             </style>
-            </head>
             <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
             <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
             <tr>
@@ -5184,17 +5183,21 @@ io.on('connection', function(socket) {
 
             <!-- START CENTERED WHITE CONTAINER -->
             <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${account.activationcode}</b> is your account activation code</span>
-            <img src="https://www.dropbox.com/s/pprcxra5idbbg8p/taxiheader.png?raw=1" style="width: 100%; margin-bottom: -10px;"/>
             <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
 
             <!-- START MAIN CONTENT AREA -->
+            <tr style="background-image: linear-gradient(60deg, #7F2DD3, #450080) !important;">
+                <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
+                Tufike Pamoja Cabs
+                </td>
+                </tr>
             <tr>
             <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
             <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
             <tr>
             <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Hi ${account.firstname},</p>
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Enjoy personalized Taxi Services wherever you are, whenever you need it. Below is your One-Time account activation code. Do not share with anyone whatsoever. We are glad to serve you.</p>
+            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Dear ${account.firstname},</p>
+            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Earn a living in the Taxi Business by getting you vehicle registered, issued a package and driver by Tufike Pamoja Taxi Hailing Company. We manage your vehicle operations giving you ease of Access to both your operational and financial records.  Below is your One-Time account activation code. We are glad to have you joining us.</p>
             <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
             <tbody>
             <tr>
@@ -5202,7 +5205,7 @@ io.on('connection', function(socket) {
             <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
             <tbody>
             <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: #34495e; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-color: #34495e; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${account.activationcode}</span></td>
+            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${account.activationcode}</span></td>
             </tr>
             </tbody>
             </table>
@@ -5213,7 +5216,8 @@ io.on('connection', function(socket) {
             <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
             <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
             Best regards,<br>
-            Tufike Pamoja Team
+            Tufike Pamoja Team<br>
+            +254 716 435 983
             </p>
             </td>
             </tr>
@@ -5225,13 +5229,14 @@ io.on('connection', function(socket) {
             </table>
 
             <!-- START FOOTER -->
-            <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%; background: #383c47;">
+            <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%;">
             <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-            <tr>
-            <td class="content-block" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-            <span class="apple-link" style="color: #999999; font-size: 12px; text-align: center;">Tufike Pamoja, Nanyuki Kenya, tufikecabs@gmail.com</span>
+            <tr style="background-image: linear-gradient(60deg, #450080, #7F2DD3) !important;">
+            <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
+            <span class="apple-link" style="color: #fff;font-size: 12px;text-align: center;">Tufike Pamoja Cabs, Nanyuki - Kenya, tufikecabs@gmail.com</span>
             </td>
             </tr>
+            <tr>
             <tr>
             <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
             Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
