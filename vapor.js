@@ -76,7 +76,7 @@ var fidel = new FTP();
 fidel.on('ready', function() {
     fidel.size('/', function(err, status) {
         if (err) {} else {
-            console.log(status)
+            //console.log(status)
         }
         fidel.end();
     });
@@ -87,9 +87,9 @@ fidel.on('ready', function() {
 function dropInfo() {
     request(dropBoxAPI, function(err, res) {
         if (err) {
-            console.log(err);
+            //console.log(err);
         } else {
-            console.log(res.body)
+            //console.log(res.body)
         }
     })
 }
@@ -149,11 +149,11 @@ function iLinkPro(path, url) {
     };
     function callback(error, response, body) {
         if (!error && response.statusCode == 200) {
-          console.log(response)
+          //console.log(response)
             dropLink(path, url)
         } else {
           console.error()
-            dropLink(path, url)
+            //dropLink(path, url)
         }
     }
     request(options, callback);
