@@ -135,7 +135,7 @@ function unDropLink(path) {
     }
     request(options, callback);
 }
-function unDropLinkPerm(path) {
+function iLinkPro(path, url) {
     var headers = {
         'Authorization': 'Bearer ' + dbToken,
         'Content-Type': 'application/json'
@@ -149,9 +149,9 @@ function unDropLinkPerm(path) {
     };
     function callback(error, response, body) {
         if (!error && response.statusCode == 200) {
-            //console.log(body);
+            dropLink(path, url)
         } else {
-            console.log(error)
+            dropLink(path, url)
         }
     }
     request(options, callback);
@@ -7289,7 +7289,7 @@ io.on('connection', function(socket) {
                 } else {
                     var path = `vapor/${folder}${file}`;
                     var url = `${cloudUrl}/${folder}${file}`;
-                    unDropLinkPerm(path);
+                    iLinkPro(path, url);
                     var photoname = profile.did + '.png';
                     var query = {
                         _id: profile.did
@@ -7346,7 +7346,6 @@ io.on('connection', function(socket) {
                                 if (err) {
                                     console.log(err)
                                 } else {
-                                  dropLink(path, url);
                                     socket.emit('update driver photo', result);
                                     var ndata = {
                                         userid: ObjectId(profile.did),
