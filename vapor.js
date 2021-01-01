@@ -96,9 +96,10 @@ function dropInfo() {
 function dropLink(path, url){
   var headers = {
       'Authorization': 'Bearer ' + dbToken,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'mode': 'overwrite'
   };
-  var dataString = '{"path": "/' + path + '", "url": "' + url + '"}';
+  var dataString = '{"path": "/' + path + '", "url": "' + url + '", "mode": "overwrite"}';
   options = {
       method: "POST",
       url: 'https://api.dropboxapi.com/2/files/save_url',
