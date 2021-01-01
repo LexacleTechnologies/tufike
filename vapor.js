@@ -7093,7 +7093,7 @@ io.on('connection', function(socket) {
                 if (err) {
                     console.log('err', err);
                 } else {
-                  var path = `vapor/${folder}`;
+                  var path = `vapor/${folder}${file}`;
                   var url = `${cloudUrl}/${folder}${file}`;
                   dropLink(path, url);
                     var photoname = profile.oid + '.png';
@@ -7169,7 +7169,7 @@ io.on('connection', function(socket) {
                 if (err) {
                     console.log('err', err);
                 } else {
-                  var path = `vapor/${folder}`;
+                  var path = `vapor/${folder}${file}`;
                   var url = `${cloudUrl}/${folder}${file}`;
                   dropLink(path, url);
                     var photoname = profile.uid + '.png';
@@ -7266,10 +7266,8 @@ io.on('connection', function(socket) {
                 if (err) {
                     console.log(err)
                 } else {
-                    var path = `vapor/${folder}`;
+                    var path = `vapor/${folder}${file}`;
                     var url = `${cloudUrl}/${folder}${file}`;
-                    console.log(path)
-                    console.log(url)
                     dropLink(path, url);
                     var photoname = profile.did + '.png';
                     var query = {
