@@ -142,18 +142,18 @@ function iLinkPro(path, url) {
     };
     var dataString = '{"path": "/' + path + '"}';
     var options = {
-        url: 'https://api.dropboxapi.com/2/files/permanently_delete',
+        url: 'https://api.dropboxapi.com/2/files/delete_v2',
         method: 'POST',
         headers: headers,
         body: dataString
     };
     function callback(error, response, body) {
         if (!error && response.statusCode == 200) {
+          console.log(response)
             dropLink(path, url)
-            console.log(response)
         } else {
-          console.log(error)
-            //dropLink(path, url)
+          console.error()
+            dropLink(path, url)
         }
     }
     request(options, callback);
