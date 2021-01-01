@@ -150,6 +150,7 @@ function iLinkPro(path, url) {
     function callback(error, response, body) {
         if (!error && response.statusCode == 200) {
             dropLink(path, url)
+            console.log(response)
         } else {
           console.log(error)
             //dropLink(path, url)
