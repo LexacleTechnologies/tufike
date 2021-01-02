@@ -1,20 +1,13 @@
 const express = require('express');
 let app = express.Router();
 
-function adminLogin(req, res, next) {
-    res.render('layouts/auth.hbs', {
-        title: 'Tufike Pamoja Admin | Login',
-        pagefunctions: 'auth();',
-        developer: 'https://lexacle.com'
-    })
-}
 app.get('/riders', function(req, res, next) {
     if (req.session.loggedin) {
         var uid = req.session.uid;
         var pdata = {
             uid: uid,
             title: 'Tufike Pamoja Admin | Riders',
-            pagefunctions: 'riders();',
+            pagefunctions: 'installApp();loadMapScript();riders();',
             dashboard: '',
             riders: 'active',
             drivers: '',
@@ -35,7 +28,7 @@ app.get('/riders', function(req, res, next) {
             pdata
         })
     } else {
-        adminLogin(req, res, next);
+        res.redirect('/login');
     }
 })
 

@@ -73,7 +73,7 @@ Admin.find().exec(function(err, result) {
             const Adminsave = new Admin(data)
             Adminsave.save((err, result) => {
                 if (err) {
-                    console.log(logSymbols.error, 'Admin schema failed to initialize'.red)
+                    console.log(logSymbols.error, 'Admin schema initialization failes'.red)
                 } else {
                     console.log(logSymbols.success, 'Admin schema has been initialized successfully'.blue)
                 }

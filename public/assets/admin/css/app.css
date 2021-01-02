@@ -5,6 +5,20 @@
   bottom: 0;
   margin: 15px;
 }
+.green-link
+{
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(60deg, #288c6c, #4ea752) !important;
+  color: transparent !important;
+}
+.blue-link
+{
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(60deg, #46AEEA, #5CC7E6) !important;
+  color: transparent !important;
+}
 /* Checkbox & Radio ============================ */
 /* Radio Buttons
    ========================================================================== */
@@ -1639,7 +1653,7 @@ span.badge {
     color: #fff !important;
 }
 
-.map-client-location {
+.map-client-location, .map-driver-location {
     height: 400px;
     width: 100%;
     background: #fff;

@@ -1,6 +1,7 @@
 const aid = $('.aid').val();
 const admin = 'Tufike Admin';
 const freelance = '5f47f9e62dc7b16cb6f33c40';
+const currentyear = moment().format('YYYY');
 logOut();
 auth();
 Waves.init();
@@ -22,12 +23,17 @@ if (item) {
         scrollTop: activeItemOffsetTop
     }, 500);
 }
+$('.current-year').html(currentyear);
 $('.dcronfs, .dcrondb, .dcronpn').bootstrapMaterialDatePicker({
     format: 'HH:mm',
     clearButton: false,
     date: false,
     autoclose: true,
 });
+$('.pay-sms').unbind().bind('click',function(e){
+  e.preventDefault();
+  $('#pay-sms').modal('show');
+})
 socket.on('connected users', function(count) {
     if (count < 2) {
         $('.count-connect').html('<b class="text-warning">' + count + '</b> Online User');
@@ -85,7 +91,7 @@ socket.on('notify admin', function(response) {
     var time = 3000;
     playNotificationSound(sound);
     md.showNotification(from, align, type, icon, content, time);
-    support();
+    //support();
 })
 
 socket.on('new vehicle registered', function(response) {
@@ -99,7 +105,7 @@ socket.on('new vehicle registered', function(response) {
     var time = 10000;
     playNotificationSound(sound);
     md.showNotification(from, align, type, icon, content, time);
-    vehicle();
+    //vehicle();
 })
 socket.on('new rider registered', function(response) {
     var message = JSON.parse(response);
@@ -112,15 +118,16 @@ socket.on('new rider registered', function(response) {
     var time = 10000;
     playNotificationSound(sound);
     md.showNotification(from, align, type, icon, content, time);
-    riders();
+    //riders();
 })
 socket.on('driver payment received', function(response) {
     recentPayments();
 })
 socket.on('sms balance', function(res) {
+  console.log(res)
         if (res.istat === 'success') {
             var balance = res.response.UserData.balance;
-            $('.sms-balance').html('SMS Balance <b class="text-primary">' + balance + '</b>')
+            $('.sms-balance').html('SMS Balance <b class="blue-link">' + balance + '</b>')
         } else {
             $('.sms-balance').html('SMS API Disconnected')
         }
@@ -129,7 +136,23 @@ socket.on('sms balance', function(res) {
 socket.on('relaunch admin rides', function(response) {
         //rides();
     })
-    ////////////// RIDE STATUS LIVE UPDATES ///////////////
+
+function driverImage(img)
+{
+    img.onerror = "";
+    img.src = '/assets/drivers/avatars/driver.png';
+}
+function riderImage(img)
+{
+    img.onerror = "";
+    img.src = '/assets/riders/avatars/rider.png';
+}
+function ownerImage(img)
+{
+    img.onerror = "";
+    img.src = '/assets/vehicles/avatars/owner.png';
+}
+////////////// RIDE STATUS LIVE UPDATES ///////////////
 function dashboard() {
     countRecords();
     fetchCms();
@@ -156,7 +179,6 @@ function preferenceChart() {
         }
     });
     socket.on('all cron preferences', function(response) {
-        console.log(response)
         var iChartData = [response.basic, response.comfy, response.lux]
         updateChart(iChart, iChartData)
     })
@@ -177,7 +199,6 @@ function ridersChart() {
         }
     });
     socket.on('all cron riders', function(response) {
-        //console.log(response)
         var iChartData = [44, 80, 50, 50, 75, 70, 65, 67, 74, 50, 60, 80]
         updateChart(iChart, iChartData)
     })
@@ -198,7 +219,6 @@ function driversChart() {
         }
     });
     socket.on('all cron drivers', function(response) {
-        //console.log(response)
         var iChartData = [44, 80, 50, 50, 75, 70, 65, 67, 74, 50, 60, 80]
         updateChart(iChart, iChartData)
     })
@@ -244,7 +264,7 @@ function recentPayments() {
         socket.off('fetch recent payments');
         for (var key in response) {
             var tid = response[key]._id;
-            var pphoto = `<img width="30" src="${appUrl}/assets/drivers/avatars/${response[key].pdriver.photo}"/>`;
+            var pphoto = `<img width="30" src="${cloudUrl}/assets/drivers/avatars/${response[key].pdriver.photo}"/>`;
             var pname = response[key].pdriver.firstname + ' ' + response[key].pdriver.lastname;
             var pphone = response[key].pdriver.phone;
             var pplate = response[key].pvehicle.plate;
@@ -472,7 +492,6 @@ function auth() {
                     var response = JSON.parse(response);
                     $('.admin-login-button').prop('disabled', false);
                     $('.login-preloader').fadeOut();
-                    console.log(response)
                     if (response.status === 1) {
                         var from = 'bottom';
                         var align = 'right';
@@ -482,7 +501,7 @@ function auth() {
                         var time = 3000;
                         md.showNotification(from, align, type, icon, message, time);
                         setTimeout(function() {
-                            location.reload(true);
+                            window.location.href = appUrl;
                         }, 3000)
                     } else {
                         var from = 'bottom';
@@ -521,7 +540,13 @@ function logOut() {
         })
     })
 }
-
+function loadMapScript()
+{
+  var script = document.createElement('script');
+  script.src = 'https://maps.googleapis.com/maps/api/js?&libraries=places&key=AIzaSyB93SMw6mEfNZrcjOduAMkuJgFg5zcme04';
+  script.defer = true;
+  document.head.appendChild(script);
+}
 function riders() {
     NProgress.start();
     $('.refresh-data').css('display', 'none');
@@ -551,7 +576,7 @@ function riders() {
             var actcode = response[key].activationcode;
             var riders = `<tr class="animate__animated animate__fadeIn">
             <td>${id}</td>
-            <td><img class="table-icon" src="${cloudUrl}/assets/riders/avatars/${response[key].photo}"></td>
+            <td><img class="table-icon" src="${cloudUrl}/assets/riders/avatars/${response[key].photo}" onerror="riderImage(this);"></td>
             <td>${name}</td>
             <td>${response[key].phone}</td>
             <td>${truncateString(response[key].email, 20)}</td>\
@@ -580,7 +605,6 @@ function riders() {
             socket.on('fetch single rider', function(response) {
                 socket.off('fetch single rider');
                 NProgress.done();
-                console.log(response)
                 $('.rider-name-title').html(response.firstname + ' ' + response.lastname + '\'s Current Location');
                 var position = {
                     lat: response.location.coordinates[1],
@@ -670,7 +694,6 @@ function riders() {
                     socket.emit('notify single rider', notify);
                     socket.on('notify single rider', function(response) {
                         socket.off('notify single rider');
-                        console.log(response)
                         $('.send-notification').prop('disabled', false);
                         $('.not-header, .not-content').val('');
                         NProgress.done();
@@ -795,7 +818,7 @@ function drivers() {
             var dname = response[key].firstname + ' ' + response[key].lastname;
             var drvtr = `<tr class="animate__animated animate__fadeIn">
             <td>${id}</td>
-            <td><img class="table-icon" src="${cloudUrl}/assets/drivers/avatars/${response[key].photo}"></td>
+            <td><img class="table-icon" src="${cloudUrl}/assets/drivers/avatars/${response[key].photo}" onerror="driverImage(this);"></td>
             <td>${name}</td>
             <td>${response[key].phone}</td>
             <td>${truncateString(response[key].email, 15)}</td>
@@ -827,10 +850,11 @@ function drivers() {
             socket.on('fetch single driver', function(response) {
                 socket.off('fetch single driver');
                 NProgress.done();
-                $('.driver-name-title').html(response.firstname + ' ' + response.lastname + '\'s Current Location');
+                for(var key in response){
+                $('.driver-name-title').html(response[key].firstname + ' ' + response[key].lastname + '\'s Current Location');
                 var position = {
-                    lat: response.location.coordinates[1],
-                    lng: response.location.coordinates[0]
+                    lat: response[key].location.coordinates[1],
+                    lng: response[key].location.coordinates[0]
                 };
                 var map = new google.maps.Map(document.getElementById('map-driver-location'), {
                     mapTypeControl: false,
@@ -850,6 +874,7 @@ function drivers() {
                 });
                 map.setCenter(position);
                 $('#view-driver-location-modal').modal('show');
+              }
             })
         })
         $('#dtable tbody').on('click', 'tr td .view-driver', function(e) {
@@ -860,7 +885,6 @@ function drivers() {
             socket.on('fetch single driver', function(response) {
                 socket.off('fetch single driver');
                 NProgress.done();
-                console.log(response)
                 for (var key in response) {
                     $('.driver-photo').prop('src', cloudUrl + '/assets/drivers/avatars/' + response[key].photo);
                     $('.user-profile-name').html(response[key].firstname + ' ' + response[key].lastname);
@@ -985,7 +1009,6 @@ function drivers() {
                     socket.emit('block driver account', did);
                     socket.on('block driver account', function(response) {
                         socket.off('block driver account');
-                        console.log(response)
                         drivers();
                     })
                 }
@@ -1011,7 +1034,6 @@ function drivers() {
                 },
                 buttonsStyling: false
             }).then((result) => {
-                console.log(result)
                 if (result.value) {
                     ////// Block Account Reload Data
                     socket.emit('unblock driver account', did);
@@ -1141,7 +1163,7 @@ function vehicles() {
             var id = i++;
             var allvehicles = `<tr class="animate__animated animate__fadeIn">
             <td>${id}</td>
-            <td><img class="table-icon" src="${cloudUrl}/assets/vehicles/avatars/${response[key].photo}"></td>
+            <td><img class="table-icon" src="${cloudUrl}/assets/vehicles/avatars/${response[key].photo}" onerror="ownerImage(this);"></td>
             <td>${response[key].firstname} ${response[key].lastname}</td>
             <td><small>${response[key].make}</small></td>
             <td><small>${response[key].model}</small></td>
@@ -1379,7 +1401,6 @@ function vehicles() {
             socket.on('super functions vehicle', function(response) {
                 socket.off('super functions vehicle');
                 NProgress.done();
-                console.log(response)
 
                 for (var key in response) {
                     $('.owner-profile-photo').prop('src', cloudUrl + '/assets/vehicles/avatars/' + response[key].photo);
@@ -1544,7 +1565,6 @@ function rides() {
         $('.refresh-data').css('display', 'block');
         $('.all-rides, .pending-rides, .active-rides, .cancelled-rides, .completed-rides, .driver-initiated-rides').html('');
         var i = 1;
-        console.log(response)
         for (var key in response) {
             var id = i++;
             if (response[key].driveraccept === 0 && response[key].driverstop === 0) {
@@ -1635,7 +1655,6 @@ function rides() {
                 socket.off('fetch active rides');
                 socket.emit('fetch cancelled rides', admin);
                 var i = 1;
-                console.log(response)
                 for (var key in response) {
                     var id = i++;
                     if (response[key].status === 1) {
@@ -1759,7 +1778,6 @@ function rides() {
 
                         socket.on('fetch driver initiated rides', function(response) {
                             socket.off('fetch driver initiated rides');
-                            console.log('fetched driver initiated rides');
                             NProgress.done();
                             initRtable6();
                         })
@@ -1793,7 +1811,6 @@ $('#modal-enroute').on('hidden.bs.modal', function() {
 
 function getDirections(coorigin, codestination, codriver, codriverid, cosocket) {
     $('.map-routes').html('');
-    console.log(codriverid)
     var directionsService = new google.maps.DirectionsService();
     var directionsDisplay = new google.maps.DirectionsRenderer();
     var pointA = new google.maps.LatLng(coorigin);
@@ -2200,7 +2217,6 @@ function packages() {
                         socket.emit('update ride package', pdata);
                         socket.on('update ride package', function(response) {
                             socket.off('update ride package');
-                            console.log(response)
                             var from = 'top';
                             var align = 'right';
                             var type = 'success';
@@ -2229,13 +2245,12 @@ function points() {
         NProgress.done();
         $('.refresh-data').css('display', 'block');
         $('.all-rewards').html('');
-        console.log(response)
         var i = 1;
         for (var key in response) {
             if (response[key].xrider) {
                 var ridername = response[key].xrider.firstname + ' ' + response[key].xrider.lastname;
                 var riderreg = timeConverterDate(response[key].xrider.created) + ' ' + timeConverterTime(response[key].xrider.created);
-                var riderphoto = `<img class="table-icon" src="${appUrl}/assets/riders/avatars/${response[key].xrider.photo}" />`;
+                var riderphoto = `<img class="table-icon" src="${cloudUrl}/assets/riders/avatars/${response[key].xrider.photo}" />`;
                 var riderphone = response[key].xrider.phone;
                 var rideremail = response[key].xrider.email;
                 var rewardedpoints = response[key].totalRewarded;
@@ -2503,7 +2518,6 @@ function promotions() {
                         socket.on('add new promo', function(response) {
                             socket.off('add new promo');
                             $('.save-promo').prop('disabled', false);
-                            console.log(response)
                             if (response.status !== 0) {
                                 var from = 'top';
                                 var align = 'right';
@@ -2698,7 +2712,6 @@ function notifications() {
     })
     socket.on('fetch owner notifications', function(response) {
         socket.off('fetch owner notifications');
-        console.log(response)
         var i = 1;
         for (var key in response) {
             if (response[key].xowner.length > 0) {
@@ -2781,7 +2794,6 @@ function payments() {
     socket.emit('fetch mobile transactions', admin);
     socket.on('fetch mobile transactions', function(response) {
         socket.off('fetch mobile transactions');
-        console.log(response)
     })
     socket.emit('fetch all payments', admin);
     socket.on('fetch all payments', function(response) {
@@ -2790,7 +2802,6 @@ function payments() {
         $('.refresh-data').css('display', 'block');
         $('.all-payments').html('');
         var i = 1;
-        console.log(response)
         for (var key in response) {
             var pid = i++;
             var driverid = response[key].xdriver._id;
@@ -2917,7 +2928,7 @@ function payments() {
             for (var key in response) {
                 var pid = i++;
                 var tid = response[key]._id;
-                var pphoto = `<img width="30" src="${appUrl}/assets/drivers/avatars/${response[key].pdriver.photo}"/>`;
+                var pphoto = `<img width="30" src="${cloudUrl}/assets/drivers/avatars/${response[key].pdriver.photo}"/>`;
                 var pname = response[key].pdriver.firstname + ' ' + response[key].pdriver.lastname;
                 var pphone = response[key].pdriver.phone;
                 var pplate = response[key].pvehicle.plate;
@@ -2964,7 +2975,6 @@ function payments() {
                     },
                     buttonsStyling: false
                 }).then((result) => {
-                    console.log(result)
                     if (result.value) {
                         tr.addClass('magictime holeOut')
                         socket.emit('delete old transaction', tid);
@@ -3006,7 +3016,7 @@ function support() {
             var contact1 = `<li class="single-chat animate__animated animate__fadeIn" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="rider" data-account="${loca}">
             <div class="item-content">
             <div class="item-media">
-            <img src="${appUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
+            <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
             </div>
             <div class="item-inner">
             <div class="item-title-row">
@@ -3030,7 +3040,7 @@ function support() {
                 var contact2 = `<li class="single-chat animate__animated animate__fadeIn" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="owner" data-account="${loca}">
                 <div class="item-content">
                 <div class="item-media">
-                <img src="${appUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
+                <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
                 </div>
                 <div class="item-inner">
                 <div class="item-title-row">
@@ -3054,7 +3064,7 @@ function support() {
                     var contact3 = `<li class="single-chat animate__animated animate__fadeIn" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="vehicle" data-account="${loca}">
                     <div class="item-content">
                     <div class="item-media">
-                    <img src="${appUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
+                    <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
                     </div>
                     <div class="item-inner">
                     <div class="item-title-row">
@@ -3099,7 +3109,7 @@ function support() {
                         var contact = `<li class="single-chat animate__animated animate__fadeIn" data-name="${response[key].sendername}" data-id="${response[key].userid}" data-photo="${response[key].senderphoto}" data-plum="${luka}" data-purge="${response[key].account}" data-account="${loca}">
                         <div class="item-content">
                         <div class="item-media">
-                        <img src="${appUrl}/assets/${loca}/avatars/${response[key].senderphoto}" width="40"/>
+                        <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].senderphoto}" width="40"/>
                         </div>
                         <div class="item-inner">
                         <div class="item-title-row">
@@ -3127,14 +3137,14 @@ function support() {
                             $('.single-chat').removeClass('active');
                         })
                         $(this).addClass('active');
-                        $('.chat-user-name').html(`<img src="${appUrl}/assets/${ufolder}/avatars/${uphoto}" class="mini-avatar"/> Chat with ${uname} - Tufike Pamoja ${uplum}`);
+                        $('.chat-user-name').html(`<img src="${cloudUrl}/assets/${ufolder}/avatars/${uphoto}" class="mini-avatar"/> Chat with ${uname} - Tufike Pamoja ${uplum}`);
                         $('.chat-user-text').focus();
                         NProgress.start();
                         socket.on('send support', function(trend) {
                             if (trend.userid === uid) {
                                 $('.recent-chats').append(`<div class ="chat-container-sent animate__animated animate__fadeIn">
                                     <div class ="chat-avatar">
-                                    <img src="${appUrl}/assets/${ufolder}/avatars/${uphoto}" alt="">
+                                    <img src="${cloudUrl}/assets/${ufolder}/avatars/${uphoto}" alt="">
                                     </div>
                                     <div class="chat-content">
                                     <div class="chat-header"><span class="chat-name">${uname}</span><span class="chat-time">${timeConverterTime(trend.time)}</span></div>
@@ -3157,7 +3167,7 @@ function support() {
                             for (var key in response) {
                                 var account = response[key].account;
                                 if (response[key].messagetype === 'sent') {
-                                    var avatar = `<img src="${appUrl}/assets/${ufolder}/avatars/${uphoto}" alt="">`;
+                                    var avatar = `<img src="${cloudUrl}/assets/${ufolder}/avatars/${uphoto}" alt="">`;
                                     var xchatname = chatname;
                                 } else {
                                     var avatar = `<img src="${appUrl}/assets/admin/avatars/icon.png" alt="">`;
@@ -3212,7 +3222,6 @@ function support() {
                                     account: taccount,
                                     time: ttime
                                 };
-                                console.log(xmessage)
                                 socket.emit('receive support', xmessage);
                                 socket.on('support sent', function(response) {
                                     socket.off('support sent');
@@ -3255,7 +3264,6 @@ function distress() {
     socket.on('fetch distress alerts', function(response) {
         socket.off('fetch distress alerts');
         NProgress.done();
-        console.log(response)
         var i = 1;
         for (var key in response) {
             var ldriver = response[key].driver.location.coordinates[1] + ',' + response[key].driver.location.coordinates[0];
@@ -3332,7 +3340,6 @@ function distress() {
     <b>Distress alert initiated from Tufike Pamoja ${initiator} - ${cophone}</b>
     </h4>`);
             getDirections(coorigin, codestination, colocation, codriverid, cosocket);
-            console.log('locating distress')
             $('#modal-enroute').modal('show');
         })
         $('.intercept-distress').unbind().bind('click', function(e) {
@@ -3530,7 +3537,6 @@ function settings() {
         socket.off('cloud database stats');
         var dbsize = response.dataSize / 1024;
         var prowidth = ((dbsize / 1024) / 512 * 100).toFixed(0);
-        console.log(prowidth + ' Percentile')
         $('.db-pro').css('width', prowidth + '%');
         if (dbsize > 512) {
             $('.db-size-stats').html(`${Math.round(dbsize/1024)} MB / 512 MB`);
@@ -3554,7 +3560,6 @@ function settings() {
     socket.emit('fetch system settings', admin);
     socket.on('fetch system settings', function(response) {
         socket.off('fetch system settings');
-        console.log(response)
         $('.refresh-data').css('display', 'block');
         NProgress.done();
         $('.dphone').val(response.setphone);
@@ -4223,7 +4228,7 @@ function requestPermission() {
     }
 
     Notification.requestPermission(function(result) {
-        $status.innerText = result;
+        console.log(result);
     });
 }
 

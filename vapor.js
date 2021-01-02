@@ -41,6 +41,7 @@ const freelance = '5f47f9e62dc7b16cb6f33c40';
 const player = require('play-sound')(opts = {})
 const Supportchat = require("./models/supportchat.js");
 const ftpConnection = { host: 'lexacle.com', port: 21, secure: false, user: 'vapor@cloud.lexacle.com', password: 'Leslie#Myles@2028' };
+//const url = process.env.DB_URL;
 const url = 'mongodb+srv://tufike:nUJjC9qzGYih8ZrX@cluster0.17g7f.mongodb.net/tufike?retryWrites=true&w=majority';
 const atsdk = { apiKey: '8d82a365b9424afffc695b8558648dc4b29b7d63b86db1313028eb4e54052209', username: 'tufike' };
 const Flutterwave = require('flutterwave-node-v3');
@@ -809,6 +810,7 @@ app.post('/upload/ntsa', function(req, res) {
     });
 });
 
+app.use(require('./routes/login'));
 app.use(require('./routes/dashboard'));
 app.use(require('./routes/riders'));
 app.use(require('./routes/drivers'));
@@ -4541,6 +4543,45 @@ io.on('connection', function(socket) {
             }
         })
     })
+    socket.on('fetch rider profile', function(riderid) {
+        var query = {
+            _id: ObjectId(riderid)
+        };
+        Rider.aggregate([{
+                $match: query
+            }, {
+                $lookup: {
+                    from: 'rides',
+                    localField: '_id',
+                    foreignField: 'driver',
+                    as: 'xrides'
+                }
+            }, {
+                $lookup: {
+                    from: 'rides',
+                    let: { rid: "$_id", rstop: 0, status: 1 },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$rider", '$$rid'] },
+                                    { $gt: ["$driverstop", '$$rstop'] },
+                                    { $eq: ["$driveraccept", "$$status"] }
+                                ]
+                            }
+                        }
+                    }],
+                    as: "arides"
+                }
+            }
+        ]).exec(function(err, result) {
+            if (err) {
+                console.log(err)
+            } else {
+                socket.emit('fetch rider profile', result);
+            }
+        })
+    })
     socket.on('fetch driver rank', function(driver) {
         var query = {
             driver: driver,
@@ -5174,6 +5215,7 @@ io.on('connection', function(socket) {
                 }
             }
             </style>
+            </head>
             <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
             <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
             <tr>
@@ -5197,7 +5239,7 @@ io.on('connection', function(socket) {
             <tr>
             <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
             <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Dear ${account.firstname},</p>
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Earn a living in the Taxi Business by getting you vehicle registered, issued a package and driver by Tufike Pamoja Taxi Hailing Company. We manage your vehicle operations giving you ease of Access to both your operational and financial records.  Below is your One-Time account activation code. We are glad to have you joining us.</p>
+            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Earn a living in the Taxi Business by getting your vehicle registered, issued a package and driver by Tufike Pamoja Taxi Hailing Company. We manage your vehicle operations giving you ease of Access to both your operational and financial records.  Below is your One-Time account activation code. We are glad to have you joining us.</p>
             <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
             <tbody>
             <tr>
@@ -5215,7 +5257,7 @@ io.on('connection', function(socket) {
             </table>
             <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
             <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-            Best regards,<br>
+            Kind regards,<br>
             Tufike Pamoja Team<br>
             +254 716 435 983
             </p>
