@@ -16,6 +16,7 @@ const checkDiskSpace = require('check-disk-space');
 const OneSignal = require('onesignal-node');
 const MongoStore = require('connect-mongo')(session);
 var CronJob = require('cron').CronJob;
+var CronTime = require('cron').CronTime;
 var multer = require('multer');
 var sftpStorage = require('multer-sftp');
 var FTPStorage = require('multer-ftp');
@@ -392,10 +393,18 @@ http.listen(PORT, '0.0.0.0', function() {
 var tufikeData = new CronJob('*/5 * * * * *', function() {
     systemPunch();
 }, null, true, 'Africa/Nairobi');
-var mDbBackupCron = new CronJob('42 00 * * *', function() {
+var mDbBackupCron = new CronJob('0 * * * *', function() {
     nightly();
 }, null, true, 'Africa/Nairobi');
 mDbBackupCron.start();
+
+
+var setquery = {setid: 'main'};
+Setting.findOne(setquery).exec(function(err, res) {
+    if (err) { console.log(err) } else {
+      //mDbBackupCron.setTime(new CronTime('16 1 * * *'))
+    }
+  })
 
 function systemPunch() {
 
@@ -490,6 +499,30 @@ var config = {
 };
 
 //ftpDeploy.deploy(config).then(res => console.log("finished:", res)).catch(err => console.log(err));
+function ftpDB(){
+var ftpDep = new FtpDeploy();
+var config = {
+    user: "vapor@cloud.lexacle.com",
+    password: "Leslie#Myles@2028",
+    host: "ftp.lexacle.com",
+    port: 21,
+    localRoot: __dirname + "/core/mdb",
+    remoteRoot: "/core/mdb",
+    include: ["*", "**/*"],
+    deleteRemote: false,
+    forcePasv: true,
+    sftp: false
+};
+ftpDep.deploy(config, function(err, res) {
+   if (err){
+
+   }else{
+
+   }
+});
+}
+
+
 
 var maxSize = 5 * 1000000;
 app.post('/upload/logbook', function(req, res, callback) {
@@ -2748,9 +2781,8 @@ io.on('connection', function(socket) {
                         })
                     }
                 })
-            }
-
-        })
+              }
+          })
     })
     socket.on('count other records', function(admin) {
         Rider.countDocuments({
@@ -2766,8 +2798,7 @@ io.on('connection', function(socket) {
                         drivers = 0;
                     } else {
                         Ride.countDocuments({
-                            driveraccept: { $ne: 1 },
-                            driveraccept: { $ne: 0 },
+                            driveraccept: { $gte: 2 }
                         }, function(err, rides) {
                             if (err) {
                                 rides = 0;
@@ -5015,10 +5046,12 @@ io.on('connection', function(socket) {
                     if (err) {
                         console.log(err)
                     } else {
+                      if(res){
                         var oneMessage = ndata.message;
                         var oneHeader = 'New ride initiated by driver';
                         var oneUser = res.signalid;
                         oneBurstRider(oneMessage, oneHeader, oneUser);
+                      }
                     }
                 })
                 var message = {
@@ -8841,178 +8874,4 @@ io.on('connection', function(socket) {
 
 })
 
-function nightly() {
-    var loccy = './core/mdb/';
-    var folly = 'mdb/';
-    Admin.find().exec(function(err, res) {
-        if (err) { console.log(err); } else {
-            fs.writeFile('./core/mdb/admins.json', JSON.stringify(res), function(err, resp) {
-                if (err) { console.log(err) } else {
-                    var filley = 'admins.json';
-                    dropIt(loccy, folly, filley);
-                    Carbrands.find().exec(function(err, res) {
-                        if (err) { console.log(err); } else {
-                            fs.writeFile('./core/mdb/carbrands.json', JSON.stringify(res), function(err, resp) {
-                                if (err) { console.log(err) } else {
-                                    var filley = 'carbrands.json';
-                                    dropIt(loccy, folly, filley);
-                                    Chat.find().exec(function(err, res) {
-                                        if (err) { console.log(err); } else {
-                                            fs.writeFile('./core/mdb/chats.json', JSON.stringify(res), function(err, resp) {
-                                                if (err) { console.log(err) } else {
-                                                    var filley = 'chats.json';
-                                                    dropIt(loccy, folly, filley);
-                                                    Cms.find().exec(function(err, res) {
-                                                        if (err) { console.log(err); } else {
-                                                            fs.writeFile('./core/mdb/cms.json', JSON.stringify(res), function(err, resp) {
-                                                                if (err) { console.log(err) } else {
-                                                                    var filley = 'cms.json';
-                                                                    dropIt(loccy, folly, filley);
-                                                                    Colorcodes.find().exec(function(err, res) {
-                                                                        if (err) { console.log(err); } else {
-                                                                            fs.writeFile('./core/mdb/colorcodes.json', JSON.stringify(res), function(err, resp) {
-                                                                                if (err) { console.log(err) } else {
-                                                                                    var filley = 'colorcodes.json';
-                                                                                    dropIt(loccy, folly, filley);
-                                                                                    Distress.find().exec(function(err, res) {
-                                                                                        if (err) { console.log(err); } else {
-                                                                                            fs.writeFile('./core/mdb/distresses.json', JSON.stringify(res), function(err, resp) {
-                                                                                                if (err) { console.log(err) } else {
-                                                                                                    var filley = 'distresses.json';
-                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                    Driver.find().exec(function(err, res) {
-                                                                                                        if (err) { console.log(err); } else {
-                                                                                                            fs.writeFile('./core/mdb/drivers.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                    var filley = 'drivers.json';
-                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                    Favorite.find().exec(function(err, res) {
-                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                            fs.writeFile('./core/mdb/favorites.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                    var filley = 'favorites.json';
-                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                    Notification.find().exec(function(err, res) {
-                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                            fs.writeFile('./core/mdb/notifications.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                    var filley = 'notifications.json';
-                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                    Payment.find().exec(function(err, res) {
-                                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                                            fs.writeFile('./core/mdb/payments.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                                    var filley = 'payments.json';
-                                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                                    Promo.find().exec(function(err, res) {
-                                                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                                                            fs.writeFile('./core/mdb/promos.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                                                    var filley = 'promos.json';
-                                                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                                                    Rate.find().exec(function(err, res) {
-                                                                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                                                                            fs.writeFile('./core/mdb/rates.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                                                                    var filley = 'rates.json';
-                                                                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                                                                    Rider.find().exec(function(err, res) {
-                                                                                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                                                                                            fs.writeFile('./core/mdb/riders.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                                                                                    var filley = 'riders.json';
-                                                                                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                                                                                    Ride.find().exec(function(err, res) {
-                                                                                                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                                                                                                            fs.writeFile('./core/mdb/rides.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                                                                                                    var filley = 'rides.json';
-                                                                                                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                                                                                                    Setting.find().exec(function(err, res) {
-                                                                                                                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                                                                                                                            fs.writeFile('./core/mdb/settings.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                                                                                                                    var filley = 'settings.json';
-                                                                                                                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                                                                                                                    Supportchat.find().exec(function(err, res) {
-                                                                                                                                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                                                                                                                                            fs.writeFile('./core/mdb/supportchats.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                                                                                                                                    var filley = 'supportchats.json';
-                                                                                                                                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                                                                                                                                    Vehicle.find().exec(function(err, res) {
-                                                                                                                                                                                                                                                                        if (err) { console.log(err); } else {
-                                                                                                                                                                                                                                                                            fs.writeFile('./core/mdb/vehicles.json', JSON.stringify(res), function(err, resp) {
-                                                                                                                                                                                                                                                                                if (err) { console.log(err) } else {
-                                                                                                                                                                                                                                                                                    var filley = 'vehicles.json';
-                                                                                                                                                                                                                                                                                    dropIt(loccy, folly, filley);
-                                                                                                                                                                                                                                                                                    console.log('backup complete')
-                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                            })
-                                                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                                                    })
-                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                            })
-                                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                                    })
-                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                            })
-                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                    })
-                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                            })
-                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                    })
-                                                                                                                                                                                                                }
-                                                                                                                                                                                                            })
-                                                                                                                                                                                                        }
-                                                                                                                                                                                                    })
-                                                                                                                                                                                                }
-                                                                                                                                                                                            })
-                                                                                                                                                                                        }
-                                                                                                                                                                                    })
-                                                                                                                                                                                }
-                                                                                                                                                                            })
-                                                                                                                                                                        }
-                                                                                                                                                                    })
-                                                                                                                                                                }
-                                                                                                                                                            })
-                                                                                                                                                        }
-                                                                                                                                                    })
-                                                                                                                                                }
-                                                                                                                                            })
-                                                                                                                                        }
-                                                                                                                                    })
-                                                                                                                                }
-                                                                                                                            })
-                                                                                                                        }
-                                                                                                                    })
-                                                                                                                }
-                                                                                                            })
-                                                                                                        }
-                                                                                                    })
-                                                                                                }
-                                                                                            })
-                                                                                        }
-                                                                                    })
-                                                                                }
-                                                                            })
-                                                                        }
-                                                                    })
-                                                                }
-                                                            })
-                                                        }
-                                                    })
-                                                }
-                                            })
-                                        }
-                                    })
-                                }
-                            })
-                        }
-                    })
-                }
-            })
-        }
-    })
-}
+function nightly(){var o="./core/mdb/",e="mdb/";Admin.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/admins.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"admins.json"),Carbrands.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/carbrands.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"carbrands.json"),Chat.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/chats.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"chats.json"),Cms.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/cms.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"cms.json"),Colorcodes.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/colorcodes.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"colorcodes.json"),Distress.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/distresses.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"distresses.json"),Driver.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/drivers.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"drivers.json"),Favorite.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/favorites.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"favorites.json"),Notification.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/notifications.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"notifications.json"),Payment.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/payments.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"payments.json"),Promo.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/promos.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"promos.json"),Rate.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/rates.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"rates.json"),Rider.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/riders.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"riders.json"),Ride.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/rides.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"rides.json"),Setting.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/settings.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"settings.json"),Supportchat.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/supportchats.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"supportchats.json"),Vehicle.find().exec(function(n,i){n?console.log(n):fs.writeFile("./core/mdb/vehicles.json",JSON.stringify(i),function(n,i){if(n)console.log(n);else{dropIt(o,e,"vehicles.json"),ftpDB()}})})}})})}})})}})})}})})}})})}})})}})})}})})}})})}})})}})})}})})}})})}})})}})})}})})}

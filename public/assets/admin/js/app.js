@@ -2,7 +2,6 @@ const aid = $('.aid').val();
 const admin = 'Tufike Admin';
 const freelance = '5f47f9e62dc7b16cb6f33c40';
 const currentyear = moment().format('YYYY');
-logOut();
 auth();
 Waves.init();
 $.fn.enterKey = function(fnc) {
@@ -91,6 +90,8 @@ socket.on('notify admin', function(response) {
     var time = 3000;
     playNotificationSound(sound);
     md.showNotification(from, align, type, icon, content, time);
+    var img = 'https://www.dropbox.com/s/im9zcwb5bwqqjvn/rider.png?raw=1';
+    //persistentNotification(content, img)
     //support();
 })
 
@@ -124,10 +125,12 @@ socket.on('driver payment received', function(response) {
     recentPayments();
 })
 socket.on('sms balance', function(res) {
-  console.log(res)
         if (res.istat === 'success') {
             var balance = res.response.UserData.balance;
             $('.sms-balance').html('SMS Balance <b class="blue-link">' + balance + '</b>')
+            var content = 'Your Current SMS Balance is KES.'+balance;
+            var icon = 'https://lexacle.com/assets/web/img/logos/logo-144x144.png';
+            //persistentNotification(content, icon)
         } else {
             $('.sms-balance').html('SMS API Disconnected')
         }
@@ -445,7 +448,7 @@ function countRecords() {
     socket.emit('count records', admin);
     socket.on('count records', function(response) {
         socket.off('count records');
-        $('.count-rides').html(response.rides)
+        $('.count-rides').html(response.rides);
         $('.count-riders').html(response.riders);
         $('.count-drivers').html(response.drivers);
         $('.count-owners').html(response.owners);
@@ -518,28 +521,6 @@ function auth() {
     })
 }
 
-
-function logOut() {
-    $('.logout-admin').unbind().bind('click', function(e) {
-        e.preventDefault();
-        var from = 'top';
-        var align = 'right';
-        var type = 'success';
-        var icon = 'lock';
-        var message = 'Securing you account for security purposes. Please hold on.';
-        var time = 3000;
-        md.showNotification(from, align, type, icon, message, time);
-        $.ajax({
-            type: 'post',
-            url: appUrl + '/logout',
-            success: function(response) {
-                setTimeout(function() {
-                    location.reload(true)
-                }, 3000)
-            }
-        })
-    })
-}
 function loadMapScript()
 {
   var script = document.createElement('script');
@@ -1711,8 +1692,12 @@ function rides() {
                         var destination = truncateString(response[key].destination, 28);
                         var waitingtime = ((response[key].driverstart - response[key].driverarrive) / 60000).toFixed(0);
                         var rdriver = response[key].xdriver[0].firstname + ' ' + response[key].xdriver[0].lastname;
-                        var rrider = response[key].xrider[0].firstname + ' ' + response[key].xrider[0].lastname;
                         var ldriver = response[key].xdriver[0].location.coordinates[1] + ',' + response[key].xdriver[0].location.coordinates[0];
+                        if (response[key].rider === freelance) {
+                            var rrider = 'Unregistered Rider';
+                        } else {
+                            var rrider = response[key].xrider[0].firstname + ' ' + response[key].xrider[0].lastname;
+                        }
                         var cancelledrides = `<tr class="animate__animated animate__fadeIn">
                         <td class="text-center"><img class="table-icon-no-radius" src="${appUrl}/assets/packages/${response[key].xpackage[0].photo}"></td>
                         <td>${truncateString(rdriver, 15)}</td>
@@ -4223,37 +4208,34 @@ setTimeout(function() {
 
 function requestPermission() {
     if (!('Notification' in window)) {
-        alert('Notification API not supported!');
         return;
     }
 
     Notification.requestPermission(function(result) {
-        console.log(result);
     });
 }
 
 function nonPersistentNotification() {
     if (!('Notification' in window)) {
-        alert('Notification API not supported!');
+        //alert('Notification API not supported!');
         return;
     }
 
     try {
         var notification = new Notification("Hi there - non-persistent!");
     } catch (err) {
-        alert('Notification API error: ' + err);
+        //alert('Notification API error: ' + err);
     }
 }
 
-function persistentNotification() {
+function persistentNotification(text, img) {
     if (!('Notification' in window) || !('ServiceWorkerRegistration' in window)) {
-        alert('Persistent Notification API not supported!');
+        //alert('Persistent Notification API not supported!');
         return;
     }
-
     try {
         navigator.serviceWorker.getRegistration()
-            .then((reg) => reg.showNotification("Hi there - persistent!"))
+            .then((reg) => reg.showNotification('Tufike Pamoja Cabs',{ body: text, icon: img }))
             .catch((err) => alert('Service Worker registration error: ' + err));
     } catch (err) {
         alert('Notification API error: ' + err);

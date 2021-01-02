@@ -64,6 +64,7 @@ const assets = [
     '/assets/admin/fonts/Framework7Icons-Regular.woff2',
     '/assets/admin/fonts/Framework7Icons-Regular.woff',
     '/assets/admin/fonts/Framework7Icons-Regular.ttf',
+    '/assets/admin/img/sidebar-2.jpg',
     '/assets/admin/img/logos/apple-touch-icon-180x180.png',
     '/assets/admin/img/logos/favicon-32x32.png',
     '/assets/admin/img/icons/crown.svg',

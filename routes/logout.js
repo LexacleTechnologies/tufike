@@ -1,12 +1,10 @@
 const express = require('express');
 let app = express.Router();
 
-app.post('/logout', function(req, res, next) {
+app.get('/logout', function(req, res, next) {
     req.session.destroy();
-    var response = {
-        status: 3
-    };
-    res.end(JSON.stringify(response))
+    res.redirect('/login')
+    next()
 })
 
 module.exports = app
