@@ -3724,6 +3724,9 @@ tbody.collapse.show {
     width: 100%;
     z-index: 1020;
   }
+  .main-panel>.content {
+      margin-top: 40px;
+    }
   .d-xs-none
   {
     display: none;
@@ -12086,7 +12089,6 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 }
 
 .main-panel>.content {
-    margin-top: 40px;
     padding: 15px 15px;
     min-height: calc(100vh - 123px);
 }
