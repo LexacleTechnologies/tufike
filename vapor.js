@@ -513,13 +513,7 @@ var config = {
     forcePasv: true,
     sftp: false
 };
-ftpDep.deploy(config, function(err, res) {
-   if (err){
-
-   }else{
-
-   }
-});
+//ftpDep.deploy(config, function(err, res) {if (err){}else{}});
 }
 
 
@@ -7367,7 +7361,7 @@ io.on('connection', function(socket) {
         fidel.on('ready', function() {
             fidel.put(photoName, folder + file, function(err) {
                 if (err) {
-                    console.log(err)
+                    //console.log(err)
                 } else {
                     var path = `vapor/${folder}${file}`;
                     var url = `${cloudUrl}/${folder}${file}`;
