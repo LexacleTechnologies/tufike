@@ -22,17 +22,17 @@
 <script>
 var env = 'test';
 if (env === 'dev') {
-var appUrl = 'http://localhost:4080';
-var devUrl = 'http://localhost/lexacle/';
-var cloudUrl = 'https://cloud.lexacle.com/vapor';
+var appUrl = 'http://localhost:4080',
+    devUrl = 'http://localhost/lexacle/',
+    cloudUrl = 'https://cloud.lexacle.com/vapor';
 } else if (env === 'live') {
-var appUrl = 'http://63.250.44.29:4020';
-var devUrl = 'https://lexacle.com/';
-var cloudUrl = 'https://cloud.lexacle.com/vapor';
+var appUrl = 'http://63.250.44.29:4020',
+    devUrl = 'https://lexacle.com/',
+    cloudUrl = 'https://cloud.lexacle.com/vapor';
 } else if (env === 'test') {
-var appUrl = 'https://tufikepamoja.herokuapp.com';
-var devUrl = 'https://lexacle.com/';
-var cloudUrl = 'https://cloud.lexacle.com/vapor';
+var appUrl = 'https://tufikepamoja.herokuapp.com',
+    devUrl = 'https://lexacle.com/';
+    cloudUrl = 'https://cloud.lexacle.com/vapor';
 }
 var socket = io.connect(appUrl);
 </script>
