@@ -34,6 +34,14 @@ const Admin = mongoose.model('Admin', new mongoose.Schema({
         type: String,
         required: true
     },
+    level: {
+        type: Number,
+        required: true
+    },
+    about: {
+        type: String,
+        required: true
+    },
     status: {
         type: Number,
         required: true
@@ -69,7 +77,7 @@ Admin.find().exec(function(err, result) {
     if (err) { console.log(logSymbols.error, 'Could not initiate admin bson import'.red) } else {
         Admin.createIndexes();
         if (result.length === 0) {
-            var data = { firstname: 'Tufike', lastname: 'Pamoja', email: 'tufike@lexacle.com', phone: '0727779929', photo: 'admin.png', password: 'Tufike@2020', status: 1, settings: { notifications: 1, theme: 'green', mode: 'dark', rate: 0, online: 0 }, time: Date.now() };
+            var data = { firstname: 'Tufike', lastname: 'Pamoja', email: 'tufike@lexacle.com', phone: '0727779929', photo: 'admin.png', password: 'Tufike@2020', level: 1, about: 'About Tufike Pamoja Admin', status: 1, settings: { notifications: 1, theme: 'green', mode: 'dark', rate: 0, online: 0 }, time: Date.now() };
             const Adminsave = new Admin(data)
             Adminsave.save((err, result) => {
                 if (err) {

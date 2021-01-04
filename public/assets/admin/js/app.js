@@ -138,8 +138,12 @@ socket.on('sms balance', function(res) {
     ////////////// RIDE STATUS LIVE UPDATES ///////////////
 socket.on('relaunch admin rides', function(response) {
         //rides();
-    })
-
+})
+function adminImage(img)
+{
+  img.onerror = "";
+  img.src = '/assets/admin/avatars/admin.png';
+}
 function driverImage(img)
 {
     img.onerror = "";
@@ -154,6 +158,24 @@ function ownerImage(img)
 {
     img.onerror = "";
     img.src = '/assets/vehicles/avatars/owner.png';
+}
+function initCroppie()
+{
+  var el = document.getElementById('aphoto');
+  window.vanilla = new Croppie(el, {
+      enforceBoundary: true,
+      enableExif: true,
+      enableOrientation: true,
+      viewport: {
+          width: 240,
+          height: 240,
+          type: 'circle'
+      },
+      boundary: {
+          width: 260,
+          height: 260
+      }
+  });
 }
 ////////////// RIDE STATUS LIVE UPDATES ///////////////
 function dashboard() {
@@ -465,7 +487,7 @@ function countRecords() {
 }
 
 function auth() {
-    $('.admin-login-button').unbind().bind('click', function(e) {
+    $('#admin-login-form').on('submit', function(e) {
         e.preventDefault();
         var email = $('.lemail').val();
         var password = $('.lpassword').val();
@@ -1552,6 +1574,8 @@ function rides() {
                 var badge = '<span class="badge blue lighten-5 blue-text text-accent-2">Pending</span>';
             } else if (response[key].driveraccept === 1 && response[key].driverstop === 0) {
                 var badge = '<span class="badge green lighten-5 green-text text-accent-2">Active</span>';
+            } else if (response[key].driveraccept === 1 && response[key].driverstop > 0) {
+                var badge = '<span class="badge green lighten-5 green-text text-accent-2">Complete</span>';
             } else if (response[key].driveraccept === 2 && response[key].driverstop === 0) {
                 var badge = '<span class="badge pink lighten-5 pink-text text-accent-2">Rejected</span>';
             } else if (response[key].driveraccept === 3 && response[key].driverstop === 0) {
@@ -3197,7 +3221,7 @@ function support() {
                                 taccount = upurge;
                                 tmee = 'Tufike Pamoja';
                                 var xmessage = {
-                                    userid: uid,
+                                    userid: aid,
                                     sendername: tname,
                                     receivername: tmee,
                                     messagetype: 'received',
@@ -3495,6 +3519,143 @@ function distress() {
 }
 
 function profile() {
+  NProgress.start();
+  $('.refresh-data').css('display', 'none');
+  socket.emit('fetch admin account',aid);
+  socket.on('fetch admin account',function(response){
+    socket.off('fetch admin account');
+    NProgress.done();
+    $('.refresh-data').css('display', 'block');
+    $('.refresh-data').unbind().bind('click',function(e){
+      e.preventDefault();
+      profile();
+    })
+    $('.first-name').val(response.firstname);
+    $('.last-name').val(response.lastname);
+    $('.email-address').val(response.email);
+    $('.phone-number').val(response.phone);
+    $('.about-admin').val(response.about);
+    $('.admin-pic').prop('src',`${cloudUrl}/assets/admin/avatars/${response.photo}`);
+    $('.admin-name').html(`${response.firstname} ${response.lastname}`);
+    $('.admin-description').html(`${response.about}`);
+    $('#update-account-form').unbind().bind('submit',function(e){
+      e.preventDefault();
+      var fname = $('.first-name').val();
+      var lname = $('.last-name').val();
+      var email = $('.email-address').val();
+      var phone = $('.phone-number').val();
+      var about = $('.about-admin').val();
+      if(fname === ''){
+        var from = 'top';
+        var align = 'right';
+        var type = 'warning';
+        var icon = 'check';
+        var message = 'Your first name is required in order to proceed';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.first-name').focus();
+      } else if(lname === ''){
+        var from = 'top';
+        var align = 'right';
+        var type = 'warning';
+        var icon = 'check';
+        var message = 'Your last name is required in order to proceed';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.last-name').focus();
+      } else if(email === ''){
+        var from = 'top';
+        var align = 'right';
+        var type = 'warning';
+        var icon = 'check';
+        var message = 'Your email address is required in order to proceed';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.email-address').focus();
+      } else if(!validateEmail(email)){
+        var from = 'top';
+        var align = 'right';
+        var type = 'warning';
+        var icon = 'check';
+        var message = 'Your email address seems to be invalid. Please correct this to proceed';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.email-address').focus();
+      } else if(phone === ''){
+        var from = 'top';
+        var align = 'right';
+        var type = 'warning';
+        var icon = 'check';
+        var message = 'Your phone number is required in order to proceed';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.phone-number').focus();
+      } else if(!validatePhone(phone)){
+        var from = 'top';
+        var align = 'right';
+        var type = 'warning';
+        var icon = 'check';
+        var message = 'Your phone number seems to be invalid. Please correct this to proceed';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.phone-number').focus();
+      } else {
+        var account = {aid: aid, fname: fname, lname: lname, email: email, phone: phone, about: about};
+        socket.emit('update admin account',account);
+        socket.on('update admin account',function(res){
+          socket.off('update admin account');
+          var from = 'top';
+          var align = 'right';
+          var type = 'success';
+          var icon = 'check';
+          var message = 'Your admin account has been successfully updated.';
+          var time = 3000;
+          md.showNotification(from, align, type, icon, message, time);
+          profile();
+        })
+      }
+    })
+  })
+  $('#admin-photo-upload').off('change').on('change', function() {
+      var reader = new FileReader();
+      $('#modal-aphoto').modal('show');
+      reader.onload = function(e) {
+          setTimeout(function() {
+              vanilla.bind({
+                  url: e.target.result,
+                  orientation: 1
+              });
+          }, 1000);
+      }
+      reader.readAsDataURL(this.files[0]);
+  $('.upload-button').unbind().bind('click', function(e) {
+      e.preventDefault();
+      vanilla.result({
+          type: 'canvas',
+          size: 'viewport'
+      }).then(function(response) {
+          var photodata = {
+              aid: aid,
+              photo: response
+          };
+          Swal.fire({
+          title: '<span class="mt-3 blue-link">Uploading photo</span>',
+          html: 'This will take a few seconds, please hold on',
+          scrollbarPadding: true,
+          backdrop: false,
+          allowOutsideClick: false
+        })
+        Swal.showLoading();
+        $('#modal-aphoto').modal('hide');
+          socket.emit('update admin photo', photodata);
+          socket.on('update admin photo', function(response) {
+              socket.off('update admin photo');
+              Swal.close();
+              $('.admin-pic').prop('src',cloudUrl+'/assets/admin/avatars/'+response.photo);
+          })
+      })
+  });
+})
 
 }
 
@@ -3880,6 +4041,8 @@ function users() {
                 phone: phone,
                 photo: 'admin.png',
                 password: password,
+                level: 1,
+                about: 'About Tufike Pamoja Admin',
                 status: 1,
                 settings: {
                     notifications: 1,

@@ -982,6 +982,23 @@ io.on('connection', function(socket) {
             socket.emit('cloud ssd stats', diskSpace);
         })
     })
+    socket.on('fetch admin account', function(aid) {
+        var query = { _id: aid };
+        Admin.findOne(query).exec(function(err, result) {
+            if (err) { console.log(err) } else {
+                socket.emit('fetch admin account', result)
+            }
+        })
+    })
+    socket.on('update admin account',function(account){
+      var query = {_id: account.aid};
+      var nupdate = {$set: {firstname: account.fname, lastname: account.lname, email: account.email, phone: account.phone, about: account.about}};
+      Admin.findOneAndUpdate(query, nupdate).exec(function(err, result) {
+          if (err) { console.log(err); } else {
+            socket.emit('update admin account',result)
+          }
+        })
+    })
     socket.on('initiate distress alert', function(xdistress) {
         var rid = xdistress.rid;
         var initname = xdistress.initiator;
@@ -1225,7 +1242,6 @@ io.on('connection', function(socket) {
         const Admindata = new Admin(account)
         Admindata.save((err, result) => {
             if (err) {
-
                 if (err.code === 11000) {
                     for (key in err.keyValue) {
                         if (err.keyValue.hasOwnProperty(key)) {
@@ -7176,6 +7192,63 @@ io.on('connection', function(socket) {
                 socket.emit('delete favorites', response)
             }
         });
+    })
+
+    socket.on('update admin photo', function(profile) {
+        var photoData = profile.photo;
+        var base64Data = photoData.replace(/^data:image\/png;base64,/, "");
+        var photoName = Buffer.from(base64Data, 'base64');
+        var file = profile.aid + '.png',
+            folder = 'assets/admin/avatars/';
+        var fidel = new FTP();
+        fidel.on('ready', function() {
+            fidel.put(photoName, folder + file, function(err) {
+                if (err) {
+                    console.log('err', err);
+                } else {
+                  var path = `vapor/${folder}${file}`;
+                  var url = `${cloudUrl}/${folder}${file}`;
+                  dropLink(path, url);
+                    var photoname = profile.aid + '.png';
+                    var query = {
+                        _id: profile.aid
+                    };
+                    var avatar = {
+                        $set: {
+                            photo: photoname
+                        }
+                    };
+                    var s_query = {
+                        userid: profile.aid
+                    };
+                    var s_avatar = {
+                        $set: {
+                            senderphoto: photoname
+                        }
+                    };
+                    Supportchat.updateMany(s_query, s_avatar, function(err, res) {
+                        if (err) {
+                            throw err;
+                        } else {}
+                    })
+                    Admin.updateOne(query, avatar, function(err, result) {
+                        if (err) {
+                            throw err;
+                        } else {
+                            Admin.findOne(query).exec(function(err, result) {
+                                if (err) {
+                                    console.log(err)
+                                } else {
+                                    socket.emit('update admin photo', result);
+                                }
+                            })
+                        }
+                    })
+                    fidel.end();
+                }
+            });
+        });
+        fidel.connect(ftpConnection);
     })
 
     socket.on('update vehicle photo', function(profile) {

@@ -13472,6 +13472,7 @@ label {
 .card-profile .card-avatar img {
     width: 100%;
     height: auto;
+    cursor: pointer;
 }
 
 .card-profile .card-avatar2 {
@@ -13509,8 +13510,10 @@ label {
 }
 
 .card-profile .card-avatar {
-    max-width: 130px;
-    max-height: 130px;
+    position: relative;
+    max-width: 100px;
+    max-height: 100px;
+    z-index: 999;
 }
 
 .card-plain {
@@ -15605,11 +15608,11 @@ input[type="button"].btn-block {
 
 .dark-edition .card .card-body .card-category,
 .dark-edition .card .card-body .card-title {
-    color: #8b92a9;
+    color: rgba(255,255,255,0.8);
 }
 
 .dark-edition .card .card-body .card-description {
-    color: #606477;
+    color: rgba(255,255,255,0.8);
 }
 
 .dark-edition .card .card-body+.card-footer .stats,
@@ -17742,6 +17745,10 @@ fieldset[disabled][disabled] .dark-edition .has-error .form-control,
   background: linear-gradient(60deg, #5f3dc4, #862e9c) !important;
   color: rgba(255,255,255,0.8);
 }
+.bg-purple-light {
+  background: linear-gradient(60deg, #5f3dc4, #862e9c) !important;
+  color: #fff;
+}
 
 .bg-purple .content .text,
 .bg-purple .content .number {
@@ -17808,8 +17815,8 @@ fieldset[disabled][disabled] .dark-edition .has-error .form-control,
 }
 
 .bg-green {
-    background-color: #4CAF50 !important;
-    color: #fff;
+  background: linear-gradient(60deg, #0F8826, #08B752) !important;
+  color: rgba(255,255,255,0.8) !important;
 }
 
 .bg-green .content .text,

@@ -1,0 +1,87 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="card card-profile mt-4 xpage">
+      <div class="shap one"></div>
+      <div class="shap two"></div>
+      <div class="shap one three"></div>
+      <div class="shap two four"></div>
+      <div class="card-header bg-blue">
+        <h4 class="card-title">&nbsp;</h4>
+        <p class="card-category">&nbsp;</p>
+      </div>
+      <div class="card-avatar">
+        <label for="admin-photo-upload">
+          <img class="img admin-pic" src="/assets/admin/avatars/icon.png" onerror="adminImage(this)">
+        </label>
+        <input type="file" id="admin-photo-upload" class="hidden"/>
+      </div>
+      <div class="card-body">
+        <h6 class="card-category admin-name">Account Name</h6>
+        <p class="card-description admin-description">
+        </p>
+        <a href="/logout" class="btn bg-orange waves-effect mb-2">Logout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card mt-4 xpage">
+      <div class="shap one"></div>
+      <div class="shap two"></div>
+      <div class="shap one three"></div>
+      <div class="shap two four"></div>
+      <div class="card-header bg-purple">
+        <h4 class="card-title">Edit Profile</h4>
+        <p class="card-category">Update your admin account profile</p>
+      </div>
+      <div class="card-body">
+        <form method="post" id="update-account-form">
+          <div class="row">
+              <div class="col-md-6">
+                <div class="form-group bmd-form-group">
+                  <label>First Name</label>
+                  <input type="text" class="form-control first-name" autocomplete="off" spellcheck="false">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group bmd-form-group">
+                  <label>Last Name</label>
+                  <input type="text" class="form-control last-name" autocomplete="off" spellcheck="false">
+                </div>
+              </div>
+            <div class="col-md-6">
+              <div class="form-group bmd-form-group">
+                <label>Email address</label>
+                <input type="email" class="form-control email-address" autocomplete="off" spellcheck="false">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group bmd-form-group">
+                <label>Phone Number</label>
+                <input type="text" class="form-control phone-number" autocomplete="off" spellcheck="false">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group bmd-form-group">
+                <label>About Me</label>
+                  <textarea class="form-control about-admin" rows="5" spellcheck="false"></textarea>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group bmd-form-group">
+                <button type="button" class="btn bg-purple waves-effect float-left mt-2 mb-2">Change Password</button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group bmd-form-group">
+                <button type="submit" class="btn bg-green waves-effect float-right mt-2 mb-2">Update Profile</button>
+              </div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

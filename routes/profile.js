@@ -7,7 +7,7 @@ app.get('/profile', function(req, res, next) {
         var pdata = {
             uid: uid,
             title: 'Tufike Pamoja Admin | Profile',
-            pagefunctions: 'installApp();profile();',
+            pagefunctions: 'installApp();initCroppie();profile();',
             dashboard: '',
             riders: '',
             drivers: '',
