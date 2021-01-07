@@ -53,6 +53,8 @@ const smb = AfricasTalking.APPLICATION;
 const cloudUrl = 'https://cloud.lexacle.com/vapor';
 const dbToken = 'EtwLS5gnxUYAAAAAAAAAARH-Ycv4cdQwqbxWk5Ip_inxzskPwrmAZQ1DTB16YHHY';
 const dropBoxAPI = { method: "POST", url: 'https://api.dropboxapi.com/2/users/get_space_usage', headers: { "Authorization": "Bearer " + dbToken } };
+var ehbs = require('nodemailer-express-handlebars-plaintext-inline-ccs');
+const etemplatesFolder = './views/templates/email';
 mongoose.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -384,6 +386,14 @@ var transporter = nodemailer.createTransport({
         pass: 'Tufike@2019'
     }
 });
+const eoptions = {
+    viewEngine: hbs,
+    templatesDir: etemplatesFolder,
+    extName: '.hbs',
+    plaintextOptions: {
+      uppercaseHeadings: false
+    }
+  }
 const PORT = process.env.PORT || 4080;
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
@@ -498,7 +508,7 @@ var config = {
     sftp: false
 };
 
-//ftpDeploy.deploy(config).then(res => console.log("finished:", res)).catch(err => console.log(err));
+ftpDeploy.deploy(config).then(res => console.log("finished:", res)).catch(err => console.log(err));
 function ftpDB(){
 var ftpDep = new FtpDeploy();
 var config = {
@@ -988,6 +998,22 @@ io.on('connection', function(socket) {
             if (err) { console.log(err) } else {
                 socket.emit('fetch admin account', result)
             }
+        })
+    })
+    socket.on('update admin password',function(account){
+      var query = {_id: account.aid, password: account.curpass};
+      var nupdate = {$set: {password: account.newpass}};
+      Admin.findOneAndUpdate(query, nupdate).exec(function(err, result) {
+          if (err) { console.log(err); } else {
+            if(result){
+              var data = {status: 'success', result: result};
+              socket.emit('update admin password',data)
+            }
+            else {
+              var data = {status: 'failed', result: null};
+              socket.emit('update admin password',data)
+            }
+          }
         })
     })
     socket.on('update admin account',function(account){
@@ -5136,7 +5162,6 @@ io.on('connection', function(socket) {
         const Vehicleaccount = new Vehicle(account)
         Vehicleaccount.save((err, result) => {
             if (err) {
-                //console.log(err)
                 if (err.code === 11000) {
                     for (key in err.keyValue) {
                         if (err.keyValue.hasOwnProperty(key)) {
@@ -5157,13 +5182,6 @@ io.on('connection', function(socket) {
                 }
             } else {
                 socket.emit('create vehicle', result);
-                var nmessage = {
-                    icon: 'local_taxi',
-                    color: 'success',
-                    content: 'New vehicle has been registered by ' + account.firstname + ' ' + account.lastname,
-                    sound: 'cheerful'
-                };
-                io.sockets.emit('new vehicle registered', JSON.stringify(nmessage));
                 var vphone = '+254' + (account.phone).substr(1);
                 const vsms = {
                     to: vphone,
@@ -5174,176 +5192,21 @@ io.on('connection', function(socket) {
                     .catch(error => {
                         console.log(error);
                     });
+                transporter.use('compile', ehbs(eoptions));
                 var mailOptions = {
                     from: { name: 'Tufike Pamoja Cabs', address: 'tufike@lexacle.com' },
                     to: account.email,
                     replyTo: 'tufikecabs@gmail.com',
                     subject: 'Tufike Pamoja',
-                    html: `
-                    <!doctype html>
-                    <html>
-                    <head>
-                    <meta name="viewport" content="width=device-width">
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <title>Activation Code</title>
-                    <style>
-                    @media only screen and (max-width: 620px) {
-                      table[class=body] h1 {
-                        font-size: 28px !important;
-                        margin-bottom: 10px !important;
+                    template: 'vehicle',
+                    context: {
+                      activationcode: account.activationcode,
+                      name: account.firstname
                     }
-                    table[class=body] p,
-                    table[class=body] ul,
-                    table[class=body] ol,
-                    table[class=body] td,
-                    table[class=body] span,
-                    table[class=body] a {
-                        font-size: 16px !important;
-                    }
-                    table[class=body] .wrapper,
-                    table[class=body] .article {
-                        padding: 10px !important;
-                    }
-                    table[class=body] .content {
-                        padding: 0 !important;
-                    }
-                    table[class=body] .container {
-                        padding: 0 !important;
-                        width: 100% !important;
-                    }
-                    table[class=body] .main {
-                        border-left-width: 0 !important;
-                        border-radius: 0 !important;
-                        border-right-width: 0 !important;
-                    }
-                    table[class=body] .btn table {
-                        width: 100% !important;
-                    }
-                    table[class=body] .btn {
-                        width: 100% !important;
-                    }
-                    table[class=body] .img-responsive {
-                        height: auto !important;
-                        max-width: 100% !important;
-                        width: auto !important;
-                    }
-                }
-                @media all {
-                  .ExternalClass {
-                    width: 100%;
-                }
-                .ExternalClass,
-                .ExternalClass p,
-                .ExternalClass span,
-                .ExternalClass font,
-                .ExternalClass td,
-                .ExternalClass div {
-                    line-height: 100%;
-                }
-                .apple-link a {
-                    color: inherit !important;
-                    font-family: inherit !important;
-                    font-size: inherit !important;
-                    font-weight: inherit !important;
-                    line-height: inherit !important;
-                    text-decoration: none !important;
-                }
-                #MessageViewBody a {
-                    color: inherit;
-                    text-decoration: none;
-                    font-size: inherit;
-                    font-family: inherit;
-                    font-weight: inherit;
-                    line-height: inherit;
-                }
-            }
-            </style>
-            </head>
-            <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-            <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
-            <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-            <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
-            <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
-
-            <!-- START CENTERED WHITE CONTAINER -->
-            <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${account.activationcode}</b> is your account activation code</span>
-            <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
-
-            <!-- START MAIN CONTENT AREA -->
-            <tr style="background-image: linear-gradient(60deg, #7F2DD3, #450080) !important;">
-                <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
-                Tufike Pamoja Cabs
-                </td>
-                </tr>
-            <tr>
-            <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
-            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-            <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Dear ${account.firstname},</p>
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Earn a living in the Taxi Business by getting your vehicle registered, issued a package and driver by Tufike Pamoja Taxi Hailing Company. We manage your vehicle operations giving you ease of Access to both your operational and financial records.  Below is your One-Time account activation code. We are glad to have you joining us.</p>
-            <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
-            <tbody>
-            <tr>
-            <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;">
-            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
-            <tbody>
-            <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${account.activationcode}</span></td>
-            </tr>
-            </tbody>
-            </table>
-            </td>
-            </tr>
-            </tbody>
-            </table>
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-            Kind regards,<br>
-            Tufike Pamoja Team<br>
-            +254 716 435 983
-            </p>
-            </td>
-            </tr>
-            </table>
-            </td>
-            </tr>
-
-            <!-- END MAIN CONTENT AREA -->
-            </table>
-
-            <!-- START FOOTER -->
-            <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%;">
-            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-            <tr style="background-image: linear-gradient(60deg, #450080, #7F2DD3) !important;">
-            <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
-            <span class="apple-link" style="color: #fff;font-size: 12px;text-align: center;">Tufike Pamoja Cabs, Nanyuki - Kenya, tufikecabs@gmail.com</span>
-            </td>
-            </tr>
-            <tr>
-            <tr>
-            <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-            Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
-            </td>
-            </tr>
-            </table>
-            </div>
-            </div>
-            </td>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-            </tr>
-            </table>
-            </body>
-
-            </html>
-            `
                 };
                 transporter.sendMail(mailOptions, function(error, info) {
                     if (error) {
-                        //console.log(error);
                     } else {
-                        console.log('Vehicle Registration Email sent: ' + info.response);
                     }
                 });
             }
@@ -5354,7 +5217,6 @@ io.on('connection', function(socket) {
         const Rideraccount = new Rider(account)
         Rideraccount.save((err, result) => {
             if (err) {
-                //console.log(err)
                 if (err.code === 11000) {
                     for (key in err.keyValue) {
                         if (err.keyValue.hasOwnProperty(key)) {
@@ -5375,198 +5237,30 @@ io.on('connection', function(socket) {
                 }
             } else {
                 socket.emit('create rider', result);
-                var nmessage = {
-                    icon: 'person',
-                    color: 'success',
-                    content: 'New rider ' + account.firstname + ' ' + account.lastname + ' registration completed.',
-                    sound: 'cheerful'
-                };
-                io.sockets.emit('new rider registered', JSON.stringify(nmessage));
                 var vphone = '+254' + (account.phone).substr(1);
                 const vsms = {
                     to: vphone,
-                    message: 'Hi ' + account.firstname + ', ' + account.activationcode + ' is your Tufike Pamoja Account activation code'
+                    message: 'Welcome ' + account.firstname + ', ' + account.activationcode + ' is your Tufike Pamoja Account activation code'
                 }
                 sms.send(vsms)
                     .then(response => {})
                     .catch(error => {
-                        console.log(error);
                     });
-                var mailOptions = {
-                    from: { name: 'Tufike Pamoja Cabs', address: 'tufike@lexacle.com' },
-                    to: account.email,
-                    replyTo: 'tufikecabs@gmail.com',
-                    subject: 'Tufike Pamoja',
-                    html: `
-                    <!doctype html>
-                    <html>
-                    <head>
-                    <meta name="viewport" content="width=device-width">
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <title>Tufike Pamoja Cabs</title>
-                    <style>
-                    @media only screen and (max-width: 620px) {
-                      table[class=body] h1 {
-                        font-size: 28px !important;
-                        margin-bottom: 10px !important;
+                    var mailOptions = {
+                        priority: 'high',
+                        from: { name: 'Tufike Pamoja Cabs', address: 'tufike@lexacle.com' },
+                        to: account.email,
+                        replyTo: 'tufikecabs@gmail.com',
+                        subject: 'Tufike Pamoja Activation Code',
+                        template: 'rider',
+                        context: {
+                          activationcode: result.activationcode,
+                          name: result.firstname
+                        }
                     }
-                    table[class=body] p,
-                    table[class=body] ul,
-                    table[class=body] ol,
-                    table[class=body] td,
-                    table[class=body] span,
-                    table[class=body] a {
-                        font-size: 16px !important;
-                    }
-                    table[class=body] .wrapper,
-                    table[class=body] .article {
-                        padding: 10px !important;
-                    }
-                    table[class=body] .content {
-                        padding: 0 !important;
-                    }
-                    table[class=body] .container {
-                        padding: 0 !important;
-                        width: 100% !important;
-                    }
-                    table[class=body] .main {
-                        border-left-width: 0 !important;
-                        border-radius: 0 !important;
-                        border-right-width: 0 !important;
-                    }
-                    table[class=body] .btn table {
-                        width: 100% !important;
-                    }
-                    table[class=body] .btn {
-                        width: 100% !important;
-                    }
-                    table[class=body] .img-responsive {
-                        height: auto !important;
-                        max-width: 100% !important;
-                        width: auto !important;
-                    }
-                }
-                @media all {
-                  .ExternalClass {
-                    width: 100%;
-                }
-                .ExternalClass,
-                .ExternalClass p,
-                .ExternalClass span,
-                .ExternalClass font,
-                .ExternalClass td,
-                .ExternalClass div {
-                    line-height: 100%;
-                }
-                .apple-link a {
-                    color: inherit !important;
-                    font-family: inherit !important;
-                    font-size: inherit !important;
-                    font-weight: inherit !important;
-                    line-height: inherit !important;
-                    text-decoration: none !important;
-                }
-                #MessageViewBody a {
-                    color: inherit;
-                    text-decoration: none;
-                    font-size: inherit;
-                    font-family: inherit;
-                    font-weight: inherit;
-                    line-height: inherit;
-                }
-            }
-            </style>
-            </head>
-            <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-            <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
-            <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-            <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
-            <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
-
-            <!-- START CENTERED WHITE CONTAINER #95059A-->
-            <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${account.activationcode}</b> is your account activation code</span>
-
-            <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
-
-            <!-- START MAIN CONTENT AREA -->
-            <tr style="background-image: linear-gradient(60deg, #2f3958, #04091e) !important;">
-            <td style="padding: 20px;font-weight:600;font-size:28px;color:#b78a29;">
-            <div style="width: 50px; height:50px;float:left;margin-bottom:-10px;margin-top: -5px; margin-left:-8px;margin-right: 10px; background-image: url(<?php echo base_url(); ?>assets/img/logos/logo.png);background-size: 50px 50px;"></div>
-            Tufike Pamoja Cabs
-            </td>
-            </tr>
-            <tr>
-            <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
-            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-            <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Hi ${account.firstname},</p>
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Enjoy personalized Taxi Services wherever you are, whenever you need it. Below is your One-Time account activation code. Do not share with anyone whatsoever. We are glad to serve you.</p>
-            <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
-            <tbody>
-            <tr>
-            <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;">
-            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
-            <tbody>
-            <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: #34495e; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-color: #34495e; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${account.activationcode}</span></td>
-            </tr>
-            </tbody>
-            </table>
-            </td>
-            </tr>
-            </tbody>
-            </table>
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
-            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-            Best regards,<br>
-            Tufike Pamoja Team
-            </p>
-            </td>
-            </tr>
-            </table>
-            </td>
-            </tr>
-
-            <!-- END MAIN CONTENT AREA -->
-            </table>
-
-            <!-- START FOOTER -->
-            <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%; background: #383c47;">
-            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-            <tr style="background-image: linear-gradient(60deg, #04091e, #2f3958) !important;">
-                  <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
-                    <span class="apple-link" style="color: #999999;font-size: 12px;text-align: center;">La Zion Hotel Ltd, Kisii - Nyamira Highway - Nyankongo Road</span>
-                  </td>
-                </tr>
-            <tr>
-            <td class="content-block" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-            <span class="apple-link" style="color: #999999; font-size: 12px; text-align: center;">Tufike Pamoja, Nanyuki Kenya, tufikecabs@gmail.com</span>
-            </td>
-            </tr>
-            <tr>
-            <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-            Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
-            </td>
-            </tr>
-            </table>
-            </div>
-            </div>
-            </td>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-            </tr>
-            </table>
-            </body>
-
-            </html>
-            `
-                };
                 transporter.sendMail(mailOptions, function(error, info) {
                     if (error) {
-                        //console.log(error);
                     } else {
-                        console.log('Registration Email sent: ' + info.response);
                     }
                 });
             }
@@ -5596,171 +5290,34 @@ io.on('connection', function(socket) {
                     });
                 }
             } else {
-                var mailOptions = {
-                    from: { name: 'Tufike Pamoja Cabs', address: 'tufike@lexacle.com' },
-                    to: account.email,
-                    replyTo: 'tufikecabs@gmail.com',
-                    subject: 'Tufike Pamoja',
-                    html: `
-              <!doctype html>
-              <html>
-              <head>
-              <meta name="viewport" content="width=device-width">
-              <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-              <title>Simple Transactional Email</title>
-              <style>
-              @media only screen and (max-width: 620px) {
-                table[class=body] h1 {
-                  font-size: 28px !important;
-                  margin-bottom: 10px !important;
+              socket.emit('create driver', result);
+              var vphone = '+254' + (account.phone).substr(1);
+              const vsms = {
+                  to: vphone,
+                  message: 'Welcome ' + account.firstname + ', ' + account.activationcode + ' is your Tufike Pamoja Account activation code'
               }
-              table[class=body] p,
-              table[class=body] ul,
-              table[class=body] ol,
-              table[class=body] td,
-              table[class=body] span,
-              table[class=body] a {
-                  font-size: 16px !important;
+              sms.send(vsms)
+                  .then(response => {})
+                  .catch(error => {
+                      //console.log(error);
+                  });
+              var mailOptions = {
+                  priority: 'high',
+                  from: { name: 'Tufike Pamoja Cabs', address: 'tufike@lexacle.com' },
+                  to: account.email,
+                  replyTo: 'tufikecabs@gmail.com',
+                  subject: 'Tufike Pamoja Activation Code',
+                  template: 'driver',
+                  context: {
+                    activationcode: account.activationcode,
+                    name: account.firstname
+                  }
               }
-              table[class=body] .wrapper,
-              table[class=body] .article {
-                  padding: 10px !important;
-              }
-              table[class=body] .content {
-                  padding: 0 !important;
-              }
-              table[class=body] .container {
-                  padding: 0 !important;
-                  width: 100% !important;
-              }
-              table[class=body] .main {
-                  border-left-width: 0 !important;
-                  border-radius: 0 !important;
-                  border-right-width: 0 !important;
-              }
-              table[class=body] .btn table {
-                  width: 100% !important;
-              }
-              table[class=body] .btn {
-                  width: 100% !important;
-              }
-              table[class=body] .img-responsive {
-                  height: auto !important;
-                  max-width: 100% !important;
-                  width: auto !important;
-              }
-          }
-          @media all {
-            .ExternalClass {
-              width: 100%;
-          }
-          .ExternalClass,
-          .ExternalClass p,
-          .ExternalClass span,
-          .ExternalClass font,
-          .ExternalClass td,
-          .ExternalClass div {
-              line-height: 100%;
-          }
-          .apple-link a {
-              color: inherit !important;
-              font-family: inherit !important;
-              font-size: inherit !important;
-              font-weight: inherit !important;
-              line-height: inherit !important;
-              text-decoration: none !important;
-          }
-          #MessageViewBody a {
-              color: inherit;
-              text-decoration: none;
-              font-size: inherit;
-              font-family: inherit;
-              font-weight: inherit;
-              line-height: inherit;
-          }
-      }
-      </style>
-      </head>
-      <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-      <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
-      <tr>
-      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-      <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
-      <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
-
-      <!-- START CENTERED WHITE CONTAINER -->
-      <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${account.activationcode}</b> is your account activation code</span>
-      <img src="https://www.dropbox.com/s/pprcxra5idbbg8p/taxiheader.png?raw=1" style="width: 100%; margin-bottom: -10px;"/>
-      <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
-
-      <!-- START MAIN CONTENT AREA -->
-      <tr>
-      <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
-      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-      <tr>
-      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-      <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Hi ${account.firstname},</p>
-      <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Enjoy personalized Taxi Services wherever you are, whenever you need it. Below is your One-Time account activation code. Do not share with anyone whatsoever. We are glad to serve you.</p>
-      <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
-      <tbody>
-      <tr>
-      <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;">
-      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
-      <tbody>
-      <tr>
-      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: #34495e; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-color: #34495e; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${account.activationcode}</span></td>
-      </tr>
-      </tbody>
-      </table>
-      </td>
-      </tr>
-      </tbody>
-      </table>
-      <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
-      <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-      Best regards,<br>
-      Tufike Pamoja Team
-      </p>
-      </td>
-      </tr>
-      </table>
-      </td>
-      </tr>
-
-      <!-- END MAIN CONTENT AREA -->
-      </table>
-
-      <!-- START FOOTER -->
-      <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%; background: #383c47;">
-      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-      <tr>
-      <td class="content-block" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-      <span class="apple-link" style="color: #999999; font-size: 12px; text-align: center;">Tufike Pamoja, Nanyuki Kenya, tufikecabs@gmail.com</span>
-      </td>
-      </tr>
-      <tr>
-      <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-      Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
-      </td>
-      </tr>
-      </table>
-      </div>
-      </div>
-      </td>
-      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-      </tr>
-      </table>
-      </body>
-
-      </html>
-      `
-                };
                 transporter.sendMail(mailOptions, function(error, info) {
                     if (error) {
-                        socket.emit('create driver', result);
+
                     } else {
-                        socket.emit('create driver', result);
-                        console.log('Driver Registration Email sent: ' + info.response);
+
                     }
                 });
             }
@@ -5896,208 +5453,7 @@ io.on('connection', function(socket) {
         });
     })
 
-    socket.on('resend vehicle code', function(account) {
-        var query = {
-            _id: account.oid
-        };
-        Vehicle.findOne(query).exec(function(err, result) {
-            if (err) {
-                console.log(err);
-                socket.emit('resend vehicle code', {
-                    status: 'unauth',
-                    response: 'none'
-                });
-            } else {
-                var vphone = '+254' + (result.phone).substr(1);
-                var vmessage = 'Hi ' + result.firstname + ', ' + result.activationcode + ' is your Tufike Pamoja Account activation code';
-                const vsms = {
-                    to: [vphone],
-                    message: vmessage
-                }
-                sms.send(vsms)
-                    .then(response => {
-                        socket.emit('resend vehicle code', {
-                            status: 'success',
-                            response: result.activationcode
-                        });
-                    })
-                    .catch(error => {
-                        socket.emit('resend vehicle code', {
-                            status: 'failed',
-                            response: 'Failed to send activation code via sms'
-                        });
-                        console.log(error);
-                    });
-                var mailOptions = {
-                    priority: 'high',
-                    from: 'Tufike Pamoja Cabs <tufike@lexacle.com>',
-                    to: account.email,
-                    replyTo: 'tufikecabs@gmail.com',
-                    subject: 'Tufike Pamoja',
-                    html: `
-                <!doctype html>
-                <html>
-                <head>
-                <meta name="viewport" content="width=device-width">
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                <title>Simple Transactional Email</title>
-                <style>
-                @media only screen and (max-width: 620px) {
-                  table[class=body] h1 {
-                    font-size: 28px !important;
-                    margin-bottom: 10px !important;
-                }
-                table[class=body] p,
-                table[class=body] ul,
-                table[class=body] ol,
-                table[class=body] td,
-                table[class=body] span,
-                table[class=body] a {
-                    font-size: 16px !important;
-                }
-                table[class=body] .wrapper,
-                table[class=body] .article {
-                    padding: 10px !important;
-                }
-                table[class=body] .content {
-                    padding: 0 !important;
-                }
-                table[class=body] .container {
-                    padding: 0 !important;
-                    width: 100% !important;
-                }
-                table[class=body] .main {
-                    border-left-width: 0 !important;
-                    border-radius: 0 !important;
-                    border-right-width: 0 !important;
-                }
-                table[class=body] .btn table {
-                    width: 100% !important;
-                }
-                table[class=body] .btn {
-                    width: 100% !important;
-                }
-                table[class=body] .img-responsive {
-                    height: auto !important;
-                    max-width: 100% !important;
-                    width: auto !important;
-                }
-            }
-            @media all {
-              .ExternalClass {
-                width: 100%;
-            }
-            .ExternalClass,
-            .ExternalClass p,
-            .ExternalClass span,
-            .ExternalClass font,
-            .ExternalClass td,
-            .ExternalClass div {
-                line-height: 100%;
-            }
-            .apple-link a {
-                color: inherit !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                font-weight: inherit !important;
-                line-height: inherit !important;
-                text-decoration: none !important;
-            }
-            #MessageViewBody a {
-                color: inherit;
-                text-decoration: none;
-                font-size: inherit;
-                font-family: inherit;
-                font-weight: inherit;
-                line-height: inherit;
-            }
-        }
-        </style>
-        </head>
-        <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-        <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-        <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
-        <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
 
-        <!-- START CENTERED WHITE CONTAINER -->
-        <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${result.activationcode}</b> is your account activation code</span>
-        <img src="https://www.dropbox.com/s/pprcxra5idbbg8p/taxiheader.png?raw=1" style="width: 100%; margin-bottom: -10px;"/>
-        <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
-
-        <!-- START MAIN CONTENT AREA -->
-        <tr>
-        <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Hi ${result.firstname},</p>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Enjoy personalized Taxi Services wherever you are, whenever you need it. Below is your One-Time account activation code. Do not share with anyone whatsoever. We are glad to serve you.</p>
-        <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
-        <tbody>
-        <tr>
-        <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
-        <tbody>
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: #34495e; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-color: #34495e; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${result.activationcode}</span></td>
-        </tr>
-        </tbody>
-        </table>
-        </td>
-        </tr>
-        </tbody>
-        </table>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-        Best regards,<br>
-        Tufike Pamoja Team
-        </p>
-        </td>
-        </tr>
-        </table>
-        </td>
-        </tr>
-
-        <!-- END MAIN CONTENT AREA -->
-        </table>
-
-        <!-- START FOOTER -->
-        <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%; background: #383c47;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr>
-        <td class="content-block" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-        <span class="apple-link" style="color: #999999; font-size: 12px; text-align: center;">Tufike Pamoja, Nanyuki Kenya, tufikecabs@gmail.com</span>
-        </td>
-        </tr>
-        <tr>
-        <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-        Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
-        </td>
-        </tr>
-        </table>
-        </div>
-        </div>
-        </td>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-        </tr>
-        </table>
-        </body>
-
-        </html>
-        `
-                };
-                transporter.sendMail(mailOptions, function(error, info) {
-                    if (error) {
-                        console.log(error);
-                    } else {
-                        console.log(logSymbols.success, 'Email sent: ' + info.response);
-                    }
-                });
-            }
-        })
-    })
     socket.on('email ride receipt', function(receipt) {
         var query = {
             _id: ObjectId(receipt.rid)
@@ -6614,209 +5970,83 @@ io.on('connection', function(socket) {
 
         })
     })
-    socket.on('resend rider code', function(account) {
+    socket.on('resend vehicle code', function(account) {
         var query = {
-            _id: account.uid
+            _id: account.oid
         };
-        Rider.findOne(query).exec(function(err, result) {
+        Vehicle.findOne(query).exec(function(err, result) {
             if (err) {
-                console.log(err);
-                socket.emit('resend rider code', {
-                    status: 'unauth',
-                    response: 'none'
-                });
+                socket.emit('resend vehicle code', {status: 'unauth',response: 'none'});
             } else {
+              socket.emit('resend vehicle code', {status: 'success', response: result.activationcode});
                 var vphone = '+254' + (result.phone).substr(1);
-                var vmessage = 'Hi ' + result.firstname + ', ' + result.activationcode + ' is your Tufike Pamoja Account activation code';
+                var vmessage = 'Welcome ' + result.firstname + ', ' + result.activationcode + ' is your Tufike Pamoja Vehicle Owner Account activation code';
                 const vsms = {
                     to: [vphone],
                     message: vmessage
                 }
                 sms.send(vsms)
                     .then(response => {
-                        socket.emit('resend rider code', {
-                            status: 'success',
-                            response: result.activationcode
-                        });
                     })
                     .catch(error => {
-                        socket.emit('resend rider code', {
-                            status: 'failed',
-                            response: 'Failed to send activation code via sms'
-                        });
-                        console.log(error);
                     });
-                var mailOptions = {
-                    priority: 'high',
-                    from: 'Tufike Pamoja Cabs <tufike@lexacle.com>',
-                    to: account.email,
-                    replyTo: 'tufikecabs@gmail.com',
-                    subject: 'Tufike Pamoja',
-                    html: `
-                <!doctype html>
-                <html>
-                <head>
-                <meta name="viewport" content="width=device-width">
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                <title>Simple Transactional Email</title>
-                <style>
-                @media only screen and (max-width: 620px) {
-                  table[class=body] h1 {
-                    font-size: 28px !important;
-                    margin-bottom: 10px !important;
-                }
-                table[class=body] p,
-                table[class=body] ul,
-                table[class=body] ol,
-                table[class=body] td,
-                table[class=body] span,
-                table[class=body] a {
-                    font-size: 16px !important;
-                }
-                table[class=body] .wrapper,
-                table[class=body] .article {
-                    padding: 10px !important;
-                }
-                table[class=body] .content {
-                    padding: 0 !important;
-                }
-                table[class=body] .container {
-                    padding: 0 !important;
-                    width: 100% !important;
-                }
-                table[class=body] .main {
-                    border-left-width: 0 !important;
-                    border-radius: 0 !important;
-                    border-right-width: 0 !important;
-                }
-                table[class=body] .btn table {
-                    width: 100% !important;
-                }
-                table[class=body] .btn {
-                    width: 100% !important;
-                }
-                table[class=body] .img-responsive {
-                    height: auto !important;
-                    max-width: 100% !important;
-                    width: auto !important;
-                }
-            }
-            @media all {
-              .ExternalClass {
-                width: 100%;
-            }
-            .ExternalClass,
-            .ExternalClass p,
-            .ExternalClass span,
-            .ExternalClass font,
-            .ExternalClass td,
-            .ExternalClass div {
-                line-height: 100%;
-            }
-            .apple-link a {
-                color: inherit !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                font-weight: inherit !important;
-                line-height: inherit !important;
-                text-decoration: none !important;
-            }
-            #MessageViewBody a {
-                color: inherit;
-                text-decoration: none;
-                font-size: inherit;
-                font-family: inherit;
-                font-weight: inherit;
-                line-height: inherit;
-            }
-        }
-        </style>
-        </head>
-        <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-        <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-        <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
-        <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
-
-        <!-- START CENTERED WHITE CONTAINER -->
-        <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${result.activationcode}</b> is your account activation code</span>
-        <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
-
-        <!-- START MAIN CONTENT AREA -->
-        <tr style="background-image: linear-gradient(60deg, #7F2DD3, #450080) !important;">
-            <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
-            Tufike Pamoja Cabs
-            </td>
-            </tr>
-        <tr>
-        <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Hi ${result.firstname},</p>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. Enjoy personalized Taxi Services wherever you are, whenever you need it. Below is your One-Time account activation code. Do not share with anyone whatsoever. We are glad to serve you.</p>
-        <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
-        <tbody>
-        <tr>
-        <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
-        <tbody>
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${result.activationcode}</span></td>
-        </tr>
-        </tbody>
-        </table>
-        </td>
-        </tr>
-        </tbody>
-        </table>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-        Best regards,<br>
-        Tufike Pamoja Team<br>
-        +254 716 435 983
-        </p>
-        </td>
-        </tr>
-        </table>
-        </td>
-        </tr>
-
-        <!-- END MAIN CONTENT AREA -->
-        </table>
-
-        <!-- START FOOTER -->
-        <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr style="background-image: linear-gradient(60deg, #450080, #7F2DD3) !important;">
-        <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
-        <span class="apple-link" style="color: #fff;font-size: 12px;text-align: center;">Tufike Pamoja Cabs, Nanyuki - Kenya, tufikecabs@gmail.com</span>
-        </td>
-        </tr>
-        <tr>
-        <tr>
-        <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-        Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
-        </td>
-        </tr>
-        </table>
-        </div>
-        </div>
-        </td>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-        </tr>
-        </table>
-        </body>
-
-        </html>
-        `
-                };
-                transporter.sendMail(mailOptions, function(error, info) {
+                    transporter.use('compile', ehbs(eoptions));
+                    var mailOptions = {
+                        priority: 'high',
+                        from: { name: 'Tufike Pamoja Cabs', address: 'tufike@lexacle.com' },
+                        to: account.email,
+                        replyTo: 'tufikecabs@gmail.com',
+                        subject: 'Tufike Pamoja',
+                        template: 'vehicle',
+                        context: {
+                          activationcode: result.activationcode,
+                          name: result.firstname
+                        }
+                    };
+                    transporter.sendMail(mailOptions, function(error, info) {
                     if (error) {
-                        console.log(error);
                     } else {
-                        console.log('Email sent: ' + info.response);
+                    }
+                });
+            }
+        })
+    })
+    socket.on('resend rider code', function(account) {
+        var query = {
+            _id: account.uid
+        };
+        Rider.findOne(query).exec(function(err, result) {
+            if (err) {
+                socket.emit('resend rider code', {status: 'unauth',response: 'none'});
+            } else {
+              socket.emit('resend rider code', {status: 'success',response: result.activationcode});
+                var vphone = '+254' + (result.phone).substr(1);
+                var vmessage = 'Welcome ' + result.firstname + ', ' + result.activationcode + ' is your Tufike Pamoja Rider Account activation code';
+                const vsms = {
+                    to: [vphone],
+                    message: vmessage
+                }
+                sms.send(vsms)
+                    .then(response => {
+                    })
+                    .catch(error => {
+                    });
+                    transporter.use('compile', ehbs(eoptions));
+                    var mailOptions = {
+                        priority: 'high',
+                        from: { name: 'Tufike Pamoja Cabs', address: 'tufike@lexacle.com' },
+                        to: account.email,
+                        replyTo: 'tufikecabs@gmail.com',
+                        subject: 'Tufike Pamoja Activation Code',
+                        template: 'rider',
+                        context: {
+                          activationcode: result.activationcode,
+                          name: result.firstname
+                        }
+                    }
+                    transporter.sendMail(mailOptions, function(error, info) {
+                    if (error) {
+                    } else {
                     }
                 });
             }
@@ -6829,191 +6059,36 @@ io.on('connection', function(socket) {
         };
         Driver.findOne(query).exec(function(err, result) {
             if (err) {
-                console.log(err);
-                socket.emit('resend driver code', {
-                    status: 'unauth',
-                    response: 'none'
-                });
+                socket.emit('resend driver code', {status: 'unauth',response: 'none'});
             } else {
+              var vphone = '+254' + (result.phone).substr(1);
+              var vmessage = 'Welcome ' + result.firstname + ', ' + result.activationcode + ' is your Tufike Pamoja Driver Account activation code';
+              const vsms = {
+                  to: [vphone],
+                  message: vmessage
+              }
+              sms.send(vsms)
+                  .then(response => {
+                  })
+                  .catch(error => {
+                  });
+              socket.emit('resend driver code', {status: 'success',response: result.activationcode});
+                transporter.use('compile', ehbs(eoptions));
                 var mailOptions = {
                     priority: 'high',
-                    from: 'Tufike Pamoja Cabs <tufike@lexacle.com>',
+                    from: { name: 'Tufike Pamoja Cabs', address: 'tufike@lexacle.com' },
                     to: account.email,
                     replyTo: 'tufikecabs@gmail.com',
-                    subject: 'Tufike Pamoja',
-                    html: `
-                <!doctype html>
-                <html>
-                <head>
-                <meta name="viewport" content="width=device-width">
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                <title>Simple Transactional Email</title>
-                <style>
-                @media only screen and (max-width: 620px) {
-                  table[class=body] h1 {
-                    font-size: 28px !important;
-                    margin-bottom: 10px !important;
+                    subject: 'Tufike Pamoja Activation Code',
+                    template: 'driver',
+                    context: {
+                      activationcode: result.activationcode,
+                      name: result.firstname
+                    }
                 }
-                table[class=body] p,
-                table[class=body] ul,
-                table[class=body] ol,
-                table[class=body] td,
-                table[class=body] span,
-                table[class=body] a {
-                    font-size: 16px !important;
-                }
-                table[class=body] .wrapper,
-                table[class=body] .article {
-                    padding: 10px !important;
-                }
-                table[class=body] .content {
-                    padding: 0 !important;
-                }
-                table[class=body] .container {
-                    padding: 0 !important;
-                    width: 100% !important;
-                }
-                table[class=body] .main {
-                    border-left-width: 0 !important;
-                    border-radius: 0 !important;
-                    border-right-width: 0 !important;
-                }
-                table[class=body] .btn table {
-                    width: 100% !important;
-                }
-                table[class=body] .btn {
-                    width: 100% !important;
-                }
-                table[class=body] .img-responsive {
-                    height: auto !important;
-                    max-width: 100% !important;
-                    width: auto !important;
-                }
-            }
-            @media all {
-              .ExternalClass {
-                width: 100%;
-            }
-            .ExternalClass,
-            .ExternalClass p,
-            .ExternalClass span,
-            .ExternalClass font,
-            .ExternalClass td,
-            .ExternalClass div {
-                line-height: 100%;
-            }
-            .apple-link a {
-                color: inherit !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                font-weight: inherit !important;
-                line-height: inherit !important;
-                text-decoration: none !important;
-            }
-            #MessageViewBody a {
-                color: inherit;
-                text-decoration: none;
-                font-size: inherit;
-                font-family: inherit;
-                font-weight: inherit;
-                line-height: inherit;
-            }
-        }
-        </style>
-        </head>
-        <body class="" style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-        <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-        <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
-        <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
-
-        <!-- START CENTERED WHITE CONTAINER -->
-        <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"><b>${result.activationcode}</b> is your account activation code</span>
-        <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 0px;">
-
-        <!-- START MAIN CONTENT AREA -->
-        <tr style="background-image: linear-gradient(60deg, #7F2DD3, #450080) !important;">
-            <td style="padding: 20px;font-weight:600;font-size:28px;color:#ffffff;">
-            Tufike Pamoja Cabs
-            </td>
-            </tr>
-        <tr>
-        <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Hi ${result.firstname},</p>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Welcome to Tufike Pamoja Cabs. You can earn income by offering personalized Taxi Services to your clients from anywhere. Below is your One-Time account activation code. Do not share with anyone whatsoever. We are glad to have you joining us.</p>
-        <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
-        <tbody>
-        <tr>
-        <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
-        <tbody>
-        <tr>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 3px; text-align: center;"> <span style="display: inline-block; color: #ffffff; background-image: linear-gradient(60deg, #7F2DD3, #450080) !important; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">${result.activationcode}</span></td>
-        </tr>
-        </tbody>
-        </table>
-        </td>
-        </tr>
-        </tbody>
-        </table>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Thank you for choosing Tufike Pamoja Cabs. <i>"Together we ride"</i></p>
-        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">
-        Best regards,<br>
-        Tufike Pamoja Team<br>
-        +254 716 435 983
-        </p>
-        </td>
-        </tr>
-        </table>
-        </td>
-        </tr>
-
-        <!-- END MAIN CONTENT AREA -->
-        </table>
-
-        <!-- START FOOTER -->
-        <div class="footer" style="clear: both; margin-top: 0px; text-align: center; width: 100%;">
-        <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-        <tr style="background-image: linear-gradient(60deg, #450080, #7F2DD3) !important;">
-        <td class="content-block" style="font-family: sans-serif;font-size: 12px;vertical-align: top;padding-bottom: 10px;padding-top: 10px;color: #999999;text-align: center;">
-        <span class="apple-link" style="color: #fff;font-size: 12px;text-align: center;">Tufike Pamoja Cabs, Nanyuki - Kenya, tufikecabs@gmail.com</span>
-        </td>
-        </tr>
-        <tr>
-        <tr>
-        <td class="content-block powered-by" style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; font-size: 12px; color: #999999; text-align: center;">
-        Developed by <a href="http://lexacle.com" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Lexacle Technologies Ltd</a>.
-        </td>
-        </tr>
-        </table>
-        </div>
-        </div>
-        </td>
-        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-        </tr>
-        </table>
-        </body>
-
-        </html>
-        `
-                };
                 transporter.sendMail(mailOptions, function(error, info) {
                     if (error) {
-                        console.log(error);
-                        socket.emit('resend driver code', {
-                            status: 'failed',
-                            response: result.activationcode
-                        });
                     } else {
-                        socket.emit('resend driver code', {
-                            status: 'success',
-                            response: result.activationcode
-                        });
-                        console.log('Email sent: ' + info.response);
                     }
                 });
 

@@ -3022,10 +3022,10 @@ function support() {
             var loca = 'riders';
             var chatname = truncateString(response[key].firstname, 20) + ' ' + truncateString(response[key].lastname, 20);
             var chatnamex = response[key].firstname + ' ' + response[key].lastname;
-            var contact1 = `<li class="single-chat animate__animated animate__fadeIn" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="rider" data-account="${loca}">
+            var contact1 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="rider" data-account="${loca}">
             <div class="item-content">
             <div class="item-media">
-            <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
+            <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" onerror="${account}Image(this)" width="40"/>
             </div>
             <div class="item-inner">
             <div class="item-title-row">
@@ -3046,10 +3046,10 @@ function support() {
                 var loca = 'drivers';
                 var chatname = truncateString(response[key].firstname, 20) + ' ' + truncateString(response[key].lastname, 20);
                 var chatnamex = response[key].firstname + ' ' + response[key].lastname;
-                var contact2 = `<li class="single-chat animate__animated animate__fadeIn" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="owner" data-account="${loca}">
+                var contact2 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="owner" data-account="${loca}">
                 <div class="item-content">
                 <div class="item-media">
-                <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
+                <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" onerror="${account}Image(this)" width="40"/>
                 </div>
                 <div class="item-inner">
                 <div class="item-title-row">
@@ -3070,10 +3070,10 @@ function support() {
                     var loca = 'vehicles';
                     var chatname = truncateString(response[key].firstname, 20) + ' ' + truncateString(response[key].lastname, 20);
                     var chatnamex = response[key].firstname + ' ' + response[key].lastname;
-                    var contact3 = `<li class="single-chat animate__animated animate__fadeIn" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="vehicle" data-account="${loca}">
+                    var contact3 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="vehicle" data-account="${loca}">
                     <div class="item-content">
                     <div class="item-media">
-                    <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" width="40"/>
+                    <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" onerror="${account}Image(this)" width="40"/>
                     </div>
                     <div class="item-inner">
                     <div class="item-title-row">
@@ -3096,12 +3096,15 @@ function support() {
                     for (var key in response) {
                         var account = response[key].account;
                         if (account === 'rider') {
+                            var iaccount = 'rider';
                             var loca = 'riders';
                             var luka = 'Rider';
                         } else if (account === 'driver') {
+                            var iaccount = 'driver';
                             var loca = 'drivers';
                             var luka = 'Driver';
-                        } else if (account === 'owner') {
+                        } else if (account === 'owner' || account === 'vehicle') {
+                            var iaccount = 'owner';
                             var loca = 'vehicles';
                             var luka = 'Vehicle Owner';
                         }
@@ -3115,10 +3118,10 @@ function support() {
                             var xtime = timeConverterDate(atime);
                         }
                         var chatname = truncateString(response[key].sendername, 20);
-                        var contact = `<li class="single-chat animate__animated animate__fadeIn" data-name="${response[key].sendername}" data-id="${response[key].userid}" data-photo="${response[key].senderphoto}" data-plum="${luka}" data-purge="${response[key].account}" data-account="${loca}">
+                        var contact = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${response[key].sendername}" data-id="${response[key].userid}" data-photo="${response[key].senderphoto}" data-plum="${luka}" data-purge="${response[key].account}" data-account="${loca}">
                         <div class="item-content">
                         <div class="item-media">
-                        <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].senderphoto}" width="40"/>
+                        <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].senderphoto}" onerror="${iaccount}Image(this)" width="40"/>
                         </div>
                         <div class="item-inner">
                         <div class="item-title-row">
@@ -3176,7 +3179,7 @@ function support() {
                             for (var key in response) {
                                 var account = response[key].account;
                                 if (response[key].messagetype === 'sent') {
-                                    var avatar = `<img src="${cloudUrl}/assets/${ufolder}/avatars/${uphoto}" alt="">`;
+                                    var avatar = `<img src="${cloudUrl}/assets/${ufolder}/avatars/${uphoto}" onerror="${account}Image(this)" alt="">`;
                                     var xchatname = chatname;
                                 } else {
                                     var avatar = `<img src="${appUrl}/assets/admin/avatars/icon.png" alt="">`;
@@ -3221,7 +3224,7 @@ function support() {
                                 taccount = upurge;
                                 tmee = 'Tufike Pamoja';
                                 var xmessage = {
-                                    userid: aid,
+                                    userid: uid,
                                     sendername: tname,
                                     receivername: tmee,
                                     messagetype: 'received',
@@ -3232,8 +3235,8 @@ function support() {
                                     time: ttime
                                 };
                                 socket.emit('receive support', xmessage);
-                                socket.on('support sent', function(response) {
-                                    socket.off('support sent');
+                                socket.on('receive support', function(response) {
+                                    socket.off('receive support');
                                     $('.chat-user-text').val('');
                                     $('.chat-user-text').focus();
                                     $('.send-support').html(``);
@@ -3538,6 +3541,11 @@ function profile() {
     $('.admin-pic').prop('src',`${cloudUrl}/assets/admin/avatars/${response.photo}`);
     $('.admin-name').html(`${response.firstname} ${response.lastname}`);
     $('.admin-description').html(`${response.about}`);
+    if(response.level === 1){
+      $('.ilevel').prop('disabled',true);
+    } else {
+      $('.ilevel').prop('disabled',false);
+    }
     $('#update-account-form').unbind().bind('submit',function(e){
       e.preventDefault();
       var fname = $('.first-name').val();
@@ -3612,6 +3620,104 @@ function profile() {
           var time = 3000;
           md.showNotification(from, align, type, icon, message, time);
           profile();
+        })
+      }
+    })
+  })
+  $('.change-password').unbind().bind('click',function(e){
+    e.preventDefault();
+    $('#change-password-modal').modal('show');
+    $('#change-password-modal').on('shown.bs.modal', function() {
+        $('.current-password').focus();
+    });
+    $('.update-password').unbind().bind('click',function(e){
+      e.preventDefault();
+      var curpass = $('.current-password').val();
+      var newpass = $('.new-password').val();
+      var conpass = $('.confirm-password').val();
+      if(curpass === ''){
+        var from = 'top';
+        var align = 'right';
+        var type = 'danger';
+        var icon = 'error';
+        var message = 'Your current account password is required in order to proceed.';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.current-password').focus();
+      } else if(newpass === ''){
+        var from = 'top';
+        var align = 'right';
+        var type = 'danger';
+        var icon = 'error';
+        var message = 'Your new account password is required in order to proceed.';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.new-password').focus();
+      } else if(newpass.length < 6){
+        var from = 'top';
+        var align = 'right';
+        var type = 'danger';
+        var icon = 'error';
+        var message = 'Your new password should be more than 6 characters.';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.new-password').focus();
+      } else if(conpass === ''){
+        var from = 'top';
+        var align = 'right';
+        var type = 'danger';
+        var icon = 'error';
+        var message = 'Confirm your new account password in order to proceed.';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.confirm-password').focus();
+      } else if(newpass !== conpass){
+        var from = 'top';
+        var align = 'right';
+        var type = 'danger';
+        var icon = 'error';
+        var message = 'Your new and confirmation account passwords did not match.';
+        var time = 3000;
+        md.showNotification(from, align, type, icon, message, time);
+        $('.confirm-password').focus();
+      } else {
+        Swal.fire({
+        title: '<span class="mt-3 blue-link">Password Update</span>',
+        html: 'Authenticating your request, please hold on',
+        scrollbarPadding: true,
+        backdrop: false,
+        allowOutsideClick: false
+        })
+        Swal.showLoading();
+        var paccount = {aid: aid, curpass: curpass, newpass: newpass, conpass: conpass};
+        socket.emit('update admin password', paccount);
+        socket.on('update admin password',function(res){
+          socket.off('update admin password');
+          setTimeout(function(){
+            Swal.close();
+            if(res.status === 'success'){
+              $('#change-password-modal').modal('hide');
+              $('.current-password, .new-password, .confirm-password').val('');
+              var from = 'top';
+              var align = 'right';
+              var type = 'success';
+              var icon = 'check';
+              var message = 'Your admin account password has been successfully updated.';
+              var time = 3000;
+              md.showNotification(from, align, type, icon, message, time);
+            } else {
+              var from = 'top';
+              var align = 'right';
+              var type = 'danger';
+              var icon = 'error';
+              var message = 'Your current admin account password is invalid. Please try again.';
+              var time = 3000;
+              md.showNotification(from, align, type, icon, message, time);
+              setTimeout(function(){
+                $('.current-password').focus();
+              },1000)
+            }
+            },1000)
         })
       }
     })
@@ -4041,7 +4147,7 @@ function users() {
                 phone: phone,
                 photo: 'admin.png',
                 password: password,
-                level: 1,
+                level: 2,
                 about: 'About Tufike Pamoja Admin',
                 status: 1,
                 settings: {
@@ -4269,7 +4375,7 @@ function getNoUISliderValue(slider, percentage) {
         var val = slider.noUiSlider.get();
         if (percentage) {
             spur = `${parseInt(val)}`;
-            val = `${parseInt(val)} Meters / ${parseFloat(parseInt(val)/1000)} Kilometers Radius`;
+            val = `${parseInt(val)} Meters - ${parseFloat(parseInt(val)/1000)} Kilometers Radius`;
         }
         $(slider).parent().find('span.js-nouislider-value').text(val);
         $(slider).parent().find('.near-dis').val(spur);

@@ -3725,15 +3725,26 @@ tbody.collapse.show {
     z-index: 1020;
   }
   .main-panel>.content {
-      margin-top: 40px;
+      margin-top: 60px;
     }
   .d-xs-none
   {
-    display: none;
+    display: none !important;
+  }
+  .sidebar .nav {
+    margin-top: 0px;
   }
   .w-pad
   {
     text-align: center;
+  }
+  .icrown{
+    width: 35px;
+    margin-right: 10px;
+  }
+  .icrown-text{
+    font-weight: bold;
+    font-size: 20px;
   }
     .navbar-expand-lg>.container,
     .navbar-expand-lg>.container-fluid {
@@ -3754,6 +3765,14 @@ tbody.collapse.show {
     {
       text-align: right;
       padding-right: 60px;
+    }
+    .icrown{
+      width: 45px;
+      margin-right: 20px;
+    }
+    .icrown-text{
+      font-weight: bold;
+      font-size: 20px;
     }
     .navbar-expand-lg .navbar-nav {
         flex-direction: row;
@@ -11732,7 +11751,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
     overflow: auto;
     width: 260px;
     z-index: 4;
-    padding-bottom: 30px;
+    padding-bottom: 0px;
 }
 
 .sidebar .sidebar-wrapper .dropdown .dropdown-backdrop {
@@ -11779,7 +11798,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 }
 
 .sidebar .nav {
-    margin-top: 20px;
+    margin-top: 0px;
     display: block;
 }
 
@@ -14370,7 +14389,7 @@ Copyright (c) 2015 Daniel Eden
         box-shadow: none;
     }
     .sidebar .sidebar-wrapper {
-        padding-bottom: 150px;
+        padding-bottom: 0px;
     }
     .sidebar .navbar-form+.nav-mobile-menu {
         margin-top: 0;

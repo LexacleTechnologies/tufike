@@ -5,6 +5,20 @@
   bottom: 0;
   margin: 15px;
 }
+.purple-link
+{
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(60deg, #5f3dc4, #862e9c) !important;
+  color: transparent !important;
+}
+.orange-link
+{
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(60deg, #E07900, #DBB95C) !important;
+  color: transparent !important;
+}
 .green-link
 {
   -webkit-background-clip: text;
@@ -19,9 +33,17 @@
   background-image: linear-gradient(60deg, #293BEB, #5CC7E6) !important;
   color: transparent !important;
 }
+.fire-link
+{
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(60deg, #E74E12, #E79C18) !important;
+  color: transparent !important;
+}
 .admin-description
 {
   height: 128px;
+  overflow-y: auto;
 }
 /* Checkbox & Radio ============================ */
 /* Radio Buttons
@@ -1480,8 +1502,7 @@ form p:last-child {
 
 .menu-logo {
     width: 40px;
-    margin-top: -10px;
-    filter: grayscale();
+    margin-top: 0px;
 }
 
 .grayscalefilter {

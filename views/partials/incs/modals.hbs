@@ -10,6 +10,49 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="change-password-modal" data-backdrop="false" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-col-dark">
+    <div class="modal-content xpage">
+      <div class="shap one"></div>
+      <div class="shap two"></div>
+      <div class="shap one three"></div>
+      <div class="shap two four"></div>
+      <div class="modal-header">
+        <h5 class="modal-title"><span class="blue-link">Change your admin account password</span></h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group bmd-form-group">
+              <label>Current Password</label>
+                <input type="password" class="form-control current-password" autocomplete="off">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group bmd-form-group mt-4">
+              <label>New Password</label>
+                <input type="password" class="form-control new-password" autocomplete="off">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group bmd-form-group mt-4">
+              <label>Confirm New Password</label>
+                <input type="password" class="form-control confirm-password" autocomplete="off">
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group bmd-form-group mt-4">
+                <button class="btn bg-purple waves-effect update-password float-right">Update Password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal fade" id="modal-aphoto" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-col-dark">
     <div class="modal-content">
@@ -385,7 +428,7 @@
                 </div>
               </div>
             </div>
-            <a class="btn btn-success btn-round" data-dismiss="modal">Close</a>
+            <a class="btn bg-purple waves-effect" data-dismiss="modal">Close</a>
           </div>
         </div>
       </div>

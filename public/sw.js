@@ -42,7 +42,7 @@ const assets = [
     '/assets/admin/js/plugins/bootstrap-notify.js',
     '/assets/admin/plugins/datatables/datatables.min.js',
     '/assets/admin/plugins/select2/js/select2.min.js',
-    '/assets/admin/plugins/croppie/croppie.css',
+    '/assets/admin/plugins/croppie/croppie.js',
     '/assets/admin/plugins/momentjs/moment.js',
     '/assets/admin/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js',
     '/assets/admin/plugins/lightg/js/lightgallery-all.min.js',
