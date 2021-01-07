@@ -866,7 +866,7 @@ app.use(require('./routes/users'));
 app.use(require('./routes/logout'));
 
 app.post('/auth', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://loclhost:4080");
+    res.header("Access-Control-Allow-Origin", "http://localhost:4080");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     var email = req.body.email;
     var password = req.body.password;
