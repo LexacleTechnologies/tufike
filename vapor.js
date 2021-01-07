@@ -508,7 +508,7 @@ var config = {
     sftp: false
 };
 
-ftpDeploy.deploy(config).then(res => console.log("finished:", res)).catch(err => console.log(err));
+//ftpDeploy.deploy(config).then(res => console.log("finished:", res)).catch(err => console.log(err));
 function ftpDB(){
 var ftpDep = new FtpDeploy();
 var config = {

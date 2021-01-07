@@ -1,6 +1,5 @@
 function installApp()
 {
-/*
 if ('serviceWorker' in navigator && 'PushManager' in window) {
     navigator.serviceWorker.register(appUrl + '/sw.js')
         .then(reg => console.log('service worker registered'))
@@ -14,5 +13,4 @@ window.addEventListener('beforeinstallprompt', (e) => {
 navigator.serviceWorker.ready.then(function(swRegistration) {
     return swRegistration.sync.register('tufikeSync');
 });
-*/
 }
