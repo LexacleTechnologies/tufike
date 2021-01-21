@@ -42,8 +42,8 @@ const freelance = '5f47f9e62dc7b16cb6f33c40';
 const player = require('play-sound')(opts = {})
 const Supportchat = require("./models/supportchat.js");
 const ftpConnection = { host: 'lexacle.com', port: 21, secure: false, user: 'vapor@cloud.lexacle.com', password: 'Leslie#Myles@2028' };
-//const url = process.env.DB_URL;
-const url = 'mongodb+srv://tufike:nUJjC9qzGYih8ZrX@cluster0.17g7f.mongodb.net/tufike?retryWrites=true&w=majority';
+const url = process.env.DB_URL;
+//const url = 'mongodb+srv://tufike:nUJjC9qzGYih8ZrX@cluster0.17g7f.mongodb.net/tufike?retryWrites=true&w=majority';
 const atsdk = { apiKey: '8d82a365b9424afffc695b8558648dc4b29b7d63b86db1313028eb4e54052209', username: 'tufike' };
 const Flutterwave = require('flutterwave-node-v3');
 const flw = new Flutterwave('FLWPUBK-1fea7bc68f87f43c193cc1bb05b7fb4a-X', 'FLWSECK-ad2fead7d8ec7c8fdafcc9ef41d8f44e-X');
