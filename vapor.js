@@ -5128,7 +5128,8 @@ io.on('connection', function(socket) {
             email: account.email,
             password: account.password
         };
-        Rider.findOne(query).exec(function(err, result) {
+        var signal = {$set: {signalid: account.signalid}};
+        Rider.findOneAndUpdate(query, signal).exec(function(err, result) {
             if (err) {
                 console.log(err);
             } else {
