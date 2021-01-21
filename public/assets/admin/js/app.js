@@ -2,6 +2,8 @@ const aid = $('.aid').val();
 const admin = 'Tufike Admin';
 const freelance = '5f47f9e62dc7b16cb6f33c40';
 const currentyear = moment().format('YYYY');
+const iDate = new Date();
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 auth();
 Waves.init();
 $.fn.enterKey = function(fnc) {
@@ -224,8 +226,14 @@ function ridersChart() {
         }
     });
     socket.on('all cron riders', function(response) {
+      let janData = response.filter(function(idata, index, arr) {
+      return idata.created < 2;
+      });
+      //console.log(janData.length)
+      //console.log((`${iDate.getFullYear()}-${months[0]}-1`))
         var iChartData = [44, 80, 50, 50, 75, 70, 65, 67, 74, 50, 60, 80]
         updateChart(iChart, iChartData)
+
     })
 }
 
