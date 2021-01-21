@@ -6134,7 +6134,8 @@ io.on('connection', function(socket) {
                 location: {
                     type: "Point",
                     coordinates: [lng, lat]
-                }
+                },
+              signalid: location.signalid
             }
         };
         Rider.updateOne(query, newcoords, function(err, res) {
