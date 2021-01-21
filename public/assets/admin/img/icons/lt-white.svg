@@ -13,7 +13,7 @@
    width="32"
    viewBox="0 0 32 32"
    height="32"
-   sodipodi:docname="lt-blue.svg"
+   sodipodi:docname="lt-light.svg"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -28,9 +28,9 @@
      inkscape:window-height="714"
      id="namedview15"
      showgrid="false"
-     inkscape:zoom="7.375"
-     inkscape:cx="16"
-     inkscape:cy="16"
+     inkscape:zoom="14.75"
+     inkscape:cx="21.388233"
+     inkscape:cy="17.604138"
      inkscape:window-x="0"
      inkscape:window-y="28"
      inkscape:window-maximized="1"
@@ -43,7 +43,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -52,11 +52,11 @@
     <linearGradient
        id="linearGradient1074">
       <stop
-         style="stop-color:#166EDA;stop-opacity:1"
+         style="stop-color:#585858;stop-opacity:1"
          offset="0"
          id="stop1070" />
       <stop
-         style="stop-color:#2196F3;stop-opacity:0.99607843"
+         style="stop-color:#ffffff;stop-opacity:1"
          offset="1"
          id="stop1072" />
     </linearGradient>
@@ -65,11 +65,11 @@
       <stop
          id="stop908"
          offset="0"
-         style="stop-color:#2196F3;stop-opacity:1;" />
+         style="stop-color:#b280b7;stop-opacity:1;" />
       <stop
          id="stop910"
          offset="1"
-         style="stop-color:#2196F3;stop-opacity:0;" />
+         style="stop-color:#b280b7;stop-opacity:0;" />
     </linearGradient>
     <radialGradient
        gradientUnits="userSpaceOnUse"
@@ -83,10 +83,10 @@
        xlink:href="#linearGradient912-1" />
     <linearGradient
        gradientUnits="userSpaceOnUse"
-       y2="16.807146"
-       x2="16.407608"
-       y1="15.383416"
-       x1="8.6448956"
+       y2="17.010536"
+       x2="14.780489"
+       y1="10.70545"
+       x1="-6.5415449"
        id="linearGradient1068"
        xlink:href="#linearGradient1074" />
   </defs>

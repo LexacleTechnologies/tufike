@@ -415,7 +415,6 @@ Setting.findOne(setquery).exec(function(err, res) {
       //mDbBackupCron.setTime(new CronTime('16 1 * * *'))
     }
   })
-
 function systemPunch() {
 
     smb.fetchApplicationData()
@@ -864,6 +863,7 @@ app.use(require('./routes/profile'));
 app.use(require('./routes/settings'));
 app.use(require('./routes/users'));
 app.use(require('./routes/logout'));
+app.use(require('./routes/icons'));
 
 app.post('/auth', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:4080");
@@ -1458,7 +1458,10 @@ io.on('connection', function(socket) {
         }
         verify();
     })
-
+    socket.on('fetch mobile transactions',function(payload){
+      var res = [];
+      socket.emit('fetch mobile transactions', res)
+    })
     socket.on('receive driver payments', function(payload) {
         const Paydata = new Payment(payload);
         Paydata.save((err, result) => {
@@ -1565,6 +1568,7 @@ io.on('connection', function(socket) {
             }
         })
     })
+
     socket.on('fetch all payments', function(admin) {
         Ride.aggregate([{
                 $group: {

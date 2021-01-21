@@ -316,7 +316,7 @@
         <div class="card card-profile">
           <div class="card-avatar">
             <a href="javascript:void(0)">
-              <img class="img user-profile-photo" src="/assets/riders/avatars/rider.png">
+              <img class="img user-profile-photo" src="/assets/riders/avatars/rider.png" onerror="riderImage(this)">
             </a>
           </div>
           <div class="card-body">
@@ -357,7 +357,7 @@
                 </div>
               </div>
             </div>
-            <a class="btn btn-success btn-round" data-dismiss="modal">Close</a>
+            <button class="btn bg-blue btn-lg waves-effect btn-round" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -534,6 +534,22 @@
       </div>
       <div class="modal-body">
         {{> modules/dnotificationform}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="email-rider-modal" tabindex="-1" role="dialog" aria-labelledby="email-rider-modal" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-col-dark">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title rider-name-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close col-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{> modules/remail}}
       </div>
     </div>
   </div>

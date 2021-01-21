@@ -1,4 +1,4 @@
-const staticCacheName = 'tufike';
+const staticCacheName = 'tufike-v1'
 const assets = [
     '/',
     '/riders',

@@ -554,13 +554,13 @@ function riders() {
     NProgress.start();
     $('.refresh-data').css('display', 'none');
     destroyDataTable();
-    $('.notify-all-riders').addClass('hidden');
+    $('.actions-tab').addClass('hidden');
     socket.emit('fetch all riders', admin);
     socket.on('fetch all riders', function(response) {
         socket.off('fetch all riders');
         NProgress.done();
         setTimeout(function() {
-            $('.notify-all-riders').removeClass('hidden');
+            $('.actions-tab').removeClass('hidden');
         }, 500)
         $('.refresh-data').css('display', 'block');
         $('.all-riders').html('');
@@ -582,18 +582,17 @@ function riders() {
             <td><img class="table-icon" src="${cloudUrl}/assets/riders/avatars/${response[key].photo}" onerror="riderImage(this);"></td>
             <td>${name}</td>
             <td>${response[key].phone}</td>
-            <td>${truncateString(response[key].email, 20)}</td>\
-            <td>${timeConverterDate(response[key].created)}</td>
+            <td>${truncateString(response[key].email, 20)}</td>
+            <td>${timeConverterDate(response[key].created)} ${timeConverterTime(response[key].created)}</td>
             <td>${badge}</td>
-            <td>${rides}</td>
-            <td>${favorites}</td>
+            <td><i class="icon align-middle f7-icons size-20 blue-link">car_fill</i> ${rides}</td>
+            <td><i class="icon align-middle f7-icons size-20 green-link">square_favorites_alt_fill</i> ${favorites}</td>
             <td>${actcode}</td>
-            <td class="text-center">
-            <a href="javascript:void(0)" class="locate-rider" data-name="${rname}" data-id="${response[key]._id}"><i class="material-icons col-blue-grey size-20">my_location</i></a>
-            <a href="javascript:void(0)" class="notify-rider" data-name="${rname}" data-id="${response[key]._id}"><i class="material-icons col-blue-grey size-20">notifications</i></a>
-            </td>
-            <td class="td-actions text-right">
-            <a href="javascript:void(0)" class="view-rider" data-fav="${favorites}" data-rides="${rides}" data-name="${name}" data-id="${response[key]._id}"><i class="material-icons col-blue-grey">more_vert</i></a>
+            <td class="text-right">
+            <a href="javascript:void(0)" class="locate-rider iconit" data-name="${rname}" data-id="${response[key]._id}"><i class="icon f7-icons col-blue-grey size-20">location_circle_fill</i></a>
+            <a href="javascript:void(0)" class="notify-rider iconit" data-name="${rname}" data-id="${response[key]._id}"><i class="icon f7-icons col-blue-grey size-20">bell_fill</i></a>
+            <a href="javascript:void(0)" class="email-rider iconit" data-name="${rname}" data-id="${response[key]._id}"><i class="icon f7-icons col-blue-grey size-20">envelope_fill</i></a>
+            <a href="javascript:void(0)" class="sms-rider iconit" data-name="${rname}" data-id="${response[key]._id}"><i class="icon f7-icons col-blue-grey size-20">chat_bubble_text_fill</i></a>
             </td>
             </tr>`;
             $('.all-riders').append(riders);
@@ -715,8 +714,60 @@ function riders() {
     $('.notify-all-riders').unbind().bind('click', function(e) {
         e.preventDefault();
         $('#notify-rider-modal').modal('show');
-        $('.rider-name-title').html('<i class="material-icons align-middle text-warning">notifications_active</i> Send Push Notification to All Riders');
+        $('.rider-name-title').html('<i class="f7-icons align-middle blue-link">bell_fill</i> Send Push Notification to All Riders');
         $('.send-notification').unbind().bind('click', function(e) {
+            e.preventDefault();
+            var header = $('.not-header').val();
+            var message = $('.not-content').val();
+            if (header === '') {
+                $('.not-header').focus();
+                var from = 'top';
+                var align = 'right';
+                var type = 'warning';
+                var icon = 'error';
+                var message = 'Please enter the push notification header in order to proceed';
+                var time = 3000;
+                md.showNotification(from, align, type, icon, message, time);
+            } else if (message === '') {
+                $('.not-content').focus();
+                var from = 'top';
+                var align = 'right';
+                var type = 'warning';
+                var icon = 'error';
+                var message = 'Please enter the push notification message in order to proceed';
+                var time = 3000;
+                md.showNotification(from, align, type, icon, message, time);
+            } else {
+                NProgress.start();
+                $('.send-notification').prop('disabled', true);
+                var notify = {
+                    rid: freelance,
+                    header: header,
+                    message: message
+                };
+                socket.emit('notify all riders', notify);
+                socket.on('notify all riders', function(response) {
+                    socket.off('notify all riders');
+                    $('#notify-rider-modal').modal('hide');
+                    $('.send-notification').prop('disabled', false);
+                    $('.not-header, .not-content').val('');
+                    NProgress.done();
+                    var from = 'top';
+                    var align = 'right';
+                    var type = 'primary';
+                    var icon = 'notifications_active';
+                    var message = 'Push notification has been successfully sent to ' + response.recipients + ' riders';
+                    var time = 5000;
+                    md.showNotification(from, align, type, icon, message, time);
+                })
+            }
+        })
+    })
+    $('.email-all-riders').unbind().bind('click', function(e) {
+        e.preventDefault();
+        $('#email-rider-modal').modal('show');
+        $('.rider-name-title').html('<i class="icon f7-icons size-25 align-middle purple-link">envelope_fill</i> <span class="align-middle">Blast Email to All Riders</span>');
+        $('.send-email').unbind().bind('click', function(e) {
             e.preventDefault();
             var header = $('.not-header').val();
             var message = $('.not-content').val();
@@ -2259,7 +2310,7 @@ function points() {
             if (response[key].xrider) {
                 var ridername = response[key].xrider.firstname + ' ' + response[key].xrider.lastname;
                 var riderreg = timeConverterDate(response[key].xrider.created) + ' ' + timeConverterTime(response[key].xrider.created);
-                var riderphoto = `<img class="table-icon" src="${cloudUrl}/assets/riders/avatars/${response[key].xrider.photo}" />`;
+                var riderphoto = `<img class="table-icon" src="${cloudUrl}/assets/riders/avatars/${response[key].xrider.photo}" onerror="riderImage(this)"/>`;
                 var riderphone = response[key].xrider.phone;
                 var rideremail = response[key].xrider.email;
                 var rewardedpoints = response[key].totalRewarded;
@@ -2798,11 +2849,14 @@ function payments() {
 
     $('.refresh-data').css('display', 'none');
     destroyDataTable();
+    destroyPaymentsTable();
     destroyTransactionsTable();
     NProgress.start();
     socket.emit('fetch mobile transactions', admin);
     socket.on('fetch mobile transactions', function(response) {
         socket.off('fetch mobile transactions');
+        console.log(response);
+        initDataTable();
     })
     socket.emit('fetch all payments', admin);
     socket.on('fetch all payments', function(response) {
@@ -2823,7 +2877,9 @@ function payments() {
             var total = response[key].totalAmount;
             var created = timeConverterDate(response[key].created);
             var xpayments = response[key].xpayments;
+            var xrate = response[key].xrates.commission;
             var rides = response[key].rides;
+            var pphoto = `<img width="30" class="img-round" src="${cloudUrl}/assets/drivers/avatars/${response[key].xdriver.photo}" onerror="driverImage(this)"/>`;
             var paid = 0;
             if (response[key].xpayments.length === 0) {
                 paid = 0
@@ -2834,11 +2890,12 @@ function payments() {
                 }
 
             }
-            var balance = (total - paid);
+            var owing = ((xrate/100)*total).toFixed(0);
+            var balance = (owing - paid);
             var pdata = `
             <tr>
             <td>${pid}</td>
-            <td>${drivername}</td>
+            <td>${pphoto} ${drivername}</td>
             <td>${driverphone}</td>
             <td>${ownername}</td>
             <td>${ownerphone}</td>
@@ -2856,7 +2913,7 @@ function payments() {
             </tr>`;
             $('.all-payments').append(pdata);
         }
-        initDataTable();
+        initPaymentsTable();
         $('#dtable tbody').on('click', 'tr td .receive-payment', function(e) {
             e.preventDefault();
             var did = $(this).data('did');
@@ -2937,7 +2994,7 @@ function payments() {
             for (var key in response) {
                 var pid = i++;
                 var tid = response[key]._id;
-                var pphoto = `<img width="30" src="${cloudUrl}/assets/drivers/avatars/${response[key].pdriver.photo}"/>`;
+                var pphoto = `<img width="30" class="img-round" src="${cloudUrl}/assets/drivers/avatars/${response[key].pdriver.photo}" onerror="driverImage(this)"/>`;
                 var pname = response[key].pdriver.firstname + ' ' + response[key].pdriver.lastname;
                 var pphone = response[key].pdriver.phone;
                 var pplate = response[key].pvehicle.plate;
@@ -3022,7 +3079,7 @@ function support() {
             var loca = 'riders';
             var chatname = truncateString(response[key].firstname, 20) + ' ' + truncateString(response[key].lastname, 20);
             var chatnamex = response[key].firstname + ' ' + response[key].lastname;
-            var contact1 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="rider" data-account="${loca}">
+            var contact1 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-encunt="rider" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="rider" data-account="${loca}">
             <div class="item-content">
             <div class="item-media">
             <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" onerror="${account}Image(this)" width="40"/>
@@ -3046,7 +3103,7 @@ function support() {
                 var loca = 'drivers';
                 var chatname = truncateString(response[key].firstname, 20) + ' ' + truncateString(response[key].lastname, 20);
                 var chatnamex = response[key].firstname + ' ' + response[key].lastname;
-                var contact2 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="owner" data-account="${loca}">
+                var contact2 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-encunt="driver" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="owner" data-account="${loca}">
                 <div class="item-content">
                 <div class="item-media">
                 <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" onerror="${account}Image(this)" width="40"/>
@@ -3070,7 +3127,7 @@ function support() {
                     var loca = 'vehicles';
                     var chatname = truncateString(response[key].firstname, 20) + ' ' + truncateString(response[key].lastname, 20);
                     var chatnamex = response[key].firstname + ' ' + response[key].lastname;
-                    var contact3 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="vehicle" data-account="${loca}">
+                    var contact3 = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${chatnamex}" data-id="${response[key]._id}" data-encunt="owner" data-photo="${response[key].photo}" data-plum="${luka}" data-purge="vehicle" data-account="${loca}">
                     <div class="item-content">
                     <div class="item-media">
                     <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].photo}" onerror="${account}Image(this)" width="40"/>
@@ -3118,7 +3175,7 @@ function support() {
                             var xtime = timeConverterDate(atime);
                         }
                         var chatname = truncateString(response[key].sendername, 20);
-                        var contact = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${response[key].sendername}" data-id="${response[key].userid}" data-photo="${response[key].senderphoto}" data-plum="${luka}" data-purge="${response[key].account}" data-account="${loca}">
+                        var contact = `<li class="single-chat animate__animated animate__fadeIn waves-effect" data-name="${response[key].sendername}" data-id="${response[key].userid}" data-photo="${response[key].senderphoto}" data-plum="${luka}" data-encunt="${iaccount}" data-purge="${response[key].account}" data-account="${loca}">
                         <div class="item-content">
                         <div class="item-media">
                         <img src="${cloudUrl}/assets/${loca}/avatars/${response[key].senderphoto}" onerror="${iaccount}Image(this)" width="40"/>
@@ -3142,14 +3199,17 @@ function support() {
                         var uid = $(this).data('id');
                         var uphoto = $(this).data('photo');
                         var ufolder = $(this).data('account');
+                        var ucunt = $(this).data('encunt');
                         var upurge = $(this).data('purge');
                         var uplum = $(this).data('plum');
                         var chatname = truncateString(uname, 20);
+                        console.log(ucunt)
                         $('.single-chat').each(function() {
                             $('.single-chat').removeClass('active');
+                            socket.off('send support');
                         })
                         $(this).addClass('active');
-                        $('.chat-user-name').html(`<img src="${cloudUrl}/assets/${ufolder}/avatars/${uphoto}" class="mini-avatar"/> Chat with ${uname} - Tufike Pamoja ${uplum}`);
+                        $('.chat-user-name').html(`<img src="${cloudUrl}/assets/${ufolder}/avatars/${uphoto}" onerror="${ucunt}Image(this)" class="mini-avatar"/> Chat with ${uname} - Tufike Pamoja ${uplum}`);
                         $('.chat-user-text').focus();
                         NProgress.start();
                         socket.on('send support', function(trend) {
@@ -4176,6 +4236,10 @@ function destroyDataTable() {
     $('#dtable').DataTable().clear().destroy();
 }
 
+function destroyPaymentsTable() {
+    $('#paymentstable').DataTable().clear().destroy();
+}
+
 function destroydxDataTable() {
     $('#dxtable').DataTable().clear().destroy();
 }
@@ -4300,6 +4364,20 @@ function initRtable6() {
 
 function initDataTable() {
     $('#dtable').DataTable({
+        dom: 'Bfrtip',
+        responsive: false,
+        ordering: false,
+        //pageLength: 5,
+        sorting: false,
+        stateSave: true,
+        buttons: [
+            'copy', 'excel', 'pdf'
+        ]
+    });
+}
+
+function initPaymentsTable() {
+    $('#paymentstable').DataTable({
         dom: 'Bfrtip',
         responsive: false,
         ordering: false,

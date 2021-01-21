@@ -20,19 +20,15 @@
 <script src="/assets/admin/plugins/pace/pace.min.js"></script>
 <script src="/assets/admin/plugins/nouislider/nouislider.js"></script>
 <script>
-var env = 'test';
+var env = 'live';
 if (env === 'dev') {
 var appUrl = 'http://localhost:4080',
     devUrl = 'http://localhost/lexacle/',
     cloudUrl = 'https://cloud.lexacle.com/vapor';
 } else if (env === 'live') {
-var appUrl = 'http://63.250.44.29:4020',
-    devUrl = 'https://lexacle.com/',
-    cloudUrl = 'https://cloud.lexacle.com/vapor';
-} else if (env === 'test') {
-var appUrl = 'https://tufikepamoja.herokuapp.com',
-    devUrl = 'https://lexacle.com/';
-    cloudUrl = 'https://cloud.lexacle.com/vapor';
+  var appUrl = 'https://tufikepamoja.herokuapp.com',
+      devUrl = 'https://lexacle.com/';
+      cloudUrl = 'https://cloud.lexacle.com/vapor';
 }
 var socket = io.connect(appUrl);
 </script>

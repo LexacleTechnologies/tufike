@@ -56,7 +56,7 @@
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-image: linear-gradient(60deg, #293BEB, #5CC7E6) !important;
     border: 0px solid #243956;
     -webkit-box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
     border-radius: 0px;
@@ -12010,6 +12010,10 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 .sidebar[data-color="green"] li.active>a {
     background-color: #4caf50;
     box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(76, 175, 80, 0.4);
+}
+.sidebar[data-color="blue"] li.active>a {
+  background: linear-gradient(60deg, #166EDA, #2196F3) !important;
+  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(18, 118, 230, 0.4);
 }
 
 .sidebar[data-color="orange"] li.active>a {
