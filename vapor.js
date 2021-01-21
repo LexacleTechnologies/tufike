@@ -21,7 +21,6 @@ var multer = require('multer');
 var sftpStorage = require('multer-sftp');
 var FTPStorage = require('multer-ftp');
 var FTP = require('ftp');
-const AWS = require('aws-sdk');
 const Setting = require("./models/settings.js");
 const Admin = require("./models/admin.js");
 const Rider = require("./models/riders.js");
@@ -49,7 +48,7 @@ const flw = new Flutterwave(process.env.FLW_PUBK, process.env.FLW_SECK);
 const AfricasTalking = require('africastalking')(atsdk);
 const sms = AfricasTalking.SMS;
 const smb = AfricasTalking.APPLICATION;
-const cloudUrl = 'https://cloud.lexacle.com/vapor';
+const cloudUrl = process.env.CLOUD_URL;
 const dbToken = process.env.DB_KEY;
 const dropBoxAPI = { method: "POST", url: 'https://api.dropboxapi.com/2/users/get_space_usage', headers: { "Authorization": "Bearer " + dbToken } };
 var ehbs = require('nodemailer-express-handlebars-plaintext-inline-ccs');
@@ -204,13 +203,11 @@ function unDropIt(folly, undrop) {
     request(options, callbacky);
 }
 
-const riderBurst = new OneSignal.Client('78aa0c2b-c194-4e2d-b7ae-45ab7af286fc', 'YzVhNThmODktOWU2OC00YWNjLWFiMmUtNGRlNTY2MjhjZGIw');
-const driverBurst = new OneSignal.Client('f672e8f6-4fc2-4d1c-af43-726fe8308183', 'NGNlMDRiMGQtYjdjMS00ZWQ3LTg2YjktNGMyZDhlMjExMmQ3');
-const ownerBurst = new OneSignal.Client('172feb21-563e-4fb8-b66e-4426e1a922ee', 'MzdlOTJmOGQtMzdiMS00N2RhLThlMTAtZGVmYjU5NjE3NmFh');
-const adminBurst = new OneSignal.Client('4b618591-01ab-4580-8769-51d4c91da11c', 'N2M0ODYwNGUtYTNiYy00MDkyLWE1NjAtMzk1YzVjNjI3NzFj');
-const userClient = new OneSignal.UserClient('ZWM2NGVhMjctNWEzNy00YzUxLTg1M2QtYjdiNjYwNTZhMGRi', {
-    apiRoot: 'https://onesignal.com/api/v2'
-});
+const riderBurst = new OneSignal.Client(process.env.RIDER_OSPUBK, process.env.RIDER_OSSECK);
+const driverBurst = new OneSignal.Client(process.env.DRIVER_OSPUBK, process.env.DRIVER_OSSECK);
+const ownerBurst = new OneSignal.Client(process.env.OWNER_OSPUBK, process.env.OWNER_OSSECK);
+const adminBurst = new OneSignal.Client(process.env.ADMIN_OSPUBK, process.env.ADMIN_OSSECK);
+const userClient = new OneSignal.UserClient(process.env.OS_CLIENTID, {apiRoot: process.env.OS_APIROOT});
 //allRiderBursts();
 //allDriverBursts();
 //oneBurstRider(oneMessage, oneHeader, oneUser);
