@@ -41,7 +41,7 @@ const Cms = require("./models/cms.js");
 const freelance = '5f47f9e62dc7b16cb6f33c40';
 const player = require('play-sound')(opts = {})
 const Supportchat = require("./models/supportchat.js");
-const ftpConnection = { host: process.env.FTP_HOST, port: process.env.FTP_PORT, secure: process.env.FTP_SECURE, user: process.env.FTP_USER, password: process.env.FTP_KEY };
+const ftpConnection = { host: process.env.FTP_HOST, port: process.env.FTP_PORT, secure: false, user: process.env.FTP_USER, password: process.env.FTP_KEY };
 const url = process.env.DB_URL;
 const atsdk = { apiKey: process.env.AT_KEY, username: process.env.AT_USER };
 const Flutterwave = require('flutterwave-node-v3');
